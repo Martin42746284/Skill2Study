@@ -1,0 +1,88 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
+const universiteRoutes = require('./routes/universite.routes');
+const filiereRoutes = require('./routes/filiere.routes');
+const parcoursRoutes = require('./routes/parcours.routes');
+const testRoutes = require('./routes/test.routes');
+const notificationRoutes = require('./routes/notification.routes');
+const recommendationRoutes = require('./routes/recommendation.routes');
+const comparateurRoutes = require('./routes/comparateur.routes');
+const statsRoutes = require('./routes/stats.routes');
+const adminRoutes = require('./routes/admin.routes');
+const settingsRoutes = require('./routes/settings.routes');
+
+const { errorHandler } = require('./middlewares/error.middleware');
+const { notFound } = require('./middlewares/notFound.middleware');
+
+const app = express();
+
+// Sécurité
+app.use(helmet());
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:8081', credentials: true }));
+
+// Limite de requêtes globale - Optimisée pour une SPA
+// Les requêtes GET sont moins restrictives (lecture seule)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300, // Augmenté de 100 à 300
+  skip: (req) => req.method === 'GET', // Ne pas compter les GET (appels normaux)
+  keyGenerator: (req) => {
+    // Compte par utilisateur authentifié, sinon par IP
+    return req.user?.id || req.ip;
+  },
+  message: 'Trop de requêtes, réessayez plus tard.'
+});
+
+// Limiter plus strict pour les POST/PUT/DELETE (modifications)
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100, // Strict pour les modifications
+  keyGenerator: (req) => req.user?.id || req.ip,
+  message: 'Trop de modifications, réessayez plus tard.'
+});
+
+app.use('/api/', limiter);
+// Appliquer le strict limiter sur les routes sensibles
+app.use('/api/auth/register', strictLimiter);
+app.use('/api/auth/login', strictLimiter);
+
+// Parsing (increased limit for image uploads)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+// Disable morgan logging for cleaner development experience
+// Uncomment below to enable HTTP logging
+// app.use(morgan('dev'));
+
+// Documentation API
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/universites', universiteRoutes);
+app.use('/api/filieres', filiereRoutes);
+app.use('/api/parcours', parcoursRoutes);
+app.use('/api/test', testRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/comparateur', comparateurRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/settings', settingsRoutes);
+
+// Health check
+app.get('/api/health', (req, res) => res.json({ status: 'OK', timestamp: new Date() }));
+
+// Gestion des erreurs
+app.use(notFound);
+app.use(errorHandler);
+
+module.exports = app;

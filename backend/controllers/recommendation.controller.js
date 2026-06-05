@@ -1,6 +1,8 @@
 const { ProfilAcademique, SessionTest, Recommendation, Filiere, Universite, RecommendationRules } = require('../models');
 const RecommendationService = require('../services/recommendation.service');
+const AIRecommendationService = require('../services/ai_recommendation.service');
 const { notifyRecommendationsReady } = require('../services/notification.service');
+const logger = require('../utils/logger');
 
 // POST /api/recommendations/generer
 exports.genererRecommendations = async (req, res, next) => {
@@ -9,7 +11,7 @@ exports.genererRecommendations = async (req, res, next) => {
     const profil = await ProfilAcademique.findOne({ where: { user_id: userId } });
     if (!profil) return res.status(400).json({ success: false, message: 'Profil académique incomplet.' });
 
-    const { session_test_id } = req.body;
+    const { session_test_id, use_ai = true } = req.body;
     let scoresTest = null;
     if (session_test_id) {
       const session = await SessionTest.findOne({ where: { id: session_test_id, user_id: userId } });
@@ -21,7 +23,35 @@ exports.genererRecommendations = async (req, res, next) => {
 
     const filieres = await Filiere.findAll({ where: { actif: true }, include: [{ model: Universite, as: 'universite' }] });
 
-    let resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
+    let resultats = [];
+
+    // Utiliser le service IA Python si disponible
+    if (use_ai) {
+      logger.info(`🤖 Génération IA pour utilisateur ${userId}`);
+      const aiRecommendations = await AIRecommendationService.generateRecommendationsML(
+        profil,
+        filieres,
+        scoresTest
+      );
+
+      if (aiRecommendations && aiRecommendations.length > 0) {
+        // Transformer les résultats IA en format attendu
+        resultats = aiRecommendations.map((rec, idx) => ({
+          filiere: filieres.find(f => f.id === rec.filiere_id),
+          score: rec.score,
+          details: rec.factors || {},
+          justification: rec.explanation || {}
+        })).filter(r => r.filiere);
+
+        logger.info(`✓ ${resultats.length} recommandations générées par le service IA`);
+      } else {
+        logger.warn('⚠️ Service IA indisponible, utilisation du fallback');
+        resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
+      }
+    } else {
+      // Utiliser le scoring classique (fallback)
+      resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
+    }
 
     // Vérifier que nous avons des recommandations
     if (!resultats || resultats.length === 0) {

@@ -8,7 +8,14 @@
 const axios = require('axios');
 const logger = require('../utils/logger');
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:5000';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://ai-service:5000';
+
+// Configuration axios avec retry
+const axiosInstance = axios.create({
+  timeout: 10000,
+  retryAttempts: 3,
+  retryDelay: 1000
+});
 
 class AIRecommendationService {
   
@@ -17,19 +24,19 @@ class AIRecommendationService {
    */
   static async healthCheck() {
     try {
-      const response = await axios.get(`${AI_SERVICE_URL}/health`, {
-        timeout: 5000
-      });
+      const response = await axiosInstance.get(`${AI_SERVICE_URL}/health`);
+      logger.info(`✓ Service IA disponible: ${response.data.service}`);
       return { status: 'ok', service: response.data.service };
     } catch (err) {
-      logger.error(`Erreur health check IA: ${err.message}`);
+      logger.error(`❌ Erreur health check IA: ${err.message}`);
       return { status: 'unavailable', error: err.message };
     }
   }
 
   /**
    * Générer des recommandations avec le moteur ML ensemble
-   * 
+   * Appelle le service Python IA pour obtenir des recommandations intelligentes
+   *
    * @param {ProfilAcademique} profil
    * @param {Filiere[]} filieres
    * @param {Object} scoresTest
@@ -43,21 +50,24 @@ class AIRecommendationService {
         scores_test: scoresTest || {}
       };
 
-      const response = await axios.post(
+      logger.info(`📤 Appel IA service: ${filieres.length} filières à scorer`);
+
+      const response = await axiosInstance.post(
         `${AI_SERVICE_URL}/api/recommendations/generate`,
-        payload,
-        { timeout: 5000 }
+        payload
       );
 
       if (!response.data.success) {
-        logger.warn('Erreur IA service:', response.data.message);
+        logger.warn('⚠️ Service IA a retourné une erreur:', response.data.message);
         return null;
       }
 
+      logger.info(`✓ ${response.data.count} recommandations reçues du service IA`);
       return response.data.recommendations;
-      
+
     } catch (err) {
-      logger.error(`Erreur lors de l'appel au service IA: ${err.message}`);
+      logger.error(`❌ Erreur appel service IA: ${err.message}`);
+      logger.error(`   URL: ${AI_SERVICE_URL}/api/recommendations/generate`);
       return null;
     }
   }

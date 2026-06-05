@@ -102,7 +102,7 @@ const AdminOverview = () => {
         }));
         setRepartitionSeries(repartSeries);
 
-        const topFil = (stats?.topFilieres || []).slice(0, 8);
+        const topFil = (stats?.topFilieres || []).slice(0, 9);
         setTopFilieres(topFil);
 
         const repartDomaines = (stats?.repartitionDomaines || []).map((item: any) => ({

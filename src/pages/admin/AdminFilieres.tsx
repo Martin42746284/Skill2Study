@@ -211,36 +211,45 @@ const AdminFilieres = () => {
       }
 
       const niveau = formNiveaux[0] as 'Licence' | 'Master' | 'Doctorat' | 'DTS' | 'DUT' | 'Ingénieur' || 'Licence';
-      const durationNum = formDuree ? parseInt(formDuree) : undefined;
 
       if (editingFiliere) {
-        const updateData = {
-          universite_id: parseInt(formUniversiteId),
+        const updateData: any = {
           nom: formNom.trim(),
           domaine: formDomaine.trim(),
           niveau,
           difficulte: formDifficulte as "facile" | "moyen" | "difficile" | "tres_difficile",
-          ...(formDescription && { description: formDescription }),
-          ...(durationNum && { duree_annees: durationNum }),
-          ...(formCout && { cout_annuel: parseFloat(formCout) }),
-          ...(formCoutDescription && { cout_description: formCoutDescription.trim() }),
         };
-        await filieres.update(editingFiliere.id, updateData);
+
+        if (formDescription) updateData.description = formDescription;
+        if (formDuree && formDuree.trim()) updateData.duree_annees = formDuree.trim(); // Garder comme string
+        if (formCout && formCout.trim()) updateData.cout_annuel = parseFloat(formCout);
+        if (formCoutDescription) updateData.cout_description = formCoutDescription.trim();
+
+        console.log('UpdateData envoyé:', updateData);
+
+        try {
+          await filieres.update(editingFiliere.id, updateData);
+        } catch (error) {
+          console.error('Erreur lors de l\'update:', error);
+          throw error;
+        }
         const updatedFiliere: Filiere = { ...editingFiliere, ...updateData, niveaux: formNiveaux, duree_annees: formDuree };
         setFiliereList(filiereList.map((f) => (f.id === editingFiliere.id ? updatedFiliere : f)));
         toast({ title: "Filière modifiée", description: `${formNom} a été mise à jour.` });
       } else {
-        const createData = {
+        const createData: any = {
           universite_id: parseInt(formUniversiteId),
           nom: formNom.trim(),
           domaine: formDomaine.trim(),
           niveau,
           difficulte: formDifficulte as "facile" | "moyen" | "difficile" | "tres_difficile",
-          ...(formDescription && { description: formDescription }),
-          ...(durationNum && { duree_annees: durationNum }),
-          ...(formCout && { cout_annuel: parseFloat(formCout) }),
-          ...(formCoutDescription && { cout_description: formCoutDescription.trim() }),
         };
+
+        if (formDescription) createData.description = formDescription;
+        if (formDuree && formDuree.trim()) createData.duree_annees = formDuree.trim();
+        if (formCout && formCout.trim()) createData.cout_annuel = parseFloat(formCout);
+        if (formCoutDescription) createData.cout_description = formCoutDescription.trim();
+
         const response = await filieres.create(createData);
         const newFiliere: Filiere = (typeof response === 'object' && response !== null && 'filiere' in response)
           ? (response as any).filiere

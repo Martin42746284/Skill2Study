@@ -121,23 +121,16 @@ const Compare = () => {
       try {
         // Charger toutes les filieres (avec une limite généreuse)
         const filieresDetailResponse = await filieresApi.getAll(1, 10000) as any;
-        console.log('Réponse filieresDetailResponse:', filieresDetailResponse);
         if (Array.isArray(filieresDetailResponse?.filieres)) {
           filieresDetailResponse.filieres.forEach((f: any) => {
             filieresMap.set(f.id, f);
           });
-          // Log du premier item pour voir la structure
-          if (filieresDetailResponse.filieres.length > 0) {
-            console.log('Premier filiere detail:', filieresDetailResponse.filieres[0]);
-          }
         }
-        console.log(`Filières chargées: ${filieresMap.size}`);
       } catch (err) {
         console.warn('Erreur lors du chargement des details des filieres:', err);
       }
 
       const comparisonResponse = await comparatorApi.compare(filiereIdsToCompare) as any;
-      console.log('Réponse complète du comparateur:', comparisonResponse);
 
       // Gérer différentes structures de réponse
       let items = [];
@@ -181,22 +174,13 @@ const Compare = () => {
           cout_annuel = filiereDetail.cost;
         }
 
-        console.log('===== ITEM COMPLET =====');
-        console.log('Nom:', item.nom, 'ID:', item.id);
-        console.log('Item du comparateur (tous les champs):', item);
-        console.log('FiliereDetail (tous les champs):', filiereDetail);
-        console.log('========================');
-
         const transformed = {
           ...item,
           niveaux,
           cout_annuel
         };
-        console.log('Item après transformation:', { nom: transformed.nom, niveaux: transformed.niveaux, cout_annuel: transformed.cout_annuel });
         return transformed;
       });
-
-      console.log(`Réponse de comparaison: ${items.length} filières`, items);
 
       setComparisons(items);
       setError(null);

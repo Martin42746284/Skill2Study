@@ -76,11 +76,15 @@ export interface Filiere {
   nom?: string;
   code?: string;
   domaine?: string;
+  domain?: string;
   description?: string;
   specialite?: string;
-  niveaux?: ('Licence' | 'Master' | 'Doctorat' | 'DTS' | 'DUT' | 'Ingénieur')[];
+  niveaux?: string[];
+  niveau?: string;
   duree_annees?: string;
+  duree?: string;
   cout_annuel?: number;
+  cost?: number;
   cout_description?: string;
   langue?: string;
   series_bac_acceptees?: string[];
@@ -95,6 +99,7 @@ export interface Filiere {
   createdAt?: string;
   updatedAt?: string;
   universite?: University;
+  universite_nom?: string;
   parcours?: Parcours[];
 }
 

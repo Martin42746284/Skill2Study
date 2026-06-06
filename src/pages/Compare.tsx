@@ -31,7 +31,7 @@ interface ComparisonItem {
   domaine?: string;
   niveaux?: string[];
   duree_annees?: string | null;
-  cout_annuel?: number | null;
+  cout_annuel?: number | string | null;
   cout_description?: string | null;
   langue?: string | null;
   moyenne_min_requise?: number | null;
@@ -54,9 +54,11 @@ const formatType = (value?: string) => {
   return value;
 };
 
-const formatMoney = (value?: number | null) => {
-  if (value == null) return "—";
-  return `${new Intl.NumberFormat("fr-FR").format(value)} Ar`;
+const formatMoney = (value?: number | string | null) => {
+  if (value == null) return "Non renseigné";
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) return "Non renseigné";
+  return `${new Intl.NumberFormat("fr-FR").format(numValue)} Ar`;
 };
 
 const scoreColor = (score?: number | null) => {
@@ -113,9 +115,86 @@ const Compare = () => {
       const filiereIdsToCompare = filiereIds.slice(0, 50);
       console.log(`Envoi de ${filiereIdsToCompare.length} filières pour comparaison:`, filiereIdsToCompare);
 
+      // Charger les données détaillées de TOUTES les filieres pour avoir le niveau
+      // On charge avec une limite élevée pour couvrir toutes les filières possibles
+      const filieresMap = new Map();
+      try {
+        // Charger toutes les filieres (avec une limite généreuse)
+        const filieresDetailResponse = await filieresApi.getAll(1, 10000) as any;
+        console.log('Réponse filieresDetailResponse:', filieresDetailResponse);
+        if (Array.isArray(filieresDetailResponse?.filieres)) {
+          filieresDetailResponse.filieres.forEach((f: any) => {
+            filieresMap.set(f.id, f);
+          });
+          // Log du premier item pour voir la structure
+          if (filieresDetailResponse.filieres.length > 0) {
+            console.log('Premier filiere detail:', filieresDetailResponse.filieres[0]);
+          }
+        }
+        console.log(`Filières chargées: ${filieresMap.size}`);
+      } catch (err) {
+        console.warn('Erreur lors du chargement des details des filieres:', err);
+      }
+
       const comparisonResponse = await comparatorApi.compare(filiereIdsToCompare) as any;
       console.log('Réponse complète du comparateur:', comparisonResponse);
-      const items = Array.isArray(comparisonResponse?.comparaison) ? comparisonResponse.comparaison : [];
+
+      // Gérer différentes structures de réponse
+      let items = [];
+      if (Array.isArray(comparisonResponse?.comparaison)) {
+        items = comparisonResponse.comparaison;
+      } else if (Array.isArray(comparisonResponse?.data)) {
+        items = comparisonResponse.data;
+      } else if (Array.isArray(comparisonResponse)) {
+        items = comparisonResponse;
+      }
+
+      // Transformer niveau -> niveaux et enrichir avec les données de filieres si nécessaire
+      items = items.map((item: any) => {
+        // Essayer de récupérer les données détaillées de la filiere - essayer plusieurs identifiants
+        const itemId = item.id || item.filiere_id;
+        const filiereDetail = filieresMap.get(itemId) || filieresMap.get(Number(itemId));
+
+        // Déterminer le niveau - essayer plusieurs sources dans l'ordre de priorité
+        let niveaux: string[] = [];
+
+        if (item.niveaux && Array.isArray(item.niveaux) && item.niveaux.length > 0) {
+          niveaux = item.niveaux;
+        } else if (item.niveaux && typeof item.niveaux === 'string') {
+          niveaux = [item.niveaux];
+        } else if (item.niveau && typeof item.niveau === 'string') {
+          niveaux = [item.niveau];
+        } else if (filiereDetail?.niveaux && Array.isArray(filiereDetail.niveaux)) {
+          niveaux = filiereDetail.niveaux;
+        } else if (filiereDetail?.niveaux && typeof filiereDetail.niveaux === 'string') {
+          niveaux = [filiereDetail.niveaux];
+        } else if (filiereDetail?.niveau && typeof filiereDetail.niveau === 'string') {
+          niveaux = [filiereDetail.niveau];
+        }
+
+        // Déterminer le coût annuel - essayer plusieurs sources dans l'ordre de priorité
+        let cout_annuel: number | string | null = item.cout_annuel || null;
+        if (!cout_annuel && filiereDetail?.cout_annuel) {
+          cout_annuel = filiereDetail.cout_annuel;
+        }
+        if (!cout_annuel && filiereDetail?.cost) {
+          cout_annuel = filiereDetail.cost;
+        }
+
+        console.log('===== ITEM COMPLET =====');
+        console.log('Nom:', item.nom, 'ID:', item.id);
+        console.log('Item du comparateur (tous les champs):', item);
+        console.log('FiliereDetail (tous les champs):', filiereDetail);
+        console.log('========================');
+
+        const transformed = {
+          ...item,
+          niveaux,
+          cout_annuel
+        };
+        console.log('Item après transformation:', { nom: transformed.nom, niveaux: transformed.niveaux, cout_annuel: transformed.cout_annuel });
+        return transformed;
+      });
 
       console.log(`Réponse de comparaison: ${items.length} filières`, items);
 

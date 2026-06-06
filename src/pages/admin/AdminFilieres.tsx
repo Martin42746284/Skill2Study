@@ -210,45 +210,41 @@ const AdminFilieres = () => {
         return;
       }
 
-      const data = {
-        universite_id: parseInt(formUniversiteId),
-        nom: formNom.trim(),
-        domaine: formDomaine.trim(),
-        niveaux: formNiveaux,
-        difficulte: formDifficulte,
-        ...(formDescription && { description: formDescription }),
-        ...(formDuree && { duree_annees: formDuree.trim() }),
-        ...(formCout && { cout_annuel: parseFloat(formCout) }),
-        ...(formCoutDescription && { cout_description: formCoutDescription.trim() }),
-        ...(formParcours.length > 0 && { parcours: formParcours }),
-      };
+      const niveau = formNiveaux[0] as 'Licence' | 'Master' | 'Doctorat' | 'DTS' | 'DUT' | 'Ingénieur' || 'Licence';
+      const durationNum = formDuree ? parseInt(formDuree) : undefined;
 
       if (editingFiliere) {
         const updateData = {
-          universite_id: data.universite_id,
-          nom: data.nom,
-          domaine: data.domaine,
-          niveaux: data.niveaux,
-          difficulte: data.difficulte as "facile" | "moyen" | "difficile" | "tres_difficile",
-          ...(data.description && { description: data.description }),
-          ...(data.duree_annees && { duree_annees: data.duree_annees }),
-          ...(data.cout_annuel && { cout_annuel: data.cout_annuel }),
-          ...(data.cout_description && { cout_description: data.cout_description }),
-          ...(data.parcours && { parcours: data.parcours }),
+          universite_id: parseInt(formUniversiteId),
+          nom: formNom.trim(),
+          domaine: formDomaine.trim(),
+          niveau,
+          difficulte: formDifficulte as "facile" | "moyen" | "difficile" | "tres_difficile",
+          ...(formDescription && { description: formDescription }),
+          ...(durationNum && { duree_annees: durationNum }),
+          ...(formCout && { cout_annuel: parseFloat(formCout) }),
+          ...(formCoutDescription && { cout_description: formCoutDescription.trim() }),
         };
         await filieres.update(editingFiliere.id, updateData);
-        const updatedFiliere: Filiere = { ...editingFiliere, ...updateData };
+        const updatedFiliere: Filiere = { ...editingFiliere, ...updateData, niveaux: formNiveaux, duree_annees: formDuree };
         setFiliereList(filiereList.map((f) => (f.id === editingFiliere.id ? updatedFiliere : f)));
         toast({ title: "Filière modifiée", description: `${formNom} a été mise à jour.` });
       } else {
         const createData = {
-          ...data,
-          difficulte: data.difficulte as "facile" | "moyen" | "difficile" | "tres_difficile"
+          universite_id: parseInt(formUniversiteId),
+          nom: formNom.trim(),
+          domaine: formDomaine.trim(),
+          niveau,
+          difficulte: formDifficulte as "facile" | "moyen" | "difficile" | "tres_difficile",
+          ...(formDescription && { description: formDescription }),
+          ...(durationNum && { duree_annees: durationNum }),
+          ...(formCout && { cout_annuel: parseFloat(formCout) }),
+          ...(formCoutDescription && { cout_description: formCoutDescription.trim() }),
         };
         const response = await filieres.create(createData);
         const newFiliere: Filiere = (typeof response === 'object' && response !== null && 'filiere' in response)
           ? (response as any).filiere
-          : { id: Date.now(), ...createData, actif: true, parcours: formParcours };
+          : { id: Date.now(), ...createData, actif: true, niveaux: formNiveaux, duree_annees: formDuree };
         setFiliereList([...filiereList, newFiliere]);
         toast({ title: "Filière ajoutée", description: `${formNom} a été ajoutée avec succès.` });
       }

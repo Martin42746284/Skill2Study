@@ -104,7 +104,7 @@ export interface Filiere {
 }
 
 // ============================================================================
-// 🎓 PARCOURS (STUDY PATH) TYPES
+// PARCOURS (STUDY PATH) TYPES
 // ============================================================================
 
 export interface Parcours {
@@ -200,7 +200,7 @@ export interface RecommendationRule {
 }
 
 // ============================================================================
-// 💬 TESTIMONIAL TYPES
+// TESTIMONIAL TYPES
 // ============================================================================
 
 export interface Testimonial {

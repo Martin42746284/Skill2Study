@@ -4,7 +4,7 @@
 
 Vous avez maintenant une **plateforme complète d'orientation universitaire** avec un **service IA real utilisant scikit-learn**.
 
-### ✅ Composants créés
+### [DONE] Composants créés
 
 #### 1. **Service IA Python (Backend)**
 ```
@@ -49,14 +49,14 @@ backend/ai_service/README.md         # Documentation technique IA
 
 ---
 
-## 🎯 Fonctionnalités Implémentées
+## Fonctionnalités Implémentées
 
 ### 1. **Scoring Pondéré Multi-Critères** (40% du score)
 ```
 Score final = Σ (critère × poids)
 
 Poids:
-├── ⭐ Scores du test d'orientation : 40%  ← PRINCIPAL
+├── [STAR] Scores du test d'orientation : 40%  ← PRINCIPAL
 ├── Compatibilité série bac : 20%
 ├── Centres d'intérêt : 15%
 ├── Moyenne générale : 15%
@@ -87,7 +87,7 @@ Poids:
 
 ---
 
-## 📊 Architecture des Requêtes
+## Architecture des Requêtes
 
 ### Flux Complet d'une Recommandation
 
@@ -124,7 +124,7 @@ Poids:
    │   ├── Score compétences
    │   ├── Score budget
    │   ├── Score durée
-   │   └── Score TEST (40%) ⭐
+   │   └── Score TEST (40%) [STAR]
    │
    ├── KNNEngine (optionnel)
    │   └── Boost si profils similaires
@@ -162,7 +162,7 @@ Poids:
 
 ---
 
-## 🚀 Démarrage Rapide
+## Démarrage Rapide
 
 ### Option 1: Docker (Recommandé - Production Ready)
 
@@ -307,7 +307,7 @@ curl -X POST http://localhost:5000/api/model/train \
 
 ---
 
-## 📈 Performance
+## Performance
 
 | Operation | Latence |
 |-----------|---------|
@@ -319,7 +319,7 @@ curl -X POST http://localhost:5000/api/model/train \
 
 ---
 
-## 🧪 Tests
+## Tests
 
 ### Test de l'API
 
@@ -347,7 +347,7 @@ curl -X POST http://localhost:5000/api/recommendations/generate \
 
 ---
 
-## 📚 Fichiers Clés
+## Fichiers Clés
 
 ### Services IA
 
@@ -376,22 +376,22 @@ curl -X POST http://localhost:5000/api/recommendations/generate \
 
 ---
 
-## ✨ Points Forts de l'Implémentation
+## Points Forts de l'Implémentation
 
-✅ **Real IA** - Utilise scikit-learn, pas juste règles  
-✅ **Intelligent** - Test d'orientation = 40% du score (critère principal)  
-✅ **Scalable** - KNN pour profils similaires  
-✅ **ML Ready** - Random Forest pour prédictions avancées  
-✅ **Explainable** - Détails pour chaque recommandation  
-✅ **Production Ready** - Docker, logs, health checks  
-✅ **Développement Facile** - Mode local sans Docker  
-✅ **Testé** - Script de test complet  
-✅ **Documenté** - README technique + guides  
-✅ **Fallback** - Fonctionne même si IA indisponible  
+[DONE] **Real IA** - Utilise scikit-learn, pas juste règles
+[DONE] **Intelligent** - Test d'orientation = 40% du score (critère principal)
+[DONE] **Scalable** - KNN pour profils similaires
+[DONE] **ML Ready** - Random Forest pour prédictions avancées
+[DONE] **Explainable** - Détails pour chaque recommandation
+[DONE] **Production Ready** - Docker, logs, health checks
+[DONE] **Développement Facile** - Mode local sans Docker
+[DONE] **Testé** - Script de test complet
+[DONE] **Documenté** - README technique + guides
+[DONE] **Fallback** - Fonctionne même si IA indisponible  
 
 ---
 
-## 🎯 Prochaines Étapes
+## Prochaines Étapes
 
 ### Phase 2 (Optionnel - Améliorations)
 

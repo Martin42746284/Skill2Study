@@ -280,7 +280,7 @@ Les scores de compatibilité sont calculés avec des poids configurables :
 
 ```python
 POIDS_DEFAUT = {
-    'scores_test': 40,          # ⭐ PRINCIPAL - Résultats du test
+    'scores_test': 40,          # [STAR] PRINCIPAL - Résultats du test
     'compatibilite_serie': 20,  # Série bac compatible
     'centres_interet': 15,      # Correspondance des intérêts
     'moyenne_generale': 15,     # Moyenne vs seuil requis
@@ -290,20 +290,20 @@ POIDS_DEFAUT = {
 }
 ```
 
-**⭐ Important** : Le **test d'orientation** est le critère principal (40% du score final)
+**[STAR] Important** : Le **test d'orientation** est le critère principal (40% du score final)
 
 ## Algorithmes Utilisés
 
 ### 1. Scoring Pondéré (ScoringEngine)
 
 Combine 7 critères avec des poids configurables :
-- ✓ Compatibilité série bac
-- ✓ Analyse de la moyenne générale
-- ✓ Matching centres d'intérêt (Jaccard similarity)
-- ✓ Évaluation des compétences requises
-- ✓ Analyse du budget
-- ✓ Vérification de la durée d'études
-- ✓ **Scoring du test d'orientation** (matching intelligent avec domaines)
+- [OK] Compatibilité série bac
+- [OK] Analyse de la moyenne générale
+- [OK] Matching centres d'intérêt (Jaccard similarity)
+- [OK] Évaluation des compétences requises
+- [OK] Analyse du budget
+- [OK] Vérification de la durée d'études
+- [OK] **Scoring du test d'orientation** (matching intelligent avec domaines)
 
 ### 2. K-Nearest Neighbors (KNNEngine)
 

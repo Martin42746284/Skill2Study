@@ -10,7 +10,7 @@
 // Poids par défaut (utilisés si aucune règle en BD)
 // IMPORTANT: Les scores du test sont le critère PRINCIPAL
 const POIDS_DEFAUT = {
-  scores_test:             40,  // ⭐ PRINCIPAL: résultats du test d'orientation
+  scores_test:             40,  // [STAR] PRINCIPAL: résultats du test d'orientation
   compatibilite_serie:     20,  // série bac compatible avec la filière
   centres_interet:         15,  // correspondance centres d'intérêt
   moyenne_generale:        15,  // moyenne vs seuil requis

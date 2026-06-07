@@ -4,7 +4,7 @@ API REST Node.js/Express pour la plateforme intelligente d'aide à la décision.
 
 ---
 
-## 🗂️ Structure du projet
+## Structure du projet
 
 ```
 backend/
@@ -37,7 +37,7 @@ backend/
 │   └── admin.controller.js      # Gestion admin (users, questions)
 │
 ├── services/
-│   └── recommendation.service.js # 🧠 MOTEUR IA (scoring pondéré + Jaccard)
+│   └── recommendation.service.js # MOTEUR IA (scoring pondéré + Jaccard)
 │
 ├── routes/
 │   ├── auth.routes.js
@@ -63,7 +63,7 @@ backend/
 
 ---
 
-## 🚀 Installation et démarrage
+## Installation et démarrage
 
 ### Prérequis
 - **Node.js** v18+
@@ -211,11 +211,11 @@ Le moteur utilise un **scoring pondéré multi-critères** :
 | Scores test d'orientation | 5% |
 
 Le **module explicatif** génère pour chaque recommandation :
-- ✅ Points forts
-- ⚠️ Points d'attention
-- 📊 Raisons (débouchés, taux emploi…)
+- [DONE] Points forts
+- [WARNING] Points d'attention
+- [STATS] Raisons (débouchés, taux emploi…)
 
 ---
 
-## 📚 Documentation interactive
+## Documentation interactive
 Disponible sur `http://localhost:5000/api/docs` (Swagger UI)

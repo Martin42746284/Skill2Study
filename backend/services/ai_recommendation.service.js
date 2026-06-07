@@ -28,7 +28,7 @@ class AIRecommendationService {
       logger.info(`✓ Service IA disponible: ${response.data.service}`);
       return { status: 'ok', service: response.data.service };
     } catch (err) {
-      logger.error(`❌ Erreur health check IA: ${err.message}`);
+      logger.error(`[TODO] Erreur health check IA: ${err.message}`);
       return { status: 'unavailable', error: err.message };
     }
   }
@@ -66,7 +66,7 @@ class AIRecommendationService {
       return response.data.recommendations;
 
     } catch (err) {
-      logger.error(`❌ Erreur appel service IA: ${err.message}`);
+      logger.error(`[TODO] Erreur appel service IA: ${err.message}`);
       logger.error(`   URL: ${AI_SERVICE_URL}/api/recommendations/generate`);
       return null;
     }

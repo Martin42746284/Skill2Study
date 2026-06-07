@@ -734,7 +734,7 @@
         "category": "Orientation",
         "date": "28 février 2026",
         "readTime": "5 min",
-        "image": "graduation-cap"
+        "image": null
       },
       {
         "title": "Les métiers d'avenir à Madagascar : où se former ?",
@@ -742,7 +742,7 @@
         "category": "Carrière",
         "date": "20 février 2026",
         "readTime": "7 min",
-        "image": "rocket"
+        "image": null
       },
       {
         "title": "Université publique vs privée : quel choix faire ?",
@@ -750,7 +750,7 @@
         "category": "Comparatif",
         "date": "15 février 2026",
         "readTime": "6 min",
-        "image": "scale"
+        "image": null
       },
       {
         "title": "Témoignage : comment l'orientation m'a changé la vie",
@@ -758,7 +758,7 @@
         "category": "Témoignage",
         "date": "10 février 2026",
         "readTime": "4 min",
-        "image": "💬"
+        "image": null
       },
       {
         "title": "Guide complet des bourses universitaires à Madagascar",
@@ -766,15 +766,14 @@
         "category": "Financement",
         "date": "5 février 2026",
         "readTime": "8 min",
-        "image": "💰"
+        "image": null
       },
       {
         "title": "5 erreurs à éviter lors de votre inscription universitaire",
         "excerpt": "Dossier incomplet, délais dépassés, mauvaise filière... Évitez les pièges courants qui compliquent l'inscription universitaire avec nos conseils pratiques.",
         "category": "Conseils",
         "date": "1 février 2026",
-        "readTime": "4 min",
-        "image": "⚠️"
+        "readTime": "4 min"
       }
     ],
       "categories": {

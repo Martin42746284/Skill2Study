@@ -556,7 +556,7 @@ export const filieres = {
 };
 
 // ============================================================================
-// 🎓 PARCOURS (Study Paths)
+// PARCOURS (Study Paths)
 // ============================================================================
 
 export const parcours = {
@@ -768,7 +768,7 @@ export const recommendations = {
 };
 
 // ============================================================================
-// ⚖️ COMPARATEUR (Comparison Tool)
+// COMPARATEUR (Comparison Tool)
 // ============================================================================
 
 export const comparator = {

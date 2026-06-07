@@ -29,7 +29,7 @@ async function notifyTestCompleted(userId, testSessionId, score) {
   return createNotification(
     userId,
     'success',
-    '🎉 Test complété !',
+    '[CELEBRATE] Test complété !',
     `Vous avez complété le test d'orientation. Votre score: ${score}%`,
     { test_session_id: testSessionId, score }
   );
@@ -42,7 +42,7 @@ async function notifyRecommendationsReady(userId, recommendationCount) {
   return createNotification(
     userId,
     'info',
-    '📋 Recommandations disponibles',
+    '[LIST] Recommandations disponibles',
     `${recommendationCount} filière(s) vous ont été recommandée(s) basé sur vos réponses au test.`,
     { recommendation_count: recommendationCount }
   );
@@ -55,7 +55,7 @@ async function notifyProfileUpdated(userId) {
   return createNotification(
     userId,
     'success',
-    '✅ Profil mis à jour',
+    '[DONE] Profil mis à jour',
     'Vos informations personnelles ont été mises à jour avec succès.'
   );
 }

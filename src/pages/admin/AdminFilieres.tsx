@@ -175,10 +175,14 @@ const AdminFilieres = () => {
   const domaines = Array.from(new Set(filiereList.map((f) => f.domaine).filter(Boolean))) as string[];
 
   const filtered = filiereList.filter((f) => {
-    const nomMatch = (f.nom || '').toLowerCase().includes(search.toLowerCase());
+    const searchLower = search.toLowerCase();
+    const univ = univerList.find(u => u.id === f.universite_id);
+    const nomMatch = (f.nom || '').toLowerCase().includes(searchLower);
+    const domaineMatch = (f.domaine || '').toLowerCase().includes(searchLower);
+    const univMatch = (univ?.nom || '').toLowerCase().includes(searchLower);
     const niveauMatch = niveauFilter === "all" || (f.niveaux && f.niveaux.includes(niveauFilter));
-    const univMatch = univFilter === "all" || String(f.universite_id) === univFilter;
-    return nomMatch && niveauMatch && univMatch;
+    const univFilterMatch = univFilter === "all" || String(f.universite_id) === univFilter;
+    return (nomMatch || domaineMatch || univMatch) && niveauMatch && univFilterMatch;
   });
 
   const handleExportCSV = () => {
@@ -359,7 +363,7 @@ const AdminFilieres = () => {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">Chargement des filières...</p>
+          <p className="text-muted-foreground">{t("admin.pages.filieres.loading")}</p>
         </div>
       </AdminLayout>
     );

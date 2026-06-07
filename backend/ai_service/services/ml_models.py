@@ -223,10 +223,7 @@ class MLModels:
             
             interests = profil.get('centres_interet', [])
             features.append(min(len(interests) / 5.0, 1.0))
-            
-            budget = float(profil.get('budget_max_mensuel', 1000.0))
-            features.append(min(budget / 5000.0, 1.0))
-            
+
             duree = float(profil.get('duree_max_etudes', 3.0))
             features.append(min(duree / 6.0, 1.0))
             
@@ -254,7 +251,6 @@ class MLModels:
             'moyenne_generale',
             'competences',
             'centres_interet',
-            'budget',
             'duree_etudes',
             'accepted_historique',
             'filiere_id'

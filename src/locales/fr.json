@@ -931,7 +931,41 @@
     "photoUpdated": "Photo mise à jour ✓",
     "bacPlaceholder": "Ex: C, D, S, ...",
     "goalsPlaceholder": "Décrivez vos objectifs...",
-    "sectorPlaceholder": "Ex: Informatique, Santé, ..."
+    "sectorPlaceholder": "Ex: Informatique, Santé, ...",
+    "mentionPassable": "Passable",
+    "mentionGood": "Assez bien",
+    "mentionVeryGood": "Bien",
+    "mentionExcellent": "Très bien",
+    "typeIndifferent": "Indifférent",
+    "typePublic": "Publique",
+    "typePrivate": "Privée"
+  },
+  "seriesBac": {
+    "label": "Séries Bac Acceptées",
+    "serieA1": "A1",
+    "serieA2": "A2",
+    "serieC": "C",
+    "serieD": "D",
+    "serieS": "S",
+    "serieOSE": "OSE",
+    "serieL": "L",
+    "serieTechnique": "Technique",
+    "serieToutesSeries": "Toutes séries"
+  },
+  "niveaux": {
+    "label": "Niveaux",
+    "licence": "Licence",
+    "master": "Master",
+    "doctorat": "Doctorat",
+    "dts": "DTS",
+    "dut": "DUT",
+    "ingenieur": "Ingénieur"
+  },
+  "difficultes": {
+    "facile": "Facile",
+    "moyen": "Moyen",
+    "difficile": "Difficile",
+    "tres_difficile": "Très difficile"
   },
   "search": {
     "title": "Recherche",

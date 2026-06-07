@@ -58,12 +58,13 @@ Score final = Σ (critère × poids)
 Poids:
 ├── [STAR] Scores du test d'orientation : 40%  ← PRINCIPAL
 ├── Compatibilité série bac : 20%
-├── Centres d'intérêt : 15%
 ├── Moyenne générale : 15%
+├── Centres d'intérêt : 15%
 ├── Compétences : 5%
-├── Budget : 3%
-└── Durée études : 2%
+└── Durée études : 5%
 ```
+
+**Note:** La contrainte budget a été supprimée car les données pour les filières/universités ne précisent pas bien le coût annuel.
 
 ### 2. **Intelligence du Test d'Orientation**
 - Matching intelligent entre les domaines du test et les filières

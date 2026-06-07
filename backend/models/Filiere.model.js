@@ -14,7 +14,7 @@ const Filiere = sequelize.define('Filiere', {
   cout_description: { type: DataTypes.STRING(255) },  // ex: "Gratuit", "Généralement pris en charge par l'État"
   langue: { type: DataTypes.STRING(50), defaultValue: 'Arabe/Français' },
   // Conditions d'admission
-  series_bac_acceptees: { type: DataTypes.JSON },     // ["Sciences", "Mathématiques", "Technique"]
+  series_bac_acceptees: { type: DataTypes.JSON, allowNull: false },     // ["Sciences", "Mathématiques", "Technique"]
   moyenne_min_requise: { type: DataTypes.FLOAT },
   // Caractéristiques pour l'IA
   competences_requises: { type: DataTypes.JSON },     // ["mathématiques", "analyse", "logique"]

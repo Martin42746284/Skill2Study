@@ -19,6 +19,18 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { users as usersApi } from "@/lib/api";
 
+const SERIES_BAC_OPTIONS = [
+  { value: "A1", label: "seriesBac.serieA1" },
+  { value: "A2", label: "seriesBac.serieA2" },
+  { value: "C", label: "seriesBac.serieC" },
+  { value: "D", label: "seriesBac.serieD" },
+  { value: "S", label: "seriesBac.serieS" },
+  { value: "OSE", label: "seriesBac.serieOSE" },
+  { value: "L", label: "seriesBac.serieL" },
+  { value: "Technique", label: "seriesBac.serieTechnique" },
+  { value: "Toutes séries", label: "seriesBac.serieToutesSeries" }
+];
+
 const Profile = () => {
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -33,7 +45,7 @@ const Profile = () => {
     email: "",
     ville: "",
     budget_mensuel: undefined as number | undefined,
-    serie_bac: "",
+    serie_bac: "A1",
     annee_bac: new Date().getFullYear() + 1,
     mention: "Passable" as "Passable" | "Assez bien" | "Bien" | "Très bien",
     moyenne_generale: undefined as number | undefined,
@@ -296,15 +308,6 @@ const Profile = () => {
                   onChange={(e) => handleChange("ville", e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="budget_mensuel">{t("profile.monthlyBudget")}</Label>
-                <Input
-                  id="budget_mensuel"
-                  type="number"
-                  value={form.budget_mensuel || ""}
-                  onChange={(e) => handleChange("budget_mensuel", e.target.value ? parseFloat(e.target.value) : undefined)}
-                />
-              </div>
             </div>
           </div>
 
@@ -317,12 +320,18 @@ const Profile = () => {
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="serie_bac">{t("profile.bacSeries")}</Label>
-                <Input
+                <select
                   id="serie_bac"
                   value={form.serie_bac}
                   onChange={(e) => handleChange("serie_bac", e.target.value)}
-                  placeholder={t("profile.bacPlaceholder")}
-                />
+                  className="w-full flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {SERIES_BAC_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(option.label)}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="annee_bac">{t("profile.bacYear")}</Label>
@@ -339,12 +348,12 @@ const Profile = () => {
                   id="mention"
                   value={form.mention}
                   onChange={(e) => handleChange("mention", e.target.value as any)}
-                  className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option>Passable</option>
-                  <option>Assez bien</option>
-                  <option>Bien</option>
-                  <option>Très bien</option>
+                  <option value="Passable">{t("profile.mentionPassable")}</option>
+                  <option value="Assez bien">{t("profile.mentionGood")}</option>
+                  <option value="Bien">{t("profile.mentionVeryGood")}</option>
+                  <option value="Très bien">{t("profile.mentionExcellent")}</option>
                 </select>
               </div>
               <div className="space-y-2">
@@ -383,11 +392,11 @@ const Profile = () => {
                   id="preference_type_univ"
                   value={form.preference_type_univ}
                   onChange={(e) => handleChange("preference_type_univ", e.target.value as any)}
-                  className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="indifferent">Indifférent</option>
-                  <option value="publique">Publique</option>
-                  <option value="privee">Privée</option>
+                  <option value="indifferent">{t("profile.typeIndifferent")}</option>
+                  <option value="publique">{t("profile.typePublic")}</option>
+                  <option value="privee">{t("profile.typePrivate")}</option>
                 </select>
               </div>
               <div className="space-y-2">
@@ -396,15 +405,6 @@ const Profile = () => {
                   id="ville_preference"
                   value={form.ville_preference}
                   onChange={(e) => handleChange("ville_preference", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="budget_max_mensuel">{t("profile.maxBudget")}</Label>
-                <Input
-                  id="budget_max_mensuel"
-                  type="number"
-                  value={form.budget_max_mensuel || ""}
-                  onChange={(e) => handleChange("budget_max_mensuel", e.target.value ? parseFloat(e.target.value) : undefined)}
                 />
               </div>
               <div className="space-y-2">

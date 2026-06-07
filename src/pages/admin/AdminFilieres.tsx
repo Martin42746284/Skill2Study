@@ -73,6 +73,7 @@ const AdminFilieres = () => {
   const [formNom, setFormNom] = useState("");
   const [formDomaine, setFormDomaine] = useState("");
   const [formNiveaux, setFormNiveaux] = useState<string[]>(["Licence"]);
+  const [formSeriesBac, setFormSeriesBac] = useState<string[]>([]);
   const [formDifficulte, setFormDifficulte] = useState("moyen");
   const [formDescription, setFormDescription] = useState("");
   const [formDuree, setFormDuree] = useState("");
@@ -84,6 +85,19 @@ const AdminFilieres = () => {
   const [newParcoursDuree, setNewParcoursDuree] = useState("");
   const [newParcoursDesc, setNewParcoursDesc] = useState("");
   const [showParcoursForm, setShowParcoursForm] = useState(false);
+
+  // Series bac options from translation
+  const seriesBacOptions = [
+    { value: "A1", label: t("seriesBac.serieA1") },
+    { value: "A2", label: t("seriesBac.serieA2") },
+    { value: "C", label: t("seriesBac.serieC") },
+    { value: "D", label: t("seriesBac.serieD") },
+    { value: "S", label: t("seriesBac.serieS") },
+    { value: "OSE", label: t("seriesBac.serieOSE") },
+    { value: "L", label: t("seriesBac.serieL") },
+    { value: "Technique", label: t("seriesBac.serieTechnique") },
+    { value: "Toutes séries", label: t("seriesBac.serieToutesSeries") }
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -131,7 +145,21 @@ const AdminFilieres = () => {
   }, [toast]);
 
   const niveaux = ["Licence", "Master", "Doctorat", "DTS", "DUT", "Ingénieur"];
+  const niveauxTranslated = [
+    { value: "Licence", label: t("niveaux.licence") },
+    { value: "Master", label: t("niveaux.master") },
+    { value: "Doctorat", label: t("niveaux.doctorat") },
+    { value: "DTS", label: t("niveaux.dts") },
+    { value: "DUT", label: t("niveaux.dut") },
+    { value: "Ingénieur", label: t("niveaux.ingenieur") }
+  ];
   const difficultes = ["facile", "moyen", "difficile", "tres_difficile"];
+  const difficultesTranslated = [
+    { value: "facile", label: t("difficultes.facile") },
+    { value: "moyen", label: t("difficultes.moyen") },
+    { value: "difficile", label: t("difficultes.difficile") },
+    { value: "tres_difficile", label: t("difficultes.tres_difficile") }
+  ];
   const domaines = Array.from(new Set(filiereList.map((f) => f.domaine).filter(Boolean))) as string[];
 
   const filtered = filiereList.filter((f) => {
@@ -165,6 +193,7 @@ const AdminFilieres = () => {
     setFormNom("");
     setFormDomaine("");
     setFormNiveaux(["Licence"]);
+    setFormSeriesBac([]);
     setFormDifficulte("moyen");
     setFormDescription("");
     setFormDuree("");
@@ -185,6 +214,7 @@ const AdminFilieres = () => {
     setFormNom(fil.nom || "");
     setFormDomaine(fil.domaine || "");
     setFormNiveaux(fil.niveaux || ["Licence"]);
+    setFormSeriesBac((fil as any).series_bac_acceptees || []);
     setFormDifficulte(fil.difficulte || "moyen");
     setFormDescription(fil.description || "");
     setFormDuree(fil.duree_annees ? String(fil.duree_annees) : "");
@@ -201,10 +231,10 @@ const AdminFilieres = () => {
 
   const handleSave = async () => {
     try {
-      if (!formUniversiteId || !formNom || formNiveaux.length === 0) {
+      if (!formUniversiteId || !formNom || formNiveaux.length === 0 || formSeriesBac.length === 0) {
         toast({
           title: "Erreur",
-          description: "Veuillez remplir tous les champs obligatoires",
+          description: "Veuillez remplir tous les champs obligatoires (au moins une série bac)",
           variant: "destructive"
         });
         return;
@@ -217,6 +247,7 @@ const AdminFilieres = () => {
           nom: formNom.trim(),
           domaine: formDomaine.trim(),
           niveau,
+          series_bac_acceptees: formSeriesBac,
           difficulte: formDifficulte as "facile" | "moyen" | "difficile" | "tres_difficile",
         };
 
@@ -242,6 +273,7 @@ const AdminFilieres = () => {
           nom: formNom.trim(),
           domaine: formDomaine.trim(),
           niveau,
+          series_bac_acceptees: formSeriesBac,
           difficulte: formDifficulte as "facile" | "moyen" | "difficile" | "tres_difficile",
         };
 
@@ -515,23 +547,51 @@ const AdminFilieres = () => {
               </div>
               <div className="space-y-1.5">
                 <Label>{t("admin.pages.filieres.formNiveaux")} *</Label>
-                <div className="space-y-2 p-3 border rounded-md bg-muted/30">
-                  {niveaux.map((n) => (
-                    <label key={n} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formNiveaux.includes(n)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setFormNiveaux([...formNiveaux, n]);
-                          } else {
-                            setFormNiveaux(formNiveaux.filter(niv => niv !== n));
-                          }
-                        }}
-                        className="rounded border-input cursor-pointer"
-                      />
-                      <span className="text-sm">{n}</span>
-                    </label>
+                <div className="flex flex-wrap gap-3 p-3 border rounded-md bg-muted/30 justify-between">
+                  {niveauxTranslated.map((n) => (
+                    <button
+                      key={n.value}
+                      type="button"
+                      onClick={() => {
+                        if (formNiveaux.includes(n.value)) {
+                          setFormNiveaux(formNiveaux.filter(niv => niv !== n.value));
+                        } else {
+                          setFormNiveaux([...formNiveaux, n.value]);
+                        }
+                      }}
+                      className={`flex-1 min-w-fit px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        formNiveaux.includes(n.value)
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted border border-input hover:bg-muted/70'
+                      }`}
+                    >
+                      {n.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>{t("seriesBac.label")} *</Label>
+                <div className="flex flex-wrap gap-3 p-3 border rounded-md bg-muted/30 justify-between">
+                  {seriesBacOptions.map((serie) => (
+                    <button
+                      key={serie.value}
+                      type="button"
+                      onClick={() => {
+                        if (formSeriesBac.includes(serie.value)) {
+                          setFormSeriesBac(formSeriesBac.filter(s => s !== serie.value));
+                        } else {
+                          setFormSeriesBac([...formSeriesBac, serie.value]);
+                        }
+                      }}
+                      className={`flex-1 min-w-fit px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        formSeriesBac.includes(serie.value)
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted border border-input hover:bg-muted/70'
+                      }`}
+                    >
+                      {serie.label}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -543,9 +603,9 @@ const AdminFilieres = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {difficultes.map((d) => (
-                        <SelectItem key={d} value={d}>
-                          {d.charAt(0).toUpperCase() + d.slice(1)}
+                      {difficultesTranslated.map((d) => (
+                        <SelectItem key={d.value} value={d.value}>
+                          {d.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -660,7 +720,7 @@ const AdminFilieres = () => {
             </div>
             <DialogFooter className="border-t pt-4 mt-4 flex-shrink-0">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("admin.pages.filieres.cancel")}</Button>
-              <Button onClick={handleSave} disabled={!formUniversiteId || !formNom || formNiveaux.length === 0}>
+              <Button onClick={handleSave} disabled={!formUniversiteId || !formNom || formNiveaux.length === 0 || formSeriesBac.length === 0}>
                 {editingFiliere ? t("admin.pages.filieres.save") : t("admin.pages.filieres.addNew")}
               </Button>
             </DialogFooter>

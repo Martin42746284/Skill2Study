@@ -202,13 +202,14 @@ Le moteur utilise un **scoring pondéré multi-critères** :
 
 | Critère | Poids |
 |---------|-------|
-| Compatibilité série bac | 25% |
-| Moyenne générale vs seuil | 20% |
-| Centres d'intérêt (Jaccard) | 20% |
-| Compétences auto-évaluées | 15% |
-| Contraintes budget | 10% |
+| Scores test d'orientation | 40% |
+| Compatibilité série bac | 20% |
+| Moyenne générale vs seuil | 15% |
+| Centres d'intérêt (Jaccard) | 15% |
+| Compétences auto-évaluées | 5% |
 | Contraintes durée | 5% |
-| Scores test d'orientation | 5% |
+
+**Note:** La contrainte budget a été supprimée car les données pour les filières/universités ne précisent pas bien le coût annuel et le salaire futur.
 
 Le **module explicatif** génère pour chaque recommandation :
 - [DONE] Points forts

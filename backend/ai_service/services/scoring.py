@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 # POIDS PAR DÉFAUT (en %)
+# NOTE: Le budget a été supprimé car les données ne précisent pas bien le coût annuel
 POIDS_DEFAUT = {
-    'scores_test': 40,          # ⭐ PRINCIPAL: résultats du test
+    'scores_test': 40,          # [STAR] PRINCIPAL: résultats du test
     'compatibilite_serie': 20,  # série bac compatible
     'centres_interet': 15,      # correspondance des intérêts
     'moyenne_generale': 15,     # moyenne vs seuil requis
     'competences': 5,           # compétences auto-évaluées
-    'budget': 3,                # coût dans le budget
-    'duree': 2,                 # durée dans les préférences
+    'duree': 5,                 # durée dans les préférences
 }
 
 
@@ -56,14 +56,11 @@ class ScoringEngine:
         
         # 4. Compétences
         details['competences'] = self._score_competences(profil, filiere)
-        
-        # 5. Budget
-        details['budget'] = self._score_budget(profil, filiere)
-        
-        # 6. Durée
+
+        # 5. Durée
         details['duree'] = self._score_duree(profil, filiere)
-        
-        # 7. Scores du test (CRITÈRE PRINCIPAL)
+
+        # 6. Scores du test (CRITÈRE PRINCIPAL)
         details['scores_test'] = self._score_test(scores_test, filiere)
         
         # Score final pondéré
@@ -191,28 +188,6 @@ class ScoringEngine:
         return sum(scores) / len(scores) if scores else 50.0
     
     
-    def _score_budget(self, profil: Dict, filiere: Dict) -> float:
-        """Score du budget"""
-        user_budget = profil.get('budget_max_mensuel')
-        filiere_cost = filiere.get('cout_annuel')
-        
-        if not user_budget or not filiere_cost:
-            return 70.0  # Score neutre
-        
-        user_budget = float(user_budget)
-        filiere_cost = float(filiere_cost)
-        monthly_cost = filiere_cost / 12.0
-        
-        if monthly_cost <= user_budget * 0.7:
-            return 100.0  # Bien dans le budget
-        elif monthly_cost <= user_budget:
-            return 75.0   # Dans le budget
-        elif monthly_cost <= user_budget * 1.2:
-            return 40.0   # Légèrement au-dessus
-        else:
-            return 0.0    # Bien au-dessus
-    
-    
     def _score_duree(self, profil: Dict, filiere: Dict) -> float:
         """Score de la durée des études"""
         user_max_duree = profil.get('duree_max_etudes')
@@ -300,30 +275,26 @@ class ScoringEngine:
             points_forts.append(
                 "Vos résultats au test d'orientation sont très favorables pour cette orientation."
             )
-        
-        if details['budget'] == 100:
-            points_forts.append("Le coût est bien adapté à votre budget.")
-        
+
         # Points d'attention
         if details['serie_bac'] < 50:
             points_attention.append(
                 f"⚠ Votre série n'est pas standard pour cette filière. Vérifiez les conditions d'admission."
             )
-        
+
         if details['moyenne_generale'] < 50:
             points_attention.append(
                 "⚠ Votre moyenne pourrait être limite pour le seuil d'admission."
             )
-        
+
         if details['centres_interet'] < 30:
             points_attention.append(
                 "⚠ Peu de correspondance entre vos intérêts et cette filière."
             )
-        
-        if details['budget'] == 0:
-            cost = filiere.get('cout_annuel', 'N/A')
+
+        if details['duree'] < 50:
             points_attention.append(
-                f"⚠ Le coût annuel ({cost}€) dépasse votre budget mensuel déclaré."
+                "⚠ La durée des études dépasse votre préférence déclarée."
             )
         
         # Raisons complémentaires

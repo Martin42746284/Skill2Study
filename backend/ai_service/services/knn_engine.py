@@ -89,12 +89,11 @@ class KNNEngine:
     def _vectorize_profile(self, profil: Dict) -> np.ndarray:
         """
         Convertir un profil en vecteur numérique pour calcul de similarité.
-        
+
         Features:
         - moyenne_generale
         - centres_interet (one-hot encoding)
         - competences (moyenne des scores)
-        - budget_max_mensuel
         - duree_max_etudes
         """
         try:
@@ -116,16 +115,12 @@ class KNNEngine:
             # 3. Centres d'intérêt (nombre normalisé)
             interests = profil.get('centres_interet', [])
             features.append(min(len(interests) / 5.0, 1.0))  # Max 5 intérêts
-            
-            # 4. Budget (normalisé, assumer max 5000€/mois)
-            budget = float(profil.get('budget_max_mensuel', 1000.0))
-            features.append(min(budget / 5000.0, 1.0))
-            
-            # 5. Durée max études
+
+            # 4. Durée max études
             duree = float(profil.get('duree_max_etudes', 3.0))
             features.append(min(duree / 6.0, 1.0))  # Max 6 ans
-            
-            # 6. Nombre de filières choisies
+
+            # 5. Nombre de filières choisies
             chosen_filieres = profil.get('chosen_filieres', [])
             features.append(min(len(chosen_filieres) / 5.0, 1.0))
             
@@ -182,12 +177,5 @@ class KNNEngine:
         serie2 = profil2.get('serie_bac', '').lower()
         distance += (0.0 if serie1 == serie2 else 1.0) * 1
         weight_count += 1
-        
-        # Comparer les budgets (poids 1)
-        if 'budget_max_mensuel' in profil1 and 'budget_max_mensuel' in profil2:
-            b1 = float(profil1['budget_max_mensuel'])
-            b2 = float(profil2['budget_max_mensuel'])
-            distance += (abs(b1 - b2) / 5000.0) * 1
-            weight_count += 1
         
         return distance / weight_count if weight_count > 0 else 0.5

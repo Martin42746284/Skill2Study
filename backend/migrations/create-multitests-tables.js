@@ -1,12 +1,9 @@
-const { sequelize } = require('../config/database');
 const { DataTypes } = require('sequelize');
 
-async function createMultiTestsTables() {
-  try {
-    console.log('Creating multi-tests tables...');
-
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
     // Create tests table
-    await sequelize.define('Test', {
+    await queryInterface.createTable('tests', {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       nom: { type: DataTypes.STRING(150), allowNull: false },
       description: { type: DataTypes.TEXT },
@@ -17,23 +14,19 @@ async function createMultiTestsTables() {
       actif: { type: DataTypes.BOOLEAN, defaultValue: true },
       createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
       updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
-    }, { tableName: 'tests' }).sync({ alter: false });
-
-    console.log('✅ tests table created');
+    }, { ifNotExists: true });
 
     // Create test_questions table
-    await sequelize.define('TestQuestion', {
+    await queryInterface.createTable('test_questions', {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       test_id: { type: DataTypes.INTEGER, allowNull: false },
       question_id: { type: DataTypes.INTEGER, allowNull: false },
       ordre: { type: DataTypes.INTEGER },
       poids_importance: { type: DataTypes.FLOAT, defaultValue: 1.0 }
-    }, { tableName: 'test_questions' }).sync({ alter: false });
-
-    console.log('✅ test_questions table created');
+    }, { ifNotExists: true });
 
     // Create sessions_test_multi table
-    await sequelize.define('SessionTestMulti', {
+    await queryInterface.createTable('sessions_test_multi', {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       user_id: { type: DataTypes.INTEGER, allowNull: false },
       test_id: { type: DataTypes.INTEGER, allowNull: false },
@@ -44,21 +37,12 @@ async function createMultiTestsTables() {
       date_completion: { type: DataTypes.DATE },
       createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
       updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
-    }, { tableName: 'sessions_test_multi' }).sync({ alter: false });
+    }, { ifNotExists: true });
+  },
 
-    console.log('✅ sessions_test_multi table created');
-
-    console.log('🎉 All multi-tests tables created successfully!');
-    process.exit(0);
-  } catch (error) {
-    console.error('❌ Error creating tables:', error);
-    process.exit(1);
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('sessions_test_multi', { ifExists: true });
+    await queryInterface.dropTable('test_questions', { ifExists: true });
+    await queryInterface.dropTable('tests', { ifExists: true });
   }
-}
-
-// Run if called directly
-if (require.main === module) {
-  createMultiTestsTables();
-}
-
-module.exports = createMultiTestsTables;
+};

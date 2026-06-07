@@ -2,6 +2,8 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 const bcrypt = require('bcryptjs');
 
+const SERIES_BAC_VALIDES = ['A1', 'A2', 'C', 'D', 'S', 'OSE', 'L', 'Technique', 'Toutes séries'];
+
 const User = sequelize.define('User', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   nom: { type: DataTypes.STRING(100), allowNull: false },
@@ -9,7 +11,10 @@ const User = sequelize.define('User', {
   email: { type: DataTypes.STRING(150), allowNull: false, unique: true, validate: { isEmail: true } },
   mot_de_passe: { type: DataTypes.STRING(255), allowNull: false },
   role: { type: DataTypes.ENUM('bachelier', 'admin'), defaultValue: 'bachelier' },
-  serie_bac: { type: DataTypes.STRING(50) },
+  serie_bac: {
+    type: DataTypes.ENUM(...SERIES_BAC_VALIDES),
+    allowNull: true
+  },
   moyenne_generale: { type: DataTypes.FLOAT },
   ville: { type: DataTypes.STRING(100) },
   budget_mensuel: { type: DataTypes.FLOAT },

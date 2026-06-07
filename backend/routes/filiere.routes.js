@@ -17,9 +17,17 @@ router.get('/:id', [
   validate
 ], ctrl.getFiliere);
 
+const SERIES_BAC_VALIDES = ['A1', 'A2', 'C', 'D', 'S', 'OSE', 'L', 'Technique', 'Toutes séries'];
+
 router.post('/', protect, adminOnly, [
   body('universite_id').notEmpty().isInt().withMessage('L\'ID de l\'université est requis'),
   body('nom').notEmpty().isLength({ min: 3 }).withMessage('Le nom doit contenir au moins 3 caractères'),
+  body('series_bac_acceptees')
+    .notEmpty().isArray({ min: 1 }).withMessage('Au moins une série bac doit être sélectionnée')
+    .custom((value) => {
+      if (!Array.isArray(value)) return false;
+      return value.every(serie => SERIES_BAC_VALIDES.includes(serie));
+    }).withMessage(`Les séries bac doivent être parmi: ${SERIES_BAC_VALIDES.join(', ')}`),
   body('code').optional().isLength({ min: 2 }).withMessage('Le code invalide'),
   body('domaine').optional().isString().trim(),
   body('specialite').optional().isString().trim(),
@@ -28,7 +36,6 @@ router.post('/', protect, adminOnly, [
   body('cout_annuel').optional().isFloat({ min: 0 }).withMessage('Coût invalide'),
   body('cout_description').optional().isString().trim().isLength({ max: 255 }).withMessage('Description du coût invalide'),
   body('langue').optional().isString(),
-  body('series_bac_acceptees').optional().isArray().withMessage('Doit être un tableau'),
   body('moyenne_min_requise').optional().isFloat({ min: 0, max: 20 }).withMessage('Moyenne invalide'),
   body('competences_requises').optional().isArray().withMessage('Doit être un tableau'),
   body('centres_interet').optional().isArray().withMessage('Doit être un tableau'),
@@ -42,6 +49,13 @@ router.post('/', protect, adminOnly, [
 router.put('/:id', protect, adminOnly, [
   param('id').isInt().withMessage('L\'ID doit être un entier'),
   body('nom').optional().isLength({ min: 3 }).withMessage('Le nom doit contenir au moins 3 caractères'),
+  body('series_bac_acceptees')
+    .if(body('series_bac_acceptees').exists())
+    .isArray({ min: 1 }).withMessage('Au moins une série bac doit être sélectionnée')
+    .custom((value) => {
+      if (!Array.isArray(value)) return false;
+      return value.every(serie => SERIES_BAC_VALIDES.includes(serie));
+    }).withMessage(`Les séries bac doivent être parmi: ${SERIES_BAC_VALIDES.join(', ')}`),
   body('code').optional().isLength({ min: 2 }).withMessage('Le code invalide'),
   body('domaine').optional().isString().trim(),
   body('specialite').optional().isString().trim(),
@@ -50,7 +64,6 @@ router.put('/:id', protect, adminOnly, [
   body('cout_annuel').optional().isFloat({ min: 0 }).withMessage('Coût invalide'),
   body('cout_description').optional().isString().trim().isLength({ max: 255 }).withMessage('Description du coût invalide'),
   body('langue').optional().isString(),
-  body('series_bac_acceptees').optional().isArray().withMessage('Doit être un tableau'),
   body('moyenne_min_requise').optional().isFloat({ min: 0, max: 20 }).withMessage('Moyenne invalide'),
   body('competences_requises').optional().isArray().withMessage('Doit être un tableau'),
   body('centres_interet').optional().isArray().withMessage('Doit être un tableau'),

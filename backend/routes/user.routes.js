@@ -6,6 +6,8 @@ const { validate } = require('../middlewares/validate.middleware');
 const userCtrl = require('../controllers/user.controller');
 const settingsCtrl = require('../controllers/settings.controller');
 
+const SERIES_BAC_VALIDES = ['A1', 'A2', 'C', 'D', 'S', 'OSE', 'L', 'Technique', 'Toutes séries'];
+
 // Toutes les routes utilisateur requièrent l'authentification ET le rôle de bachelier
 router.use(protect, bacheliersOnly);
 
@@ -25,7 +27,11 @@ router.put('/profil', [
 ], userCtrl.modifierProfil);
 
 router.put('/profil/academique', [
-  body('serie_bac').trim().optional({ checkFalsy: true }).isString().withMessage('La série bac doit être une chaîne'),
+  body('serie_bac')
+    .trim()
+    .optional({ checkFalsy: true })
+    .isIn(SERIES_BAC_VALIDES)
+    .withMessage(`La série bac doit être parmi: ${SERIES_BAC_VALIDES.join(', ')}`),
   body('annee_bac').optional({ checkFalsy: true }).isInt({ min: 2000, max: 2030 }).withMessage('L\'année bac invalide'),
   body('mention').optional({ checkFalsy: true }).isIn(['Passable', 'Assez bien', 'Bien', 'Très bien']).withMessage('Mention invalide'),
   body('moyenne_generale').optional({ checkFalsy: true }).isFloat({ min: 0, max: 20 }).withMessage('La moyenne doit être entre 0 et 20'),

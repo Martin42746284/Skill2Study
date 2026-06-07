@@ -282,15 +282,15 @@ Les scores de compatibilité sont calculés avec des poids configurables :
 POIDS_DEFAUT = {
     'scores_test': 40,          # [STAR] PRINCIPAL - Résultats du test
     'compatibilite_serie': 20,  # Série bac compatible
-    'centres_interet': 15,      # Correspondance des intérêts
     'moyenne_generale': 15,     # Moyenne vs seuil requis
+    'centres_interet': 15,      # Correspondance des intérêts
     'competences': 5,           # Compétences auto-évaluées
-    'budget': 3,                # Coût dans le budget
-    'duree': 2,                 # Durée dans les préférences
+    'duree': 5,                 # Durée dans les préférences
 }
 ```
 
 **[STAR] Important** : Le **test d'orientation** est le critère principal (40% du score final)
+**Note** : La contrainte budget a été supprimée car les données ne précisent pas bien le coût annuel.
 
 ## Algorithmes Utilisés
 

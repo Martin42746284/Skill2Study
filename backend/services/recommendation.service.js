@@ -9,14 +9,15 @@
 
 // Poids par défaut (utilisés si aucune règle en BD)
 // IMPORTANT: Les scores du test sont le critère PRINCIPAL
+// NOTE: La contrainte de budget a été supprimée car les données
+// pour les filières/universités ne précisent pas bien le salaire et le coût
 const POIDS_DEFAUT = {
   scores_test:             40,  // [STAR] PRINCIPAL: résultats du test d'orientation
   compatibilite_serie:     20,  // série bac compatible avec la filière
   centres_interet:         15,  // correspondance centres d'intérêt
   moyenne_generale:        15,  // moyenne vs seuil requis
   competences:              5,  // compétences auto-évaluées
-  contraintes_budget:       3,  // coût dans le budget
-  contraintes_duree:        2,  // durée dans les préférences
+  contraintes_duree:        5,  // durée dans les préférences
 };
 
 class RecommendationService {
@@ -99,12 +100,6 @@ class RecommendationService {
       if (profil.moyenne_generale < filiere.moyenne_min_requise) return false;
     }
 
-    // Filtre : coût dans le budget (si activé)
-    if (eliminer_hors_budget && profil.budget_max_mensuel && filiere.cout_annuel) {
-      const coutMensuel = filiere.cout_annuel / 12;
-      if (coutMensuel > profil.budget_max_mensuel) return false;
-    }
-
     // Filtre : préférence type université
     if (profil.preference_type_univ && profil.preference_type_univ !== 'indifferent') {
       if (filiere.universite?.type !== profil.preference_type_univ) return false;
@@ -137,13 +132,10 @@ class RecommendationService {
     // 4. Compétences
     details.competences = this._scoreCompetences(profil, filiere);
 
-    // 5. Contraintes budget
-    details.contraintes_budget = this._scoreBudget(profil, filiere);
-
-    // 6. Contraintes durée
+    // 5. Contraintes durée
     details.contraintes_duree = this._scoreDuree(profil, filiere);
 
-    // 7. Scores test
+    // 6. Scores test
     details.scores_test = scoresTest ? this._scoreTest(scoresTest, filiere) : 50;
 
     // Score final pondéré (0-100) - utilise les poids fournis
@@ -200,15 +192,6 @@ class RecommendationService {
       }
     });
     return count > 0 ? Math.round(total / count) : 50;
-  }
-
-  static _scoreBudget(profil, filiere) {
-    if (!profil.budget_max_mensuel || !filiere.cout_annuel) return 70;
-    const coutMensuel = filiere.cout_annuel / 12;
-    if (coutMensuel <= profil.budget_max_mensuel * 0.7) return 100;
-    if (coutMensuel <= profil.budget_max_mensuel) return 75;
-    if (coutMensuel <= profil.budget_max_mensuel * 1.2) return 40;
-    return 0;
   }
 
   static _scoreDuree(profil, filiere) {

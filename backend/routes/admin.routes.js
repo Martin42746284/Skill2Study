@@ -4,6 +4,8 @@ const { protect, adminOnly } = require('../middlewares/auth.middleware');
 const { validate } = require('../middlewares/validate.middleware');
 const ctrl = require('../controllers/admin.controller');
 
+const SERIES_BAC_VALIDES = ['A1', 'A2', 'C', 'D', 'S', 'OSE', 'L', 'Technique', 'Toutes séries'];
+
 router.use(protect, adminOnly);
 
 router.get('/users', [
@@ -19,7 +21,7 @@ router.post('/users', [
   body('email').isEmail().withMessage('Email invalide'),
   body('mot_de_passe').isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caractères'),
   body('role').optional().isIn(['bachelier', 'admin']).withMessage('Rôle invalide'),
-  body('serie_bac').optional().isString(),
+  body('serie_bac').optional().isIn(SERIES_BAC_VALIDES).withMessage(`La série bac doit être parmi: ${SERIES_BAC_VALIDES.join(', ')}`),
   body('ville').optional().isString(),
   body('budget_mensuel').optional().isFloat({ min: 0 }),
   body('actif').optional().isBoolean(),
@@ -33,7 +35,7 @@ router.put('/users/:id', [
   body('email').optional().isEmail().withMessage('Email invalide'),
   body('mot_de_passe').optional().isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caractères'),
   body('role').optional().isIn(['bachelier', 'admin']).withMessage('Rôle invalide'),
-  body('serie_bac').optional().isString(),
+  body('serie_bac').optional().isIn(SERIES_BAC_VALIDES).withMessage(`La série bac doit être parmi: ${SERIES_BAC_VALIDES.join(', ')}`),
   body('ville').optional().isString(),
   body('budget_mensuel').optional().isFloat({ min: 0 }),
   body('actif').optional().isBoolean(),

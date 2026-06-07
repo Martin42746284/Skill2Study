@@ -102,7 +102,7 @@ const AdminOverview = () => {
         }));
         setRepartitionSeries(repartSeries);
 
-        const topFil = (stats?.topFilieres || []).slice(0, 9);
+        const topFil = (stats?.topFilieres || []).slice(0, 6);
         setTopFilieres(topFil);
 
         const repartDomaines = (stats?.repartitionDomaines || []).map((item: any) => ({
@@ -450,13 +450,13 @@ const AdminOverview = () => {
               </div>
               {repartitionDomaines.length > 0 ? (
                 <div className="space-y-4">
-                  {/* <ResponsiveContainer width="100%" height={280}>
+                  <ResponsiveContainer width="100%" height={380}>
                     <PieChart>
                       <Pie
                         data={repartitionDomaines}
                         cx="50%"
                         cy="50%"
-                        outerRadius={80}
+                        outerRadius={120}
                         paddingAngle={2}
                         dataKey="value"
                         label={false}
@@ -470,7 +470,7 @@ const AdminOverview = () => {
                         contentStyle={{ borderRadius: "8px", border: `1px solid ${gridColor}`, fontSize: "12px", backgroundColor: theme === "dark" ? "#27272a" : "#ffffff", color: textColor }}
                       />
                     </PieChart>
-                  </ResponsiveContainer> */}
+                  </ResponsiveContainer>
 
                   {/* Legend below chart */}
                   <div className="grid grid-cols-2 gap-2 text-xs">

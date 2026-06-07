@@ -8,255 +8,255 @@ Document récapitulatif de tous les endpoints API utilisés par le frontend et l
 
 ---
 
-## 🔐 AUTHENTIFICATION (Auth)
+## AUTHENTIFICATION (Auth)
 Base URL: `/api/auth`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/auth/register` | POST | ✅ | Register | ✅ Implémenté |
-| `/auth/login` | POST | ✅ | Login | ✅ Implémenté |
-| `/auth/me` | GET | ✅ | Dashboard | ✅ Implémenté |
-| `/auth/mot-de-passe/reinitialiser` | POST | ⚠️ | Login | ⚠️ À tester |
+| `/auth/register` | POST | [DONE] | Register | [DONE] Implémenté |
+| `/auth/login` | POST | [DONE] | Login | [DONE] Implémenté |
+| `/auth/me` | GET | [DONE] | Dashboard | [DONE] Implémenté |
+| `/auth/mot-de-passe/reinitialiser` | POST | [WARNING] | Login | [WARNING] À tester |
 
 ---
 
-## 👤 PROFIL UTILISATEUR (Users)
+## PROFIL UTILISATEUR (Users)
 Base URL: `/api/users`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/users/profil` | GET | ✅ | Profile, Dashboard | ✅ Implémenté |
-| `/users/profil` | PUT | ✅ | Profile | ✅ Implémenté |
-| `/users/profil/academique` | PUT | ✅ | Profile | ✅ Implémenté |
-| `/users/favoris` | GET | ✅ | Recommendations, Favorites | ✅ Implémenté |
-| `/users/favoris/{id}` | POST | ✅ | Recommendations | ✅ Implémenté |
-| `/users/favoris/{id}` | DELETE | ✅ | Recommendations, Favorites | ✅ Implémenté |
+| `/users/profil` | GET | [DONE] | Profile, Dashboard | [DONE] Implémenté |
+| `/users/profil` | PUT | [DONE] | Profile | [DONE] Implémenté |
+| `/users/profil/academique` | PUT | [DONE] | Profile | [DONE] Implémenté |
+| `/users/favoris` | GET | [DONE] | Recommendations, Favorites | [DONE] Implémenté |
+| `/users/favoris/{id}` | POST | [DONE] | Recommendations | [DONE] Implémenté |
+| `/users/favoris/{id}` | DELETE | [DONE] | Recommendations, Favorites | [DONE] Implémenté |
 
 ---
 
-## 🏫 UNIVERSITÉS (Universities)
+## UNIVERSITÉS (Universities)
 Base URL: `/api/universites`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/universites` | GET | ✅ | MapExplorer, Search | ✅ Implémenté |
-| `/universites/{id}` | GET | ✅ | UniversityDetails | ✅ Implémenté |
-| `/universites` | POST | ❌ | Admin | ⚠️ Admin seulement |
-| `/universites/{id}` | PUT | ❌ | Admin | ⚠️ Admin seulement |
-| `/universites/{id}` | DELETE | ❌ | Admin | ⚠️ Admin seulement |
+| `/universites` | GET | [DONE] | MapExplorer, Search | [DONE] Implémenté |
+| `/universites/{id}` | GET | [DONE] | UniversityDetails | [DONE] Implémenté |
+| `/universites` | POST | [TODO] | Admin | [WARNING] Admin seulement |
+| `/universites/{id}` | PUT | [TODO] | Admin | [WARNING] Admin seulement |
+| `/universites/{id}` | DELETE | [TODO] | Admin | [WARNING] Admin seulement |
 
 ---
 
-## 📚 FILIÈRES (Fields)
+## FILIÈRES (Fields)
 Base URL: `/api/filieres`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/filieres` | GET | ✅ | Search, Compare, MapExplorer | ✅ Implémenté |
-| `/filieres/{id}` | GET | ✅ | Recommendations | ✅ Implémenté |
-| `/filieres` | POST | ❌ | Admin | ⚠️ Admin seulement |
-| `/filieres/{id}` | PUT | ❌ | Admin | ⚠️ Admin seulement |
-| `/filieres/{id}` | DELETE | ❌ | Admin | ⚠️ Admin seulement |
+| `/filieres` | GET | [DONE] | Search, Compare, MapExplorer | [DONE] Implémenté |
+| `/filieres/{id}` | GET | [DONE] | Recommendations | [DONE] Implémenté |
+| `/filieres` | POST | [TODO] | Admin | [WARNING] Admin seulement |
+| `/filieres/{id}` | PUT | [TODO] | Admin | [WARNING] Admin seulement |
+| `/filieres/{id}` | DELETE | [TODO] | Admin | [WARNING] Admin seulement |
 
 ---
 
-## 📚 PARCOURS (Study Paths)
+## PARCOURS (Study Paths)
 Base URL: `/api/parcours`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/parcours` | GET | ⚠️ | Non utilisé | ❌ À implémenter |
-| `/parcours/{id}` | GET | ⚠️ | Non utilisé | ❌ À implémenter |
-| `/parcours/filiere/{id}` | GET | ⚠️ | Non utilisé | ❌ À implémenter |
-| `/parcours` | POST | ❌ | Admin | ⚠️ Admin seulement |
+| `/parcours` | GET | [WARNING] | Non utilisé | [TODO] À implémenter |
+| `/parcours/{id}` | GET | [WARNING] | Non utilisé | [TODO] À implémenter |
+| `/parcours/filiere/{id}` | GET | [WARNING] | Non utilisé | [TODO] À implémenter |
+| `/parcours` | POST | [TODO] | Admin | [WARNING] Admin seulement |
 
 ---
 
-## 📋 TESTS D'ORIENTATION (Tests)
+## TESTS D'ORIENTATION (Tests)
 Base URL: `/api/test`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/test/questions` | GET | ✅ | OrientationTest | ✅ Implémenté |
-| `/test/demarrer` | POST | ✅ | OrientationTest | ✅ Implémenté |
-| `/test/{id}/repondre` | POST | ✅ | OrientationTest | ✅ Implémenté |
-| `/test/{id}/terminer` | POST | ✅ | OrientationTest, TestResults | ✅ Implémenté |
-| `/test/historique` | GET | ✅ | Dashboard, TestsList, History | ✅ Implémenté |
+| `/test/questions` | GET | [DONE] | OrientationTest | [DONE] Implémenté |
+| `/test/demarrer` | POST | [DONE] | OrientationTest | [DONE] Implémenté |
+| `/test/{id}/repondre` | POST | [DONE] | OrientationTest | [DONE] Implémenté |
+| `/test/{id}/terminer` | POST | [DONE] | OrientationTest, TestResults | [DONE] Implémenté |
+| `/test/historique` | GET | [DONE] | Dashboard, TestsList, History | [DONE] Implémenté |
 
 ---
 
-## 🎯 RECOMMANDATIONS (Recommendations)
+## RECOMMANDATIONS (Recommendations)
 Base URL: `/api/recommendations`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/recommendations/generer` | POST | ✅ | Recommendations, Dashboard | ✅ Implémenté |
-| `/recommendations/mes-recommendations` | GET | ✅ | Recommendations, Compare, Dashboard | ✅ Implémenté |
-| `/recommendations/{id}/sauvegarder` | PATCH | ✅ | Recommendations | ✅ Implémenté |
-| `/recommendations/{id}/explication` | GET | ⚠️ | Recommendations (modal) | ⚠️ À tester |
-| **NEW:** `/recommendations/ml/entrainer-modeles` | POST | ❌ | Admin | 🆕 À implémenter |
-| **NEW:** `/recommendations/ml/feature-importance` | GET | ❌ | AdminStatistics | 🆕 À implémenter |
+| `/recommendations/generer` | POST | [DONE] | Recommendations, Dashboard | [DONE] Implémenté |
+| `/recommendations/mes-recommendations` | GET | [DONE] | Recommendations, Compare, Dashboard | [DONE] Implémenté |
+| `/recommendations/{id}/sauvegarder` | PATCH | [DONE] | Recommendations | [DONE] Implémenté |
+| `/recommendations/{id}/explication` | GET | [WARNING] | Recommendations (modal) | [WARNING] À tester |
+| **NEW:** `/recommendations/ml/entrainer-modeles` | POST | [TODO] | Admin | [NEW] À implémenter |
+| **NEW:** `/recommendations/ml/feature-importance` | GET | [TODO] | AdminStatistics | [NEW] À implémenter |
 
 ---
 
-## ⚖️ COMPARATEUR (Comparison)
+## COMPARATEUR (Comparison)
 Base URL: `/api/comparateur`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/comparateur` | POST | ✅ | Compare | ✅ Implémenté |
+| `/comparateur` | POST | [DONE] | Compare | [DONE] Implémenté |
 
 ---
 
-## 📊 STATISTIQUES (Statistics)
+## STATISTIQUES (Statistics)
 Base URL: `/api/stats`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/stats/dashboard` | GET | ⚠️ | AdminOverview | ⚠️ À tester |
-| `/stats/filieres/{id}` | GET | ⚠️ | Non implémenté | ❌ À implémenter |
-| `/stats/moi` | GET | ✅ | Dashboard | ✅ Implémenté |
+| `/stats/dashboard` | GET | [WARNING] | AdminOverview | [WARNING] À tester |
+| `/stats/filieres/{id}` | GET | [WARNING] | Non implémenté | [TODO] À implémenter |
+| `/stats/moi` | GET | [DONE] | Dashboard | [DONE] Implémenté |
 
 ---
 
-## 👨‍💼 ADMINISTRATION (Admin)
+## ADMINISTRATION (Admin)
 Base URL: `/api/admin`
 
 ### Utilisateurs
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/admin/users` | GET | ✅ | AdminUsers | ✅ Implémenté |
-| `/admin/users` | POST | ✅ | AdminUsers | ✅ Implémenté |
-| `/admin/users/{id}` | PUT | ✅ | AdminUsers | ✅ Implémenté |
-| `/admin/users/{id}` | DELETE | ✅ | AdminUsers | ✅ Implémenté |
-| `/admin/users/{id}/toggle` | PATCH | ✅ | AdminUsers | ✅ Implémenté |
+| `/admin/users` | GET | [DONE] | AdminUsers | [DONE] Implémenté |
+| `/admin/users` | POST | [DONE] | AdminUsers | [DONE] Implémenté |
+| `/admin/users/{id}` | PUT | [DONE] | AdminUsers | [DONE] Implémenté |
+| `/admin/users/{id}` | DELETE | [DONE] | AdminUsers | [DONE] Implémenté |
+| `/admin/users/{id}/toggle` | PATCH | [DONE] | AdminUsers | [DONE] Implémenté |
 
 ### Questions de Test
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/admin/questions` | POST | ✅ | AdminTests | ✅ Implémenté |
-| `/admin/questions/{id}` | PUT | ✅ | AdminTests | ✅ Implémenté |
-| `/admin/questions/{id}` | DELETE | ✅ | AdminTests | ✅ Implémenté |
+| `/admin/questions` | POST | [DONE] | AdminTests | [DONE] Implémenté |
+| `/admin/questions/{id}` | PUT | [DONE] | AdminTests | [DONE] Implémenté |
+| `/admin/questions/{id}` | DELETE | [DONE] | AdminTests | [DONE] Implémenté |
 
 ### Règles de Recommandation
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/admin/recommendation-rules` | GET | ✅ | AdminRules | ✅ Implémenté |
-| `/admin/recommendation-rules/{id}` | GET | ✅ | AdminRules | ✅ Implémenté |
-| `/admin/recommendation-rules/active` | GET | ✅ | AdminRules | ✅ Implémenté |
-| `/admin/recommendation-rules` | POST | ✅ | AdminRules | ✅ Implémenté |
-| `/admin/recommendation-rules/{id}` | PUT | ✅ | AdminRules | ✅ Implémenté |
-| `/admin/recommendation-rules/{id}/activate` | PATCH | ✅ | AdminRules | ✅ Implémenté |
-| `/admin/recommendation-rules/{id}` | DELETE | ✅ | AdminRules | ✅ Implémenté |
+| `/admin/recommendation-rules` | GET | [DONE] | AdminRules | [DONE] Implémenté |
+| `/admin/recommendation-rules/{id}` | GET | [DONE] | AdminRules | [DONE] Implémenté |
+| `/admin/recommendation-rules/active` | GET | [DONE] | AdminRules | [DONE] Implémenté |
+| `/admin/recommendation-rules` | POST | [DONE] | AdminRules | [DONE] Implémenté |
+| `/admin/recommendation-rules/{id}` | PUT | [DONE] | AdminRules | [DONE] Implémenté |
+| `/admin/recommendation-rules/{id}/activate` | PATCH | [DONE] | AdminRules | [DONE] Implémenté |
+| `/admin/recommendation-rules/{id}` | DELETE | [DONE] | AdminRules | [DONE] Implémenté |
 
 ### Témoignages
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/admin/testimonials` | GET | ✅ | AdminTestimonials | ✅ Implémenté |
-| `/admin/testimonials` | POST | ✅ | AdminTestimonials | ✅ Implémenté |
-| `/admin/testimonials/{id}` | PUT | ✅ | AdminTestimonials | ✅ Implémenté |
-| `/admin/testimonials/{id}` | DELETE | ✅ | AdminTestimonials | ✅ Implémenté |
-| `/admin/testimonials/{id}/approve` | PATCH | ✅ | AdminTestimonials | ✅ Implémenté |
-| `/admin/testimonials/{id}/reject` | PATCH | ✅ | AdminTestimonials | ✅ Implémenté |
+| `/admin/testimonials` | GET | [DONE] | AdminTestimonials | [DONE] Implémenté |
+| `/admin/testimonials` | POST | [DONE] | AdminTestimonials | [DONE] Implémenté |
+| `/admin/testimonials/{id}` | PUT | [DONE] | AdminTestimonials | [DONE] Implémenté |
+| `/admin/testimonials/{id}` | DELETE | [DONE] | AdminTestimonials | [DONE] Implémenté |
+| `/admin/testimonials/{id}/approve` | PATCH | [DONE] | AdminTestimonials | [DONE] Implémenté |
+| `/admin/testimonials/{id}/reject` | PATCH | [DONE] | AdminTestimonials | [DONE] Implémenté |
 
 ### Settings
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/admin/settings` | GET | ✅ | AdminSettings | ✅ Implémenté |
-| `/admin/settings` | PUT | ✅ | AdminSettings | ✅ Implémenté |
+| `/admin/settings` | GET | [DONE] | AdminSettings | [DONE] Implémenté |
+| `/admin/settings` | PUT | [DONE] | AdminSettings | [DONE] Implémenté |
 
 ---
 
-## 💬 TÉMOIGNAGES (Public)
+## TÉMOIGNAGES (Public)
 Base URL: `/api/testimonials`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/testimonials` | GET | ✅ | Index | ✅ Implémenté |
-| `/testimonials/{id}` | GET | ⚠️ | Non implémenté | ❌ À implémenter |
+| `/testimonials` | GET | [DONE] | Index | [DONE] Implémenté |
+| `/testimonials/{id}` | GET | [WARNING] | Non implémenté | [TODO] À implémenter |
 
 ---
 
-## 🏥 HEALTH CHECK
+## HEALTH CHECK
 Base URL: `/api`
 
 | Endpoint | Méthode | Utilisé | Pages | Statut |
 |----------|---------|---------|-------|--------|
-| `/health` | GET | ⚠️ | Navigation | ✅ Implémenté |
+| `/health` | GET | [WARNING] | Navigation | [DONE] Implémenté |
 
 ---
 
 ## Pages et leurs endpoints
 
-### 🏠 Index
+### Index
 - `GET /testimonials` - Témoignages approuvés
 
-### 🔐 Login
+### Login
 - `POST /auth/login` - Connexion
 - `POST /auth/mot-de-passe/reinitialiser` - Réinitialisation mot de passe
 
-### 📝 Register
+### Register
 - `POST /auth/register` - Inscription
 
-### 📊 Dashboard
+### Dashboard
 - `GET /auth/me` - Utilisateur courant
 - `GET /stats/moi` - Statistiques personnelles
 - `GET /recommendations/mes-recommendations` - Recommandations
 - `GET /test/historique` - Historique tests
 - `GET /users/favoris` - Favoris
 
-### 👤 Profile
+### Profile
 - `GET /users/profil` - Profil utilisateur
 - `PUT /users/profil` - Mise à jour profil
 - `PUT /users/profil/academique` - Mise à jour profil académique
 
-### 🧪 Orientation Test
+### Orientation Test
 - `GET /test/questions` - Questions du test
 - `POST /test/demarrer` - Démarrer un test
 - `POST /test/{id}/repondre` - Répondre à une question
 - `POST /test/{id}/terminer` - Terminer le test
 
-### 📚 Test Results
+### Test Results
 - `POST /test/{id}/terminer` - Résultats du test
 - `GET /recommendations/generer` - Générer recommandations
 
-### 🎯 Recommendations
+### Recommendations
 - `GET /recommendations/mes-recommendations` - Liste des recommandations
 - `POST /recommendations/generer` - Générer recommandations
 - `GET /recommendations/{id}/explication` - Explication d'une recommandation
 - `PATCH /recommendations/{id}/sauvegarder` - Sauvegarder/retirer des favoris
 - `GET /users/favoris` - Récupérer les favoris
 
-### ⚖️ Compare
+### Compare
 - `GET /recommendations/mes-recommendations` - Recommandations
 - `GET /filieres?page=1&limit=3` - Filières par défaut
 - `POST /comparateur` - Comparaison de filières
 
-### 🔍 Search
+### Search
 - `GET /universites?page={p}&limit={l}` - Recherche universités
 - `GET /filieres?page={p}&limit={l}` - Recherche filières
 - `GET /universites/{id}` - Détails université
 - `GET /filieres/{id}` - Détails filière
 
-### 🗺️ Map Explorer
+### Map Explorer
 - `GET /universites` - Toutes les universités
 
-### ❤️ Favorites
+### Favorites
 - `GET /users/favoris` - Favoris
 - `DELETE /users/favoris/{id}` - Supprimer des favoris
 
-### 📖 History
+### History
 - `GET /test/historique` - Historique des tests
 
-### 📧 Notifications
+### Notifications
 - (Pas d'endpoints spécifiques)
 
-### 📖 Guide & About & Blog & FAQ
+### Guide & About & Blog & FAQ
 - (Pages statiques)
 
 ---
 
-## 🔧 Admin Pages
+## Admin Pages
 
 ### Admin Overview
 - `GET /stats/dashboard` - Statistiques globales

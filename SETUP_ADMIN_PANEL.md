@@ -24,10 +24,10 @@ Ce document détaille tous les pas pour configurer et tester complètement l'esp
 - `adminOnly` - Réserve l'accès aux admins [DONE]
 
 [DONE] **Pages Admin Frontend :**
-- AdminOverview, AdminUniversities, AdminFilieres ✅
-- AdminUsers, AdminRules, AdminSettings ✅
-- AdminStatistics, AdminTestimonials, AdminTests ✅
-- AdminParcours, AdminFields ✅
+- AdminOverview, AdminUniversities, AdminFilieres [DONE]
+- AdminUsers, AdminRules, AdminSettings [DONE]
+- AdminStatistics, AdminTestimonials, AdminTests [DONE]
+- AdminParcours, AdminFields [DONE]
 
 ---
 

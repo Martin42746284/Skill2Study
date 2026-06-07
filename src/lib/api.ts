@@ -710,7 +710,7 @@ export const tests = {
 };
 
 // ============================================================================
-// 🎯 RECOMMANDATIONS (Recommendations)
+// RECOMMANDATIONS (Recommendations)
 // ============================================================================
 
 export const recommendations = {
@@ -787,7 +787,7 @@ export const comparator = {
 };
 
 // ============================================================================
-// 📊 STATISTIQUES (Statistics)
+// STATISTIQUES (Statistics)
 // ============================================================================
 
 export const stats = {

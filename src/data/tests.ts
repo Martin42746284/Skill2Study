@@ -31,7 +31,7 @@ export const initialTests: OrientationTest[] = [
     status: "Publié",
     lastUpdated: "15/02/2026",
     duration: "15 min",
-    icon: "🎯",
+    icon: null,
     questions: [
       { id: 1, text: "Quels domaines vous passionnent le plus ?", category: "Intérêts", options: ["Sciences et technologies", "Médecine et santé", "Lettres et sciences humaines", "Économie et gestion", "Arts et design", "Droit et sciences politiques"], multi: true },
       { id: 2, text: "Dans quelles matières obtenez-vous les meilleurs résultats ?", category: "Aptitudes", options: ["Mathématiques", "Physique-Chimie", "Sciences naturelles", "Langues étrangères", "Littérature", "Informatique"], multi: true },

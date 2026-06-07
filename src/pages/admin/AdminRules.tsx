@@ -509,13 +509,13 @@ const AdminRules = () => {
 
                 <div className="space-y-5">
                   {[
-                    { key: "serie", label: "Série du Baccalauréat", icon: "🎓" },
-                    { key: "moyenne", label: "Moyenne générale", icon: "📊" },
-                    { key: "interet", label: "Centres d'intérêt", icon: "💡" },
-                    { key: "competences", label: "Compétences", icon: "🎯" },
-                    { key: "budget", label: "Contraintes budgétaires", icon: "💰" },
-                    { key: "duree", label: "Durée des études", icon: "⏱️" },
-                    { key: "test", label: "Scores du test", icon: "📝" },
+                    { key: "serie", label: "Série du Baccalauréat", icon: null },
+                    { key: "moyenne", label: "Moyenne générale", icon: null },
+                    { key: "interet", label: "Centres d'intérêt", icon: null },
+                    { key: "competences", label: "Compétences", icon: null },
+                    { key: "budget", label: "Contraintes budgétaires", icon: null },
+                    { key: "duree", label: "Durée des études", icon: null },
+                    { key: "test", label: "Scores du test", icon: null },
                   ].map((item) => (
                     <div key={item.key}>
                       <div className="flex items-center justify-between mb-2">

@@ -190,7 +190,7 @@ const History = () => {
                             <span className="text-xs font-medium">{score}%</span>
                           </div>
                           <p className="mt-1.5 text-xs text-muted-foreground">
-                            🎯 {t("recommendations.title")} : <strong>{topRecommendation}</strong>
+                            {t("recommendations.title")} : <strong>{topRecommendation}</strong>
                           </p>
                         </>
                       )}

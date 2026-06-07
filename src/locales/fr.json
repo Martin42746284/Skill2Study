@@ -434,7 +434,7 @@
   "dashboard": {
     "loading": "Chargement du tableau de bord...",
     "errorLoading": "Impossible de charger vos données",
-    "welcome": "Bonjour, {name} 👋",
+    "welcome": "Bonjour, {name}",
     "subtitle": "Bienvenue sur votre espace personnel. Voici un résumé de votre progression.",
     "profileCompleted": "Profil complété",
     "bac": "Bac",
@@ -734,7 +734,7 @@
         "category": "Orientation",
         "date": "28 février 2026",
         "readTime": "5 min",
-        "image": "🎓"
+        "image": "graduation-cap"
       },
       {
         "title": "Les métiers d'avenir à Madagascar : où se former ?",
@@ -742,7 +742,7 @@
         "category": "Carrière",
         "date": "20 février 2026",
         "readTime": "7 min",
-        "image": "🚀"
+        "image": "rocket"
       },
       {
         "title": "Université publique vs privée : quel choix faire ?",
@@ -750,7 +750,7 @@
         "category": "Comparatif",
         "date": "15 février 2026",
         "readTime": "6 min",
-        "image": "⚖️"
+        "image": "scale"
       },
       {
         "title": "Témoignage : comment l'orientation m'a changé la vie",

@@ -97,7 +97,6 @@ const TestsList = () => {
                 <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-card hover:shadow-card-hover transition-shadow">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                     <div className="flex h-12 sm:h-14 w-12 sm:w-14 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xl sm:text-2xl">
-                      🎯
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">

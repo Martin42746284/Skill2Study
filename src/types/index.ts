@@ -162,7 +162,7 @@ export interface TestAnswer {
 }
 
 // ============================================================================
-// 🎯 RECOMMENDATION TYPES
+// RECOMMENDATION TYPES
 // ============================================================================
 
 export interface Recommendation {
@@ -231,7 +231,7 @@ export interface Favorite {
 }
 
 // ============================================================================
-// 📊 STATISTICS TYPES
+// STATISTICS TYPES
 // ============================================================================
 
 export interface DashboardStats {

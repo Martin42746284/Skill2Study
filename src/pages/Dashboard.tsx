@@ -221,8 +221,8 @@ const Dashboard = () => {
   const bestRecommendation = statsObj.meilleure_compatibilite?.filiere;
 
   const welcomeMessage = firstName
-    ? (i18n.language === "fr" ? `Bonjour, ${firstName} 👋` : `Hello, ${firstName} 👋`)
-    : (i18n.language === "fr" ? "Bonjour 👋" : "Hello 👋");
+    ? (i18n.language === "fr" ? `Bonjour, ${firstName}` : `Hello, ${firstName}`)
+    : (i18n.language === "fr" ? "Bonjour" : "Hello");
 
   return (
     <DashboardLayout>

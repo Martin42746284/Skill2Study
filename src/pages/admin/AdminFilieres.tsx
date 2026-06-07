@@ -99,6 +99,18 @@ const AdminFilieres = () => {
     { value: "Toutes séries", label: t("seriesBac.serieToutesSeries") }
   ];
 
+  // Domaines options from translation
+  const domainesOptions = [
+    { value: "Sciences et Technologies", label: t("domaines.sciences_tech") },
+    { value: "Sciences de Gestion", label: t("domaines.sciences_gestion") },
+    { value: "Droit et Sciences Politiques", label: t("domaines.droit_sciences_pol") },
+    { value: "Arts, Lettres et Communication", label: t("domaines.arts_lettres_comm") },
+    { value: "Santé et Paramédical", label: t("domaines.sante_paramedical") },
+    { value: "Agriculture et Environnement", label: t("domaines.agriculture_env") },
+    { value: "Sciences Humaines et Sociales", label: t("domaines.sciences_humaines") },
+    { value: "Défense et Sécurité", label: t("domaines.defense_securite") }
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -542,8 +554,19 @@ const AdminFilieres = () => {
                 <Input value={formNom} onChange={(e) => setFormNom(e.target.value)} placeholder="ex: Informatique" />
               </div>
               <div className="space-y-1.5">
-                <Label>{t("admin.pages.filieres.formDomain")}</Label>
-                <Input value={formDomaine} onChange={(e) => setFormDomaine(e.target.value)} placeholder="ex: Sciences & Technologies" />
+                <Label>{t("domaines.label")}</Label>
+                <Select value={formDomaine} onValueChange={setFormDomaine}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {domainesOptions.map((d) => (
+                      <SelectItem key={d.value} value={d.value}>
+                        {d.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
                 <Label>{t("admin.pages.filieres.formNiveaux")} *</Label>

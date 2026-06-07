@@ -965,6 +965,17 @@
     "difficile": "Hard",
     "tres_difficile": "Very Hard"
   },
+  "domaines": {
+    "label": "Domain",
+    "sciences_tech": "Science and Technology",
+    "sciences_gestion": "Business and Management",
+    "droit_sciences_pol": "Law and Political Science",
+    "arts_lettres_comm": "Arts, Letters and Communication",
+    "sante_paramedical": "Health and Paramedical",
+    "agriculture_env": "Agriculture and Environment",
+    "sciences_humaines": "Human and Social Sciences",
+    "defense_securite": "Defense and Security"
+  },
   "search": {
     "title": "Search",
     "searchPlaceholder": "Search by name, university or domain...",

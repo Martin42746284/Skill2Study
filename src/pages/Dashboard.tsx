@@ -234,7 +234,7 @@ const Dashboard = () => {
   const completedTests = Array.from(new Set(
     state.sessions
       .filter((session) => session.complete === true)
-      .map((session) => session.test_name || `test_${session.test_id}`)
+      .map((session) => (session as any).test_name || `test_${(session as any).test_id}`)
   )).length;
   const recommendationsCount = typeof state.stats === 'object' && state.stats !== null && 'nb_recommendations' in state.stats
     ? (state.stats as any).nb_recommendations
@@ -260,9 +260,17 @@ const Dashboard = () => {
         <div className="mb-6 sm:mb-8 rounded-xl border bg-card p-4 sm:p-6 shadow-card">
           <div className="flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="flex h-12 sm:h-16 w-12 sm:w-16 items-center justify-center rounded-full bg-accent text-xl sm:text-2xl font-bold text-accent-foreground shrink-0">
-                {initials || "ES"}
-              </div>
+              {(user as any)?.avatar_url ? (
+                <img
+                  src={(user as any).avatar_url}
+                  alt={displayName}
+                  className="h-12 sm:h-16 w-12 sm:w-16 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <div className="flex h-12 sm:h-16 w-12 sm:w-16 items-center justify-center rounded-full bg-accent text-xl sm:text-2xl font-bold text-accent-foreground shrink-0">
+                  {initials || "ES"}
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <h2 className="text-lg sm:text-xl font-semibold truncate">{displayName}</h2>
                 <p className="text-xs sm:text-sm text-muted-foreground truncate">{user?.email}</p>

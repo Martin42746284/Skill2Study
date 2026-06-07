@@ -24,12 +24,12 @@ const TestsList = () => {
       const [orientationQuestionsResponse, historyResponse] = await Promise.all([
         testsApi.getQuestions(),
         testsApi.getHistory(),
-      ]);
+      ]) as unknown[];
 
-      const orientationQuestions = Array.isArray(orientationQuestionsResponse?.questions) ? orientationQuestionsResponse.questions : [];
+      const orientationQuestions = Array.isArray((orientationQuestionsResponse as any)?.questions) ? (orientationQuestionsResponse as any).questions : [];
       setQuestions(orientationQuestions);
 
-      const sessions = Array.isArray(historyResponse?.sessions) ? historyResponse.sessions : [];
+      const sessions = Array.isArray((historyResponse as any)?.sessions) ? (historyResponse as any).sessions : [];
       setHistory(sessions);
       setError(null);
     } catch (err) {
@@ -44,12 +44,24 @@ const TestsList = () => {
     loadTests();
   }, [location.pathname]);
 
+  // Auto-refresh tests every 30 seconds silently
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadTests();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const completedSessions = useMemo(() => history.filter((session) => session.complete), [history]);
   const availableTest = questions.length > 0;
 
   return (
     <DashboardLayout>
-      <div className="animate-fade-in h-full flex flex-col px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="h-full flex flex-col px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6" style={{ pointerEvents: 'auto' }}>
+        <style>{`
+          * { transition: none !important; animation: none !important; }
+        `}</style>
         <div className="mb-4 sm:mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">{t("orientationTest.title")}</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
@@ -94,16 +106,17 @@ const TestsList = () => {
             <div className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto">
               {/* Test d'Orientation Principal */}
               {availableTest && (
-                <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-card hover:shadow-card-hover transition-shadow">
+                <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-card">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                    <div className="flex h-12 sm:h-14 w-12 sm:w-14 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xl sm:text-2xl">
+                    <div className="flex h-12 sm:h-14 w-12 sm:w-14 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                      <ClipboardCheck className="h-6 sm:h-7 w-6 sm:w-7 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h3 className="text-base sm:text-lg font-semibold">{t("orientationTest.title")}</h3>
                         {completedSessions.length > 0 && (
                           <Badge variant="default" className="bg-success text-success-foreground text-[9px] sm:text-[10px]">
-                            <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1" /> {t("testsList.completed")}
+                            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> {t("testsList.completed")}
                           </Badge>
                         )}
                       </div>

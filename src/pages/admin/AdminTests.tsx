@@ -127,8 +127,27 @@ const AdminTests = () => {
 
   const handleSave = async () => {
     try {
+      // Validation du texte
+      if (!formText.trim()) {
+        toast({
+          title: t("common.error"),
+          description: "Le texte de la question est requis",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (formText.trim().length < 10) {
+        toast({
+          title: t("common.error"),
+          description: "Le texte doit contenir au moins 10 caractères",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const options = formOptions.filter(o => o.trim()).map(o => ({ texte: o }));
-      
+
       if (!options.length) {
         toast({
           title: t("common.error"),
@@ -139,26 +158,36 @@ const AdminTests = () => {
       }
 
       if (editingQuestion) {
-        await admin.updateQuestion(editingQuestion.id, {
+        const updateData = {
           texte: formText,
           categorie: formCategory,
           options: options,
-        } as any);
-        setQuestions(questions.map((q) => (q.id === editingQuestion.id ? { ...q, texte: formText, categorie: formCategory, options: options } : q)));
+        };
+        const response = await admin.updateQuestion(editingQuestion.id, updateData as any);
+        // Combiner la réponse du backend avec nos données locales (pour les options)
+        const backendQuestion = (response as any).question || {};
+        const updatedQuestion = {
+          ...backendQuestion,
+          texte: formText,
+          categorie: formCategory,
+          options: (response as any).question?.options || options,
+        };
+        setQuestions(questions.map((q) => (q.id === editingQuestion.id ? updatedQuestion : q)));
         toast({ title: t("admin.pages.tests.editTest"), description: t("admin.pages.tests.questionUpdated") });
       } else {
-        const newQuestion = await admin.createQuestion({
+        const createData = {
           texte: formText,
           categorie: formCategory,
           options: options,
-        } as any);
+        };
+        const response = await admin.createQuestion(createData as any);
+        const newQuestion = (response as any).question || (response as any);
         setQuestions([...questions, newQuestion]);
         toast({ title: t("admin.pages.tests.addTest"), description: t("admin.pages.tests.questionAdded") });
       }
       setDialogOpen(false);
     } catch (error) {
-      toast({ title: t("common.error"), description: t("admin.pages.tests.saveError"), variant: "destructive" });
-      console.error('Error saving question:', error);
+      toast({ title: t("common.error"), description: error instanceof Error ? error.message : t("admin.pages.tests.saveError"), variant: "destructive" });
     }
   };
 
@@ -172,7 +201,6 @@ const AdminTests = () => {
         setDeletingQuestionId(null);
       } catch (error) {
         toast({ title: t("common.error"), description: t("admin.pages.tests.deleteError"), variant: "destructive" });
-        console.error('Error deleting question:', error);
       }
     }
   };

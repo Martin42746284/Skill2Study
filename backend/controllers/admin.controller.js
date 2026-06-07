@@ -117,8 +117,30 @@ exports.modifierQuestion = async (req, res, next) => {
   try {
     const question = await Question.findByPk(req.params.id);
     if (!question) return res.status(404).json({ success: false, message: 'Question introuvable.' });
-    await question.update(req.body);
-    res.json({ success: true, question });
+
+    const { texte, categorie, series_bac_cibles, ordre, options } = req.body;
+
+    // Mettre à jour les champs de la question
+    await question.update({
+      texte: texte !== undefined ? texte : question.texte,
+      categorie: categorie !== undefined ? categorie : question.categorie,
+      series_bac_cibles: series_bac_cibles !== undefined ? series_bac_cibles : question.series_bac_cibles,
+      ordre: ordre !== undefined ? ordre : question.ordre,
+    });
+
+    // Gérer les options si fournis
+    if (options && Array.isArray(options)) {
+      // Supprimer les anciennes options
+      await OptionReponse.destroy({ where: { question_id: question.id } });
+      // Créer les nouvelles options
+      if (options.length > 0) {
+        await OptionReponse.bulkCreate(options.map(o => ({ texte: o.texte, poids: o.poids, question_id: question.id })));
+      }
+    }
+
+    // Retourner la question avec ses options
+    const updatedQuestion = await Question.findByPk(question.id, { include: [{ model: OptionReponse, as: 'options' }] });
+    res.json({ success: true, question: updatedQuestion });
   } catch (err) { next(err); }
 };
 

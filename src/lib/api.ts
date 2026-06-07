@@ -912,6 +912,10 @@ export const admin = {
       texte?: string;
       categorie?: string;
       actif?: boolean;
+      options?: Array<{
+        texte: string;
+        poids?: Record<string, number>;
+      }>;
     }
   ) => {
     return apiCall(`/admin/questions/${id}`, {

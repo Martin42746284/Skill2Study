@@ -88,24 +88,45 @@ const Dashboard = () => {
 
     const loadDashboard = async () => {
       try {
-        const [meRes, statsRes, recsRes, historyRes, favorisRes] = await Promise.all([
+        const [meRes, profilRes, statsRes, recsRes, historyRes, favorisRes] = await Promise.all([
           auth.me(),
+          usersApi.getProfil(),
           statsApi.getMine(),
           recommendationsApi.getMine(),
           testsApi.getHistory(),
           usersApi.getFavoris(),
-        ]) as unknown[];
+        ]);
 
         if (!active) return;
 
         const meData = typeof meRes === 'object' && meRes !== null && 'user' in meRes ? (meRes as any).user : meRes;
+        const profilData = typeof profilRes === 'object' && profilRes !== null && 'user' in profilRes ? (profilRes as any).user : profilRes;
+
+        // Extraire les données académiques du profil ou profil_academique
+        const academicProfile = profilData?.profil || profilData?.profil_academique || {};
+
+        // Merger les données avec les champs académiques au niveau racine
+        const userData = {
+          ...meData,
+          ...profilData,
+          serie_bac: academicProfile.serie_bac || meData.serie_bac,
+          annee_bac: academicProfile.annee_bac,
+          mention: academicProfile.mention,
+          moyenne_generale: academicProfile.moyenne_generale,
+          objectifs_professionnels: academicProfile.objectifs_professionnels,
+          secteur_vise: academicProfile.secteur_vise,
+          preference_type_univ: academicProfile.preference_type_univ,
+          ville_preference: academicProfile.ville_preference,
+          duree_max_etudes: academicProfile.duree_max_etudes,
+        };
+
         const statsData = typeof statsRes === 'object' && statsRes !== null && 'stats' in statsRes ? (statsRes as any).stats : statsRes;
         const recsData = Array.isArray(recsRes) ? recsRes : (typeof recsRes === 'object' && recsRes !== null && 'recommendations' in recsRes ? (recsRes as any).recommendations : []);
         const favorisData = Array.isArray(favorisRes) ? favorisRes : (typeof favorisRes === 'object' && favorisRes !== null && 'favoris' in favorisRes ? (favorisRes as any).favoris : []);
         const historyData = Array.isArray(historyRes) ? historyRes : (typeof historyRes === 'object' && historyRes !== null && 'sessions' in historyRes ? (historyRes as any).sessions : []);
 
         setState({
-          user: meData as User | null,
+          user: userData as User | null,
           stats: statsData as Record<string, unknown> | null,
           recommendations: (recsData as Recommendation[]) || [],
           favorites: (favorisData as Favorite[]) || [],
@@ -132,16 +153,18 @@ const Dashboard = () => {
   const profileCompletion = useMemo(() => {
     if (!state.user) return 0;
 
-    const fields = [
-      state.user.nom,
-      state.user.prenom,
-      state.user.email,
-      state.user.serie_bac,
-      state.user.ville,
-      state.user.budget_mensuel,
-    ].filter((value) => value !== undefined && value !== null && value !== "");
+    // Champs disponibles dans state.user
+    const fieldsToCheck = [
+      { name: 'nom', value: state.user.nom },
+      { name: 'prenom', value: state.user.prenom },
+      { name: 'email', value: state.user.email },
+      { name: 'ville', value: state.user.ville },
+      { name: 'serie_bac', value: state.user.serie_bac },
+    ];
 
-    return Math.round((fields.length / 6) * 100);
+    const filledFields = fieldsToCheck.filter(f => f.value !== undefined && f.value !== null && f.value !== "");
+
+    return Math.round((filledFields.length / 5) * 100);
   }, [state.user]);
 
   const recentActivity = useMemo(() => {

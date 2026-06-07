@@ -113,7 +113,6 @@ const Compare = () => {
 
       // Limiter à 50 filières pour l'API (contrainte du backend)
       const filiereIdsToCompare = filiereIds.slice(0, 50);
-      console.log(`Envoi de ${filiereIdsToCompare.length} filières pour comparaison:`, filiereIdsToCompare);
 
       // Charger les données détaillées de TOUTES les filieres pour avoir le niveau
       // On charge avec une limite élevée pour couvrir toutes les filières possibles
@@ -127,7 +126,7 @@ const Compare = () => {
           });
         }
       } catch (err) {
-        console.warn('Erreur lors du chargement des details des filieres:', err);
+        // Silently handle error
       }
 
       const comparisonResponse = await comparatorApi.compare(filiereIdsToCompare) as any;

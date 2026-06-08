@@ -181,6 +181,13 @@ const Compare = () => {
         return transformed;
       });
 
+      // Trier par score de compatibilité décroissant (plus haut score en premier)
+      items.sort((a: any, b: any) => {
+        const scoreA = a.score_compatibilite ?? 0;
+        const scoreB = b.score_compatibilite ?? 0;
+        return scoreB - scoreA;
+      });
+
       setComparisons(items);
       setError(null);
     } catch (err) {

@@ -108,19 +108,26 @@ function _calculerROI(filiere) {
 
 function _extraireAvantages(filiere) {
   const avantages = [];
-  if (filiere.taux_emploi >= 80) avantages.push('Fort taux d\'emploi');
-  if (filiere.duree_annees <= 3) avantages.push('Formation courte');
-  if (filiere.cout_annuel <= 5000) avantages.push('Coût abordable');
+  if (filiere.taux_emploi && filiere.taux_emploi >= 80) avantages.push('Fort taux d\'emploi');
+  if (filiere.duree_annees && filiere.duree_annees <= 3) avantages.push('Formation courte');
+  // Ne suggérer "coût abordable" que si le coût est réellement renseigné
+  if (filiere.cout_annuel && filiere.cout_annuel <= 5000) avantages.push('Coût abordable');
   if (filiere.universite?.type === 'publique') avantages.push('Université publique');
-  if (filiere.debouches?.length >= 5) avantages.push('Nombreux débouchés');
+  if (filiere.debouches && Array.isArray(filiere.debouches) && filiere.debouches.length >= 5) avantages.push('Nombreux débouchés');
   return avantages;
 }
 
 function _extraireInconvenients(filiere) {
   const inconvenients = [];
-  if (filiere.difficulte === 'difficile' || filiere.difficulte === 'tres_difficile') inconvenients.push('Niveau difficile');
-  if (filiere.duree_annees >= 5) inconvenients.push('Formation longue');
-  if (filiere.cout_annuel >= 30000) inconvenients.push('Coût élevé');
+  // Différencier selon le niveau de difficulté
+  if (filiere.difficulte === 'tres_difficile') {
+    inconvenients.push('Niveau très difficile');
+  } else if (filiere.difficulte === 'difficile') {
+    inconvenients.push('Niveau difficile');
+  }
+  if (filiere.duree_annees && filiere.duree_annees >= 5) inconvenients.push('Formation longue');
+  // Ne suggérer "coût élevé" que si le coût est réellement renseigné
+  if (filiere.cout_annuel && filiere.cout_annuel >= 30000) inconvenients.push('Coût élevé');
   if (filiere.taux_emploi && filiere.taux_emploi < 50) inconvenients.push('Débouchés limités');
   return inconvenients;
 }

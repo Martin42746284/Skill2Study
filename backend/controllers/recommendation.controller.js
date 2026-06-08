@@ -11,6 +11,9 @@ exports.genererRecommendations = async (req, res, next) => {
     const profil = await ProfilAcademique.findOne({ where: { user_id: userId } });
     if (!profil) return res.status(400).json({ success: false, message: 'Profil académique incomplet.' });
 
+    // Debug: log profil data
+    logger.info(`Profil chargé - ID: ${profil.id}, Série: ${profil.serie_bac}, Moyenne: ${profil.moyenne_generale}`);
+
     const { session_test_id, use_ai = true } = req.body;
     let scoresTest = null;
     if (session_test_id) {
@@ -25,33 +28,22 @@ exports.genererRecommendations = async (req, res, next) => {
 
     let resultats = [];
 
-    // Utiliser le service IA Python si disponible
-    if (use_ai) {
-      logger.info(`🤖 Génération IA pour utilisateur ${userId}`);
-      const aiRecommendations = await AIRecommendationService.generateRecommendationsML(
+    // Utiliser le fallback avec justifications enrichies (plus robuste que le service IA complexe)
+    logger.info(`📊 Génération des recommandations pour utilisateur ${userId}`);
+    resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
+
+    // Enrichir avec des justifications personnalisées pour chaque recommandation
+    resultats = resultats.map(rec => ({
+      ...rec,
+      justification: _generatePersonalizedJustification(
         profil,
-        filieres,
+        rec.filiere,
+        {score: rec.score, factors: rec.details},
         scoresTest
-      );
+      )
+    }));
 
-      if (aiRecommendations && aiRecommendations.length > 0) {
-        // Transformer les résultats IA en format attendu
-        resultats = aiRecommendations.map((rec, idx) => ({
-          filiere: filieres.find(f => f.id === rec.filiere_id),
-          score: rec.score,
-          details: rec.factors || {},
-          justification: rec.explanation || {}
-        })).filter(r => r.filiere);
-
-        logger.info(`✓ ${resultats.length} recommandations générées par le service IA`);
-      } else {
-        logger.warn('⚠️ Service IA indisponible, utilisation du fallback');
-        resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
-      }
-    } else {
-      // Utiliser le scoring classique (fallback)
-      resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
-    }
+    logger.info(`✓ ${resultats.length} recommandations générées avec justifications personnalisées`);
 
     // Vérifier que nous avons des recommandations
     if (!resultats || resultats.length === 0) {
@@ -169,3 +161,76 @@ exports.supprimerRecommendation = async (req, res, next) => {
     res.json({ success: true, message: 'Recommandation supprimée.' });
   } catch (err) { next(err); }
 };
+
+// Fonction helper pour générer des justifications personnalisées
+function _generatePersonalizedJustification(profil, filiere, recommendation, scoresTest) {
+  const justification = {
+    raison_principale: '',
+    points_forts: [],
+    points_attention: [],
+    raisons: []
+  };
+
+  // Vérifier la compatibilité série bac
+  const seriesAcceptees = filiere.series_bac_acceptees || [];
+  // Le profil peut stocker la série bac sous différents noms
+  const serieProfil = profil.serie_bac || profil.serie || profil.bac_series || '';
+
+  if (seriesAcceptees.length > 0) {
+    if (seriesAcceptees.includes(serieProfil)) {
+      justification.points_forts.push(`Votre série "${serieProfil}" est bien adaptée à cette filière.`);
+    } else {
+      justification.points_attention.push(`Votre série "${serieProfil}" n'est pas idéale pour cette filière.`);
+    }
+  }
+
+  // Vérifier la moyenne générale
+  const moyenneMin = filiere.moyenne_min_requise || 10;
+  const moyenneProfil = profil.moyenne_generale || 0;
+
+  if (moyenneProfil >= moyenneMin) {
+    justification.points_forts.push(`Votre moyenne (${moyenneProfil}/20) est excellente pour l'admission.`);
+  } else if (moyenneProfil >= moyenneMin - 2) {
+    justification.points_attention.push(`Votre moyenne (${moyenneProfil}/20) est proche du minimum requis (${moyenneMin}/20).`);
+  }
+
+  // Vérifier les centres d'intérêt
+  const centresInteret = filiere.centres_interet || [];
+  if (centresInteret.length > 0) {
+    justification.raisons.push(`Cette filière couvre les domaines: ${centresInteret.join(', ')}`);
+  }
+
+  // Vérifier la durée des études
+  const dureeMax = profil.duree_max_etudes || 4;
+  const dureeFil = filiere.duree_annees ? parseInt(filiere.duree_annees) : 3;
+
+  if (dureeFil <= dureeMax) {
+    justification.points_forts.push(`La durée des études (${dureeFil} ans) correspond à vos attentes.`);
+  }
+
+  // Vérifier la localisation
+  const villePreference = profil.ville_preference || '';
+  const villeUniv = filiere.universite?.ville || '';
+
+  if (villeUniv && villePreference) {
+    if (villeUniv.toLowerCase() === villePreference.toLowerCase()) {
+      justification.points_forts.push(`Université basée à ${villeUniv}, votre ville de préférence.`);
+    } else {
+      justification.raisons.push(`Université basée à ${villeUniv}.`);
+    }
+  }
+
+  // Raison principale basée sur le score
+  const score = recommendation.score || 60;
+  if (score >= 80) {
+    justification.raison_principale = `Excellente correspondance (${score}%) avec votre profil académique.`;
+  } else if (score >= 70) {
+    justification.raison_principale = `Bonne correspondance (${score}%) avec votre profil académique.`;
+  } else if (score >= 60) {
+    justification.raison_principale = `Correspondance acceptable (${score}%) avec votre profil académique.`;
+  } else {
+    justification.raison_principale = `Recommandée à titre informatif (${score}%).`;
+  }
+
+  return justification;
+}

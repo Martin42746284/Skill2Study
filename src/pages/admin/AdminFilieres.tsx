@@ -265,6 +265,7 @@ const AdminFilieres = () => {
           niveau,
           series_bac_acceptees: formSeriesBac,
           difficulte: formDifficulte as "facile" | "moyen" | "difficile" | "tres_difficile",
+          parcours: formParcours,
         };
 
         if (formDescription) updateData.description = formDescription;
@@ -272,7 +273,7 @@ const AdminFilieres = () => {
         if (formCout && formCout.trim()) updateData.cout_annuel = parseFloat(formCout);
         if (formCoutDescription) updateData.cout_description = formCoutDescription.trim();
 
-        console.log('UpdateData envoyé:', updateData);
+        //console.log('UpdateData envoyé:', updateData);
 
         try {
           await filieres.update(editingFiliere.id, updateData);

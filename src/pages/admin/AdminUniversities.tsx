@@ -367,7 +367,7 @@ const AdminUniversities = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> {t("common.filter")}
+                  <Plus className="h-4 w-4 mr-1" /> {t("common.export")}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

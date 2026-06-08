@@ -108,12 +108,34 @@ function _calculerROI(filiere) {
 
 function _extraireAvantages(filiere) {
   const avantages = [];
+  // Taux d'emploi
   if (filiere.taux_emploi && filiere.taux_emploi >= 80) avantages.push('Fort taux d\'emploi');
+
+  // Durée
   if (filiere.duree_annees && filiere.duree_annees <= 3) avantages.push('Formation courte');
-  // Ne suggérer "coût abordable" que si le coût est réellement renseigné
+
+  // Coût
   if (filiere.cout_annuel && filiere.cout_annuel <= 5000) avantages.push('Coût abordable');
+
+  // Type d'université
   if (filiere.universite?.type === 'publique') avantages.push('Université publique');
-  if (filiere.debouches && Array.isArray(filiere.debouches) && filiere.debouches.length >= 5) avantages.push('Nombreux débouchés');
+
+  // Débouchés
+  if (filiere.debouches && Array.isArray(filiere.debouches) && filiere.debouches.length >= 5) {
+    avantages.push('Nombreux débouchés');
+  }
+
+  // Salaire moyen
+  if (filiere.salaire_moyen_debutant && filiere.salaire_moyen_debutant >= 2000000) {
+    avantages.push('Salaire de départ attractif');
+  }
+
+  // Domaine populaire
+  const domaines_populaires = ['informatique', 'ingénierie', 'commerce', 'médecine', 'droit'];
+  if (filiere.domaine && domaines_populaires.some(d => filiere.domaine.toLowerCase().includes(d))) {
+    avantages.push('Domaine très demandé');
+  }
+
   return avantages;
 }
 

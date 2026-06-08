@@ -12,12 +12,13 @@
 // NOTE: La contrainte de budget a été supprimée car les données
 // pour les filières/universités ne précisent pas bien le salaire et le coût
 const POIDS_DEFAUT = {
-  scores_test:             40,  // [STAR] PRINCIPAL: résultats du test d'orientation
+  scores_test:             35,  // [STAR] PRINCIPAL: résultats du test d'orientation
   compatibilite_serie:     20,  // série bac compatible avec la filière
   centres_interet:         15,  // correspondance centres d'intérêt
   moyenne_generale:        15,  // moyenne vs seuil requis
-  competences:              5,  // compétences auto-évaluées
-  contraintes_duree:        5,  // durée dans les préférences
+  preference_geographique: 10,  // ville préférée de l'utilisateur
+  competences:              3,  // compétences auto-évaluées
+  contraintes_duree:        2,  // durée dans les préférences
 };
 
 class RecommendationService {
@@ -135,7 +136,10 @@ class RecommendationService {
     // 5. Contraintes durée
     details.contraintes_duree = this._scoreDuree(profil, filiere);
 
-    // 6. Scores test
+    // 6. Préférence géographique
+    details.preference_geographique = this._scoreLocalization(profil, filiere);
+
+    // 7. Scores test
     details.scores_test = scoresTest ? this._scoreTest(scoresTest, filiere) : 50;
 
     // Score final pondéré (0-100) - utilise les poids fournis
@@ -199,6 +203,37 @@ class RecommendationService {
     if (filiere.duree_annees <= profil.duree_max_etudes) return 100;
     if (filiere.duree_annees <= profil.duree_max_etudes + 1) return 60;
     return 20;
+  }
+
+  static _scoreLocalization(profil, filiere) {
+    // Score basé sur la préférence géographique
+    const villePreference = profil.ville_preference?.toLowerCase() || '';
+    const villeUniv = filiere.universite?.ville?.toLowerCase() || '';
+
+    if (!villePreference) return 50; // Pas de préférence = score neutre
+
+    if (villeUniv === villePreference) {
+      return 100; // Match parfait!
+    }
+
+    // Vérifier les régions/régions associées pour un match partiel
+    // Antananarivo, Fianarantsoa, Toliara, Mahajanga, Antalaha etc.
+    const sameRegion = {
+      'antananarivo': ['antananarivo'],
+      'fianarantsoa': ['fianarantsoa', 'ambalavao'],
+      'toliara': ['toliara', 'bekily'],
+      'mahajanga': ['mahajanga', 'maintirano'],
+      'antalaha': ['antalaha', 'sambava', 'vohemar', 'andapa']
+    };
+
+    const regionPref = Object.keys(sameRegion).find(key => sameRegion[key].includes(villePreference));
+    const regionUniv = Object.keys(sameRegion).find(key => sameRegion[key].includes(villeUniv));
+
+    if (regionPref && regionUniv && regionPref === regionUniv) {
+      return 80; // Même région
+    }
+
+    return 30; // Autre région
   }
 
   static _scoreTest(scoresTest, filiere) {

@@ -1,0 +1,192 @@
+{
+  "success": true,
+  "count": 1,
+  "recommendations": [
+    {
+      "filiere_id": 42,
+      "nom": "Licence Informatique",
+      "universite": {
+        "id": 5,
+        "nom": "Université d'Antananarivo",
+        "ville": "Antananarivo",
+        "type": "publique"
+      },
+      "score": 94,
+      "scores_details": {
+        "weighted_scoring": 93.5,
+        "knn_similarity": 92.0,
+        "random_forest": 96.0
+      },
+      "methode": "ml_ensemble",
+      "justification": {
+        "score_global": 94,
+        "pourquoi_cette_recommandation": {
+          "titre": "Pourquoi cette recommandation ?",
+          "raisons": [
+            "Vos réponses au test d'orientation correspondent excellemment aux domaines de cette filière (92%)",
+            "Cette filière correspond directement à votre objectif en informatique",
+            "Votre série \"S\" est prioritaire pour cette filière",
+            "Votre moyenne (15.5/20) est excellente pour l'admission",
+            "La localisation (Antananarivo) correspond exactement à votre préférence"
+          ],
+          "resume": "Vos réponses au test d'orientation correspondent excellemment aux domaines de cette filière (92%). Cette filière correspond directement à votre objectif en informatique. Autres facteurs positifs: Votre série S est..., Votre moyenne (15.5..., La localisation..."
+        },
+        "criteres_analyzes": {
+          "test_orientation": {
+            "label": "Test d'orientation",
+            "impact": "25% (Principal)",
+            "score": 92,
+            "detail": "Excellente correspondance (92%) avec vos réponses au test"
+          },
+          "objectifs_secteur": {
+            "label": "Objectif professionnel & Secteur",
+            "impact": "20% (Principal)",
+            "score": 95,
+            "detail": "Objectif: Devenir ingénieur informatique | Secteur: Informatique"
+          },
+          "serie_bac": {
+            "label": "Série du Bac",
+            "impact": "15%",
+            "score": 100,
+            "detail": "Votre série \"S\" est bien acceptée par cette filière"
+          },
+          "moyenne_generale": {
+            "label": "Moyenne générale",
+            "impact": "12%",
+            "score": 77.5,
+            "detail": "Votre moyenne (15.5/20) est excellente pour l'admission"
+          },
+          "centres_interet": {
+            "label": "Centres d'intérêt",
+            "impact": "12%",
+            "score": 88,
+            "detail": "Vos intérêts correspondent aux domaines de cette filière"
+          },
+          "localisation": {
+            "label": "Localisation",
+            "impact": "8%",
+            "score": 100,
+            "detail": "Localisation exacte: Antananarivo ✓"
+          },
+          "duree_etudes": {
+            "label": "Durée d'études",
+            "impact": "5%",
+            "score": 100,
+            "detail": "Durée: 3 ans (votre préférence: max 4 ans)"
+          }
+        },
+        "points_forts": [
+          "Excellente correspondance avec test d'orientation (92%)",
+          "Alignement directe avec objectif \"Ingénieur informatique\"",
+          "Votre série S est prioritaire",
+          "Localisation exacte à Antananarivo",
+          "Très bon taux d'emploi: 87%"
+        ],
+        "points_attention": [],
+        "debouches": [
+          "Ingénieur informatique",
+          "Consultant IT",
+          "Développeur logiciel",
+          "Architecte système",
+          "Chef de projet IT"
+        ],
+        "taux_emploi": 87,
+        "cout_annuel": 2500,
+        "type_universite": "publique"
+      }
+    },
+    {
+      "filiere_id": 78,
+      "nom": "Master Informatique",
+      "universite": {
+        "id": 8,
+        "nom": "Université de Fianarantsoa",
+        "ville": "Fianarantsoa",
+        "type": "publique"
+      },
+      "score": 78,
+      "scores_details": {
+        "weighted_scoring": 77.0,
+        "knn_similarity": 80.0,
+        "random_forest": 76.0
+      },
+      "methode": "ml_ensemble",
+      "justification": {
+        "score_global": 78,
+        "pourquoi_cette_recommandation": {
+          "titre": "Pourquoi cette recommandation ?",
+          "raisons": [
+            "Vos intérêts au test d'orientation s'alignent bien avec cette filière (78%)",
+            "Bonne correspondance avec votre secteur visé (informatique)",
+            "Votre série \"S\" est bien acceptée",
+            "Excellent taux d'emploi: 89% des diplômés trouvent un emploi"
+          ],
+          "resume": "Vos intérêts au test d'orientation s'alignent bien avec cette filière (78%). Bonne correspondance avec votre secteur visé (informatique). Autres facteurs positifs: Votre série S est..., Excellent taux..."
+        },
+        "criteres_analyzes": {
+          "test_orientation": {
+            "label": "Test d'orientation",
+            "impact": "25% (Principal)",
+            "score": 78,
+            "detail": "Bonne correspondance (78%) avec le test"
+          },
+          "objectifs_secteur": {
+            "label": "Objectif professionnel & Secteur",
+            "impact": "20% (Principal)",
+            "score": 80,
+            "detail": "Secteur visé: Informatique"
+          },
+          "serie_bac": {
+            "label": "Série du Bac",
+            "impact": "15%",
+            "score": 80,
+            "detail": "Votre série \"S\" est bien acceptée par cette filière"
+          },
+          "moyenne_generale": {
+            "label": "Moyenne générale",
+            "impact": "12%",
+            "score": 77.5,
+            "detail": "Votre moyenne (15.5/20) dépasse le seuil (13/20) de 2.5 points"
+          },
+          "centres_interet": {
+            "label": "Centres d'intérêt",
+            "impact": "12%",
+            "score": 75,
+            "detail": "Vos intérêts correspondent aux domaines de cette filière"
+          },
+          "localisation": {
+            "label": "Localisation",
+            "impact": "8%",
+            "score": 50,
+            "detail": "Localisation: Fianarantsoa (vous préférez: Antananarivo)"
+          },
+          "duree_etudes": {
+            "label": "Durée d'études",
+            "impact": "5%",
+            "score": 100,
+            "detail": "Durée: 2 ans (votre préférence: max 4 ans)"
+          }
+        },
+        "points_forts": [
+          "Bonne correspondance test d'orientation",
+          "Secteur informatique confirmé",
+          "Série S acceptée",
+          "Excellent taux d'emploi: 89%"
+        ],
+        "points_attention": [
+          "Localisation: Fianarantsoa (vous préférez Antananarivo)",
+          "Coût élevé: 3500€/an (budget: ~200€/mois)"
+        ],
+        "debouches": [
+          "Ingénieur senior",
+          "Directeur technique",
+          "Consultant expert",
+          "Chercheur en informatique"
+        ],
+        "taux_emploi": 89,
+        "cout_annuel": 3500,
+        "type_universite": "publique"
+      }
+    }
+  ]
+}

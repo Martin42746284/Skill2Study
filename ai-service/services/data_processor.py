@@ -34,7 +34,7 @@ class DataProcessor:
     def prepare_profil_features(self, profil: Dict[str, Any]) -> Dict[str, Any]:
         """
         Préparer les features d'un profil académique pour les modèles ML
-        
+
         Input:
         {
             "serie_bac": "S",
@@ -43,9 +43,14 @@ class DataProcessor:
             "competences": {"logique": 4, "communication": 3},
             "budget_max_mensuel": 500,
             "duree_max_etudes": 4,
-            "distance_max_km": 100
+            "distance_max_km": 100,
+            "objectifs_professionnels": "Devenir ingénieur informatique",
+            "secteur_vise": "Informatique",
+            "preference_type_univ": "publique",
+            "ville_preference": "Antananarivo",
+            "test_responses": {...}  # Réponses brutes du test
         }
-        
+
         Output:
         {
             "serie_bac": "S",
@@ -55,46 +60,59 @@ class DataProcessor:
             "budget_max_mensuel": 500,
             "duree_max_etudes": 4,
             "distance_max_km": 100,
+            "objectifs_professionnels": "Devenir ingénieur informatique",
+            "secteur_vise": "Informatique",
+            "preference_type_univ": "publique",
+            "ville_preference": "Antananarivo",
+            "test_alignment_score": 0.85,  # Basé sur les réponses du test
             "chosen_filieres": []  # Pour tracking
         }
         """
         try:
             features = {}
-            
+
             # Série bac (conservation)
             features['serie_bac'] = profil.get('serie_bac', '').upper()
-            
+
             # Normalisé moyenne générale (0-20 → 0-100)
             moyenne = profil.get('moyenne_generale', 10)
             features['moyenne_score'] = self._normalize_moyenne(moyenne)
-            
+
             # Centres d'intérêt (placeholder, sera comparé avec filière)
             centres_interet = profil.get('centres_interet', [])
-            features['centres_interet'] = centers_interet
+            features['centres_interet'] = centres_interet
             features['centres_interet_match'] = 0.5  # Sera calculé vs filière
-            
+
             # Compétences (normaliser 1-5 → 0-100)
             competences = profil.get('competences', {})
             features['competences_score'] = self._calculate_competences_score(competences)
-            
+
             # Contraintes
             features['budget_max_mensuel'] = max(profil.get('budget_max_mensuel', 0), 0)
             features['duree_max_etudes'] = max(profil.get('duree_max_etudes', 3), 1)
             features['distance_max_km'] = max(profil.get('distance_max_km', 0), 0)
-            
+
             # Type d'université préféré
-            features['preference_type_univ'] = profil.get('preference_type_univ', 'indifferent')
-            
+            features['preference_type_univ'] = profil.get('preference_type_univ', 'indifferent').lower()
+
             # Ville préférée
-            features['ville_preference'] = profil.get('ville_preference', '')
-            
-            # Données pour tracking
+            features['ville_preference'] = profil.get('ville_preference', '').lower()
+
+            # Données pour tracking - CRITÈRES CLÉS POUR LA RECOMMANDATION
             features['objectifs_professionnels'] = profil.get('objectifs_professionnels', '')
-            features['secteur_vise'] = profil.get('secteur_vise', '')
+            features['secteur_vise'] = profil.get('secteur_vise', '').lower()
+
+            # Score d'alignement avec les réponses du test
+            test_responses = profil.get('test_responses', {})
+            features['test_alignment_score'] = self._calculate_test_alignment(
+                centres_interet,
+                test_responses
+            )
+
             features['chosen_filieres'] = profil.get('chosen_filieres', [])
-            
+
             return features
-            
+
         except Exception as e:
             logger.error(f"Erreur lors de la préparation des features: {str(e)}")
             return self._get_default_features()
@@ -142,18 +160,65 @@ class DataProcessor:
         try:
             if not competences:
                 return 50.0
-            
+
             scores = []
             for competence, level in competences.items():
                 # Niveau 1-5 → 0-100
                 score = (level / 5) * 100
                 scores.append(score)
-            
+
             avg_score = np.mean(scores) if scores else 50
             return round(avg_score, 2)
-            
+
         except:
             return 50.0
+
+    def _calculate_test_alignment(
+        self,
+        centres_interet: List[str],
+        test_responses: Dict[str, Any]
+    ) -> float:
+        """
+        Calculer le score d'alignement basé sur les réponses du test
+        Prend en compte toutes les réponses pour un calcul holistique
+        """
+        try:
+            if not test_responses:
+                return 0.5
+
+            # Extraire les scores de test par catégorie
+            test_scores = test_responses.get('scores_par_categorie', {})
+            if not test_scores:
+                return 0.5
+
+            # Normaliser les scores du test
+            scores = []
+            for category, score in test_scores.items():
+                if score is not None:
+                    # Assumer que les scores sont entre 0-100
+                    normalized = max(0, min(100, score)) / 100
+                    scores.append(normalized)
+
+            # Score moyen du test normalisé
+            avg_test_score = np.mean(scores) if scores else 0.5
+
+            # Aligner avec les centres d'intérêt
+            interet_alignment = 0.5
+            if centres_interet and test_scores:
+                # Bonus si les intérêts correspondent aux scores du test
+                matching_interests = 0
+                for interet in centres_interet:
+                    if interet.lower() in [k.lower() for k in test_scores.keys()]:
+                        matching_interests += 1
+                interet_alignment = (matching_interests / len(centres_interet)) if centres_interet else 0.5
+
+            # Combinaison: 60% score test + 40% alignement intérêts
+            final_score = (avg_test_score * 0.6) + (interet_alignment * 0.4)
+
+            return round(final_score, 2)
+
+        except:
+            return 0.5
     
     def _calculate_interet_similarity(
         self,

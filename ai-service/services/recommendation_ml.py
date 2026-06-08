@@ -321,46 +321,56 @@ class RecommendationMLService:
     ) -> float:
         """
         Calculer le score par la méthode de scoring pondéré
+        POIDS AMÉLIORÉS: Les critères utilisateur (objectifs, secteur, ville, distance, durée)
+        sont plus fortement pondérés pour assurer une recommandation fiable
         """
         try:
+            # POIDS OPTIMISÉS - Critères utilisateur essentiels au début
             weights = {
-                'serie_bac': 0.20,
-                'moyenne_generale': 0.20,
-                'centres_interet': 0.20,
-                'competences': 0.15,
-                'budget': 0.10,
-                'duree': 0.10,
-                'test_scores': 0.05
+                'test_alignment': 0.25,          # [STAR] Réponses du test d'orientation
+                'objectifs_secteur': 0.20,       # [STAR] Objectif professionnel + secteur
+                'serie_bac': 0.15,
+                'moyenne_generale': 0.12,
+                'centres_interet': 0.12,
+                'distance_ville': 0.08,          # Localisation (ville préférence + distance)
+                'duree': 0.05,
+                'competences': 0.03
             }
-            
+
             scores = {}
-            
+
+            # Score alignement avec le test d'orientation (PRIORITAIRE)
+            scores['test_alignment'] = self._score_test_alignment(profil_features, filiere, scores_test)
+
+            # Score alignement objectifs professionnels + secteur
+            scores['objectifs_secteur'] = self._score_objectifs_secteur(profil_features, filiere)
+
             # Score série bac
             scores['serie_bac'] = self._score_serie_bac(profil_features, filiere)
-            
+
             # Score moyenne générale
             scores['moyenne_generale'] = profil_features.get('moyenne_score', 50)
-            
+
             # Score centres d'intérêt
             scores['centres_interet'] = profil_features.get('centres_interet_match', 50) * 100
-            
-            # Score compétences
-            scores['competences'] = profil_features.get('competences_score', 50)
-            
-            # Score budget
-            scores['budget'] = self._score_budget(profil_features, filiere)
-            
+
+            # Score distance + ville
+            scores['distance_ville'] = self._score_distance_ville(profil_features, filiere)
+
+            # Score budget (moins prioritaire maintenant)
+            # Intégré dans la justification plutôt que dans le score principal
+
             # Score durée
             scores['duree'] = self._score_duree(profil_features, filiere)
-            
-            # Score test
-            scores['test_scores'] = self._score_test(profil_features, filiere, scores_test)
-            
+
+            # Score compétences
+            scores['competences'] = profil_features.get('competences_score', 50)
+
             # Score pondéré final
             weighted_score = sum(scores[k] * weights[k] for k in weights.keys())
-            
+
             return min(max(weighted_score, 0), 100)
-            
+
         except Exception as e:
             logger.error(f"Erreur dans _calculate_weighted_score: {str(e)}")
             return 50.0
@@ -415,25 +425,166 @@ class RecommendationMLService:
         else:
             return 20
     
+    def _score_test_alignment(
+        self,
+        profil_features: Dict[str, Any],
+        filiere: Dict[str, Any],
+        scores_test: Dict[str, float] = None
+    ) -> float:
+        """
+        Scorer l'alignement avec les réponses du test d'orientation (CRITÈRE PRINCIPAL)
+        Prend en compte toutes les réponses du test pour un calcul fiable
+        """
+        try:
+            # Utiliser le score d'alignement global du test
+            test_alignment = profil_features.get('test_alignment_score', 50) * 100
+
+            # Si scores détaillés disponibles, les intégrer
+            if scores_test:
+                centres_interet_filiere = filiere.get('centres_interet', [])
+                if centres_interet_filiere:
+                    test_scores = []
+                    for interet in centres_interet_filiere:
+                        if interet.lower() in scores_test:
+                            test_scores.append(scores_test[interet.lower()])
+
+                    if test_scores:
+                        # Moyenne des scores du test pour cette filière
+                        filiere_test_score = np.mean(test_scores)
+                        # Pondérer: 50% alignement global + 50% test spécifique
+                        test_alignment = (test_alignment * 0.5) + (filiere_test_score * 0.5)
+
+            return min(max(test_alignment, 0), 100)
+
+        except Exception as e:
+            logger.error(f"Erreur dans _score_test_alignment: {str(e)}")
+            return 50.0
+
+    def _score_objectifs_secteur(
+        self,
+        profil_features: Dict[str, Any],
+        filiere: Dict[str, Any]
+    ) -> float:
+        """
+        Scorer l'alignement entre les objectifs professionnels / secteur visé
+        et la filière (CRITÈRE PRINCIPAL)
+        """
+        try:
+            score = 50  # Score neutre par défaut
+
+            # 1. Vérifier l'alignement avec le secteur visé
+            secteur_vise = profil_features.get('secteur_vise', '').lower()
+            filiere_centres = [c.lower() for c in filiere.get('centres_interet', [])]
+
+            if secteur_vise and filiere_centres:
+                # Exact match avec le secteur visé
+                if secteur_vise in filiere_centres:
+                    score = 95
+                # Partial match
+                elif any(word in secteur_vise for word in filiere_centres):
+                    score = 80
+                # No match
+                else:
+                    score = 40
+            elif secteur_vise:
+                # Chercher dans le nom de la filière
+                nom_filiere = filiere.get('nom', '').lower()
+                if secteur_vise in nom_filiere or nom_filiere in secteur_vise:
+                    score = 85
+                else:
+                    score = 45
+
+            # 2. Vérifier les débouchés vs objectifs professionnels
+            objectifs = profil_features.get('objectifs_professionnels', '').lower()
+            debouches = [d.lower() for d in filiere.get('debouches', [])]
+
+            if objectifs and debouches:
+                # Chercher des correspondances dans les débouchés
+                objectif_words = objectifs.split()
+                matches = 0
+                for word in objectif_words:
+                    if len(word) > 3 and any(word in debouche for debouche in debouches):
+                        matches += 1
+
+                if matches > 0:
+                    # Bonus selon le nombre de correspondances
+                    debouche_score = min(90 + matches * 5, 100)
+                    score = (score * 0.6) + (debouche_score * 0.4)
+
+            return min(max(score, 0), 100)
+
+        except Exception as e:
+            logger.error(f"Erreur dans _score_objectifs_secteur: {str(e)}")
+            return 50.0
+
+    def _score_distance_ville(
+        self,
+        profil_features: Dict[str, Any],
+        filiere: Dict[str, Any]
+    ) -> float:
+        """
+        Scorer l'alignement avec la ville préférée et la distance maximale
+        """
+        try:
+            score = 70  # Score neutre favorable
+
+            # 1. Vérifier la ville préférée
+            ville_preference = profil_features.get('ville_preference', '').lower()
+            universite = filiere.get('universite', {})
+            ville_filiere = universite.get('ville', '').lower() if universite else ''
+
+            if ville_preference and ville_filiere:
+                # Match exact avec la ville préférée
+                if ville_preference == ville_filiere:
+                    score = 100
+                elif ville_preference in ville_filiere or ville_filiere in ville_preference:
+                    score = 85
+                else:
+                    score = 50
+            elif not ville_preference:
+                # Pas de préférence de ville = flexible
+                score = 75
+
+            # 2. Vérifier la distance maximale (approximatif basé sur ville)
+            distance_max = profil_features.get('distance_max_km', 0)
+            if distance_max > 0:
+                # Note: Sans données GPS réelles, on simule basé sur ville
+                # En production, utiliser une vraie API de distance
+                if ville_preference and ville_filiere and ville_preference == ville_filiere:
+                    distance_score = 100
+                elif not ville_preference:
+                    distance_score = 80
+                else:
+                    # Pénalité pour distance (approximée)
+                    distance_score = max(50, 100 - (distance_max / 100))
+
+                score = (score * 0.6) + (distance_score * 0.4)
+
+            return min(max(score, 0), 100)
+
+        except Exception as e:
+            logger.error(f"Erreur dans _score_distance_ville: {str(e)}")
+            return 70.0
+
     def _score_test(
         self,
         profil_features: Dict[str, Any],
         filiere: Dict[str, Any],
         scores_test: Dict[str, float] = None
     ) -> float:
-        """Scorer basé sur les tests d'orientation"""
+        """Scorer basé sur les tests d'orientation (legacy, utilisé par l'ancien système)"""
         if not scores_test:
             return 50
-        
+
         centres_interet = filiere.get('centres_interet', [])
         if not centres_interet:
             return 50
-        
+
         test_scores = []
         for interet in centres_interet:
             if interet.lower() in scores_test:
                 test_scores.append(scores_test[interet.lower()])
-        
+
         return np.mean(test_scores) if test_scores else 50
     
     # ────────────────────────────────────────────────────────────────────────
@@ -555,58 +706,323 @@ class RecommendationMLService:
         ensemble_score: float,
         score_details: Dict[str, float]
     ) -> Dict[str, Any]:
-        """Générer une justification détaillée pour la recommandation"""
+        """Générer une justification structurée et claire répondant à 'Pourquoi cette recommandation?'"""
+
+        # Collecter les raisons principales dans l'ordre d'importance
+        raisons_principales = self._generer_raisons_principales(
+            profil_features,
+            filiere,
+            ensemble_score
+        )
+
+        strengths = self._get_strengths(profil_features, filiere)
+        weaknesses = self._get_weaknesses(profil_features, filiere)
+
         return {
             'score_global': round(ensemble_score, 2),
-            'explication': f"Score ensemble combinant 3 approches ML: "
-                          f"Scoring pondéré ({score_details['scoring_pondéré']}), "
-                          f"KNN ({score_details['knn']}), "
-                          f"Random Forest ({score_details['random_forest']})",
-            'points_forts': self._get_strengths(profil_features, filiere),
-            'points_attention': self._get_weaknesses(profil_features, filiere),
-            'debouches': filiere.get('debouches', [])
+            'pourquoi_cette_recommandation': {
+                'titre': 'Pourquoi cette recommandation ?',
+                'raisons': raisons_principales,
+                'resume': self._generer_resume_justification(raisons_principales)
+            },
+            'criteres_analyzes': {
+                'test_orientation': {
+                    'label': 'Test d\'orientation',
+                    'impact': '25% (Principal)',
+                    'score': round(self._score_test_alignment(profil_features, filiere, None), 1),
+                    'detail': self._get_test_detail(profil_features, filiere)
+                },
+                'objectifs_secteur': {
+                    'label': 'Objectif professionnel & Secteur',
+                    'impact': '20% (Principal)',
+                    'score': round(self._score_objectifs_secteur(profil_features, filiere), 1),
+                    'detail': self._get_objectifs_detail(profil_features, filiere)
+                },
+                'serie_bac': {
+                    'label': 'Série du Bac',
+                    'impact': '15%',
+                    'score': round(self._score_serie_bac(profil_features, filiere), 1),
+                    'detail': f"Votre série \"{profil_features.get('serie_bac')}\" est bien acceptée par cette filière"
+                },
+                'moyenne_generale': {
+                    'label': 'Moyenne générale',
+                    'impact': '12%',
+                    'score': round(profil_features.get('moyenne_score', 50), 1),
+                    'detail': self._get_moyenne_detail(profil_features, filiere)
+                },
+                'centres_interet': {
+                    'label': 'Centres d\'intérêt',
+                    'impact': '12%',
+                    'score': round(profil_features.get('centres_interet_match', 0.5) * 100, 1),
+                    'detail': 'Vos intérêts correspondent aux domaines de cette filière'
+                },
+                'localisation': {
+                    'label': 'Localisation',
+                    'impact': '8%',
+                    'score': round(self._score_distance_ville(profil_features, filiere), 1),
+                    'detail': self._get_localisation_detail(profil_features, filiere)
+                },
+                'duree_etudes': {
+                    'label': 'Durée d\'études',
+                    'impact': '5%',
+                    'score': round(self._score_duree(profil_features, filiere), 1),
+                    'detail': f"Durée: {filiere.get('duree_annees', 3)} ans (votre préférence: max {profil_features.get('duree_max_etudes', 3)} ans)"
+                }
+            },
+            'points_forts': strengths,
+            'points_attention': weaknesses,
+            'debouches': filiere.get('debouches', []),
+            'taux_emploi': filiere.get('taux_emploi', 0),
+            'cout_annuel': filiere.get('cout_annuel', 0),
+            'type_universite': filiere.get('universite', {}).get('type', '')
         }
     
-    def _get_strengths(self, profil_features: Dict[str, Any], filiere: Dict[str, Any]) -> List[str]:
-        """Identifier les points forts du match"""
-        strengths = []
-        
+    def _generer_raisons_principales(
+        self,
+        profil_features: Dict[str, Any],
+        filiere: Dict[str, Any],
+        ensemble_score: float
+    ) -> List[str]:
+        """
+        Générer une liste de raisons principales (max 5) expliquant clairement
+        pourquoi cette filière est recommandée
+        """
+        raisons = []
+
+        # Raison 1: Test d'orientation
+        test_score = self._score_test_alignment(profil_features, filiere, None)
+        if test_score >= 80:
+            raisons.append(
+                f"Vos réponses au test d'orientation correspondent excellemment "
+                f"aux domaines de cette filière ({round(test_score)}%)"
+            )
+        elif test_score >= 60:
+            raisons.append(
+                f"Vos intérêts au test d'orientation s'alignent bien avec cette filière ({round(test_score)}%)"
+            )
+
+        # Raison 2: Objectif professionnel
+        objectifs_score = self._score_objectifs_secteur(profil_features, filiere)
+        secteur = profil_features.get('secteur_vise', '').lower()
+        if objectifs_score >= 85:
+            raisons.append(
+                f"Cette filière correspond directement à votre objectif en {secteur}"
+            )
+        elif objectifs_score >= 70:
+            raisons.append(
+                f"Bonne correspondance avec votre secteur visé ({secteur})"
+            )
+
+        # Raison 3: Série bac
         serie_score = self._score_serie_bac(profil_features, filiere)
-        if serie_score >= 80:
-            strengths.append(f"Série {profil_features.get('serie_bac')} adaptée")
-        
-        if profil_features.get('centres_interet_match', 0) > 0.6:
-            strengths.append("Centres d'intérêt bien alignés")
-        
-        budget_score = self._score_budget(profil_features, filiere)
-        if budget_score >= 75:
-            strengths.append("Coût compatible avec votre budget")
-        
-        if profil_features.get('moyenne_score', 0) > 70:
-            strengths.append("Excellente moyenne académique")
-        
-        return strengths
+        if serie_score >= 90:
+            raisons.append(
+                f"Votre série \"{profil_features.get('serie_bac')}\" est prioritaire pour cette filière"
+            )
+        elif serie_score >= 80:
+            raisons.append(
+                f"Votre série \"{profil_features.get('serie_bac')}\" est bien acceptée"
+            )
+
+        # Raison 4: Moyenne générale
+        moyenne = profil_features.get('moyenne_score', 0)
+        moyenne_brute = (moyenne / 100) * 20
+        moyenne_min = filiere.get('moyenne_min_requise', 10)
+        if moyenne >= 75:
+            raisons.append(
+                f"Votre moyenne ({moyenne_brute:.1f}/20) est excellente pour l'admission"
+            )
+        elif moyenne >= moyenne_min * 5:
+            raisons.append(
+                f"Votre moyenne ({moyenne_brute:.1f}/20) dépasse le seuil requis"
+            )
+
+        # Raison 5: Localisation ou débouchés
+        localisation_score = self._score_distance_ville(profil_features, filiere)
+        if localisation_score >= 95:
+            ville = filiere.get('universite', {}).get('ville', '')
+            raisons.append(
+                f"La localisation ({ville}) correspond exactement à votre préférence"
+            )
+
+        # Alternative: Débouchés
+        if len(raisons) < 4:
+            taux_emploi = filiere.get('taux_emploi', 0)
+            if taux_emploi >= 80:
+                raisons.append(
+                    f"Excellent taux d'emploi: {taux_emploi}% des diplômés trouvent un emploi"
+                )
+
+        # Durée d'études si compatible
+        if len(raisons) < 5:
+            duree_score = self._score_duree(profil_features, filiere)
+            if duree_score >= 90:
+                raisons.append(
+                    f"Durée ({filiere.get('duree_annees')} ans) conforme à votre préférence"
+                )
+
+        return raisons[:5]  # Max 5 raisons principales
+
+    def _generer_resume_justification(self, raisons: List[str]) -> str:
+        """Générer un résumé court des raisons"""
+        if not raisons:
+            return "Recommandation basée sur analyse multi-critères"
+
+        if len(raisons) == 1:
+            return raisons[0]
+        elif len(raisons) == 2:
+            return f"{raisons[0]}. {raisons[1]}"
+        else:
+            # Combiner les raisons principales
+            return f"{raisons[0]}. {raisons[1]}. Autres facteurs positifs: {', '.join([r[:30] + '...' if len(r) > 30 else r for r in raisons[2:]])}"
+
+    def _get_test_detail(self, profil_features: Dict[str, Any], filiere: Dict[str, Any]) -> str:
+        """Détail sur le test d'orientation"""
+        test_score = self._score_test_alignment(profil_features, filiere, None)
+        if test_score >= 80:
+            return f"Excellente correspondance ({round(test_score)}%) avec vos réponses au test"
+        elif test_score >= 60:
+            return f"Bonne correspondance ({round(test_score)}%) avec le test"
+        else:
+            return f"Alignement modéré ({round(test_score)}%) avec le test"
+
+    def _get_objectifs_detail(self, profil_features: Dict[str, Any], filiere: Dict[str, Any]) -> str:
+        """Détail sur l'alignement objectifs/secteur"""
+        secteur = profil_features.get('secteur_vise', '')
+        objectifs = profil_features.get('objectifs_professionnels', '')
+
+        if not secteur and not objectifs:
+            return "Pas d'objectif spécifique défini"
+        elif secteur and objectifs:
+            return f"Objectif: {objectifs[:40]}... | Secteur: {secteur}"
+        elif secteur:
+            return f"Secteur visé: {secteur}"
+        else:
+            return f"Objectif: {objectifs[:50]}..."
+
+    def _get_moyenne_detail(self, profil_features: Dict[str, Any], filiere: Dict[str, Any]) -> str:
+        """Détail sur la moyenne générale"""
+        moyenne_score = profil_features.get('moyenne_score', 0)
+        moyenne_brute = (moyenne_score / 100) * 20
+        moyenne_min = filiere.get('moyenne_min_requise', 10)
+
+        if moyenne_score >= 90:
+            return f"Votre moyenne ({moyenne_brute:.1f}/20) est excellente pour l'admission"
+        elif moyenne_score >= moyenne_min * 5:
+            diff = moyenne_brute - moyenne_min
+            return f"Votre moyenne ({moyenne_brute:.1f}/20) dépasse le seuil ({moyenne_min}/20) de {diff:.1f} points"
+        else:
+            return f"Votre moyenne ({moyenne_brute:.1f}/20) est acceptable"
+
+    def _get_localisation_detail(
+        self,
+        profil_features: Dict[str, Any],
+        filiere: Dict[str, Any]
+    ) -> str:
+        """Détail sur la correspondance localisation"""
+        ville_pref = profil_features.get('ville_preference', '')
+        ville_filiere = filiere.get('universite', {}).get('ville', '')
+
+        if not ville_pref:
+            return "Pas de préférence de localisation - flexible"
+        elif ville_pref.lower() == ville_filiere.lower():
+            return f"Localisation exacte: {ville_filiere} ✓"
+        else:
+            return f"Localisation: {ville_filiere} (vous préférez: {ville_pref})"
+
+    def _get_strengths(self, profil_features: Dict[str, Any], filiere: Dict[str, Any]) -> List[str]:
+        """Identifier les points forts du match basés sur les critères clés"""
+        strengths = []
+
+        # Critère 1: Alignement test d'orientation
+        test_alignment = profil_features.get('test_alignment_score', 0.5) * 100
+        if test_alignment >= 75:
+            strengths.append("Excellente correspondance avec vos réponses au test d'orientation")
+        elif test_alignment >= 60:
+            strengths.append("Bonne correspondance avec le test d'orientation")
+
+        # Critère 2: Objectifs et secteur
+        objectifs_secteur_score = self._score_objectifs_secteur(profil_features, filiere)
+        if objectifs_secteur_score >= 85:
+            secteur = profil_features.get('secteur_vise', '')
+            strengths.append(f"Align directe avec votre objectif en {secteur}")
+        elif objectifs_secteur_score >= 70:
+            strengths.append("Correspond à votre secteur visé")
+
+        # Critère 3: Série bac
+        serie_score = self._score_serie_bac(profil_features, filiere)
+        if serie_score >= 90:
+            strengths.append(f"Votre série {profil_features.get('serie_bac')} est prioritaire")
+        elif serie_score >= 80:
+            strengths.append(f"Série {profil_features.get('serie_bac')} bien acceptée")
+
+        # Critère 4: Localisation
+        distance_score = self._score_distance_ville(profil_features, filiere)
+        if distance_score >= 95:
+            strengths.append(f"Localisation: {filiere.get('universite', {}).get('ville')} (exacte)")
+        elif distance_score >= 80:
+            strengths.append("Localisation compatible avec votre préférence")
+
+        # Critère 5: Moyenne académique
+        if profil_features.get('moyenne_score', 0) > 75:
+            strengths.append("Votre moyenne est excellente pour cette filière")
+
+        # Critère 6: Débouchés
+        if filiere.get('taux_emploi', 0) >= 80:
+            strengths.append(f"Très bon taux d'emploi: {filiere.get('taux_emploi')}%")
+
+        # Critère 7: Durée d'études
+        duree_score = self._score_duree(profil_features, filiere)
+        if duree_score >= 90:
+            strengths.append(f"Durée conforme à vos préférences ({filiere.get('duree_annees')} ans)")
+
+        return strengths[:5]  # Limiter à 5 principaux points forts
     
     def _get_weaknesses(self, profil_features: Dict[str, Any], filiere: Dict[str, Any]) -> List[str]:
-        """Identifier les faiblesses du match"""
+        """Identifier les faiblesses du match basées sur les critères clés"""
         weaknesses = []
-        
+
+        # Critère 1: Alignement test d'orientation
+        test_alignment = profil_features.get('test_alignment_score', 0.5) * 100
+        if test_alignment < 40:
+            weaknesses.append("Faible correspondance avec vos réponses au test")
+
+        # Critère 2: Objectifs et secteur
+        objectifs_secteur_score = self._score_objectifs_secteur(profil_features, filiere)
+        if objectifs_secteur_score < 50:
+            weaknesses.append("Peu d'alignement avec votre secteur visé")
+
+        # Critère 3: Série bac
         serie_score = self._score_serie_bac(profil_features, filiere)
         if serie_score < 50:
-            weaknesses.append("Série bac non prioritaire")
-        
-        if profil_features.get('centres_interet_match', 0) < 0.3:
-            weaknesses.append("Peu de correspondance avec vos intérêts")
-        
-        budget_score = self._score_budget(profil_features, filiere)
-        if budget_score < 50:
-            weaknesses.append("Coût élevé par rapport au budget")
-        
+            weaknesses.append("Votre série bac n'est pas prioritaire")
+
+        # Critère 4: Localisation
+        distance_score = self._score_distance_ville(profil_features, filiere)
+        if distance_score < 60:
+            pref_ville = profil_features.get('ville_preference', '')
+            filiere_ville = filiere.get('universite', {}).get('ville', '')
+            if pref_ville:
+                weaknesses.append(f"Localisation: {filiere_ville} (vous préférez {pref_ville})")
+
+        # Critère 5: Durée d'études
         duree_score = self._score_duree(profil_features, filiere)
         if duree_score < 50:
-            weaknesses.append("Durée supérieure à votre préférence")
-        
-        return weaknesses
+            weaknesses.append(f"Durée ({filiere.get('duree_annees')} ans) dépasse votre préférence")
+
+        # Critère 6: Budget
+        budget_score = self._score_budget(profil_features, filiere)
+        if budget_score < 40:
+            weaknesses.append("Coût annuel significatif par rapport à votre budget")
+
+        # Critère 7: Moyenne académique
+        moyenne_min = filiere.get('moyenne_min_requise', 10)
+        moyenne_score = profil_features.get('moyenne_score', 50)
+        seuil_score = (moyenne_min / 20) * 100
+        if moyenne_score < seuil_score:
+            weaknesses.append(f"Votre moyenne est légèrement en-dessous du seuil ({moyenne_min}/20)")
+
+        return weaknesses[:4]  # Limiter à 4 principaux points faibles
     
     # ────────────────────────────────────────────────────────────────────────
     # UTILITAIRES

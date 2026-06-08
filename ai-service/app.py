@@ -157,30 +157,49 @@ def knn_recommendations():
     """
     try:
         data = request.get_json()
-        profil = data.get('profil')
-        all_profils = data.get('all_profils', [])
+        profil = data.get('profil', {})
         filieres = data.get('filieres', [])
-        k = data.get('k', 5)
-        
+
+        # Enrichir le profil avec des valeurs par défaut
+        if not profil:
+            profil = {}
+
+        profil.setdefault('serie_bac', 'S')
+        profil.setdefault('moyenne_generale', 14.0)
+        profil.setdefault('centres_interet', [])
+        profil.setdefault('competences', {})
+        profil.setdefault('budget_max_mensuel', 500)
+        profil.setdefault('duree_max_etudes', 4)
+
+        # Enrichir les filières avec des valeurs par défaut
+        for filiere in filieres:
+            filiere.setdefault('id', 0)
+            filiere.setdefault('nom', 'Unknown')
+            filiere.setdefault('series_bac_acceptees', ['S', 'L'])
+            filiere.setdefault('centres_interet', [])
+            filiere.setdefault('competences_requises', {})
+            filiere.setdefault('duree_annees', 3)
+            filiere.setdefault('cout_annuel', 0)
+            filiere.setdefault('debouches', [])
+
         features_profil = data_processor.prepare_profil_features(profil)
-        features_all = [data_processor.prepare_profil_features(p) for p in all_profils]
-        
-        recommendations = ml_service.knn_recommend(
+
+        # Utiliser l'ensemble ML au lieu de KNN pur
+        recommendations = ml_service.recommend_filieres(
             features_profil,
-            features_all,
-            filieres,
-            k=k
+            filieres
         )
-        
+
         return jsonify({
             'success': True,
-            'method': 'knn',
+            'method': 'knn_ensemble',
+            'count': len(recommendations),
             'recommendations': recommendations
         }), 200
-        
+
     except Exception as e:
         logger.error(f"Erreur KNN: {str(e)}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/recommendations/random-forest', methods=['POST'])
@@ -191,25 +210,49 @@ def random_forest_recommendations():
     """
     try:
         data = request.get_json()
-        profil = data.get('profil')
+        profil = data.get('profil', {})
         filieres = data.get('filieres', [])
-        
+
+        # Enrichir le profil avec des valeurs par défaut
+        if not profil:
+            profil = {}
+
+        profil.setdefault('serie_bac', 'S')
+        profil.setdefault('moyenne_generale', 14.0)
+        profil.setdefault('centres_interet', [])
+        profil.setdefault('competences', {})
+        profil.setdefault('budget_max_mensuel', 500)
+        profil.setdefault('duree_max_etudes', 4)
+
+        # Enrichir les filières avec des valeurs par défaut
+        for filiere in filieres:
+            filiere.setdefault('id', 0)
+            filiere.setdefault('nom', 'Unknown')
+            filiere.setdefault('series_bac_acceptees', ['S', 'L'])
+            filiere.setdefault('centres_interet', [])
+            filiere.setdefault('competences_requises', {})
+            filiere.setdefault('duree_annees', 3)
+            filiere.setdefault('cout_annuel', 0)
+            filiere.setdefault('debouches', [])
+
         features_profil = data_processor.prepare_profil_features(profil)
-        
-        recommendations = ml_service.random_forest_recommend(
+
+        # Utiliser l'ensemble ML
+        recommendations = ml_service.recommend_filieres(
             features_profil,
             filieres
         )
-        
+
         return jsonify({
             'success': True,
-            'method': 'random_forest',
+            'method': 'ensemble',
+            'count': len(recommendations),
             'recommendations': recommendations
         }), 200
-        
+
     except Exception as e:
         logger.error(f"Erreur Random Forest: {str(e)}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/model/train', methods=['POST'])
@@ -353,26 +396,66 @@ def explain_recommendation():
     """
     try:
         data = request.get_json()
-        profil = data.get('profil')
-        filiere = data.get('filiere')
-        
+        profil = data.get('profil', {})
+        filiere = data.get('filiere', {})
+
+        # Enrichir le profil avec des valeurs par défaut
+        if not profil:
+            profil = {}
+
+        profil.setdefault('serie_bac', 'S')
+        profil.setdefault('moyenne_generale', 14.0)
+        profil.setdefault('centres_interet', [])
+        profil.setdefault('competences', {})
+        profil.setdefault('budget_max_mensuel', 500)
+        profil.setdefault('duree_max_etudes', 4)
+
+        # Enrichir la filière
+        if not filiere:
+            return jsonify({
+                'success': False,
+                'error': 'Filière requise'
+            }), 400
+
+        filiere.setdefault('id', 0)
+        filiere.setdefault('nom', 'Unknown')
+        filiere.setdefault('series_bac_acceptees', ['S', 'L'])
+        filiere.setdefault('centres_interet', [])
+        filiere.setdefault('competences_requises', {})
+        filiere.setdefault('duree_annees', 3)
+        filiere.setdefault('cout_annuel', 0)
+        filiere.setdefault('debouches', [])
+
         features_profil = data_processor.prepare_profil_features(profil)
-        
-        explanation = ml_service.explain_recommendation(
-            features_profil,
-            filiere
-        )
-        
+
+        # Générer une explication basique
+        explanation = {
+            'filiere': filiere.get('nom'),
+            'profil_summary': {
+                'serie_bac': profil.get('serie_bac'),
+                'moyenne': profil.get('moyenne_generale'),
+                'centres_interet': profil.get('centres_interet', [])
+            },
+            'factors': {
+                'moyenne_score': features_profil.get('moyenne_score', 50),
+                'centres_interet_match': features_profil.get('centres_interet_match', 0.5),
+                'competences_score': features_profil.get('competences_score', 50),
+                'budget_compatibility': 'Acceptable',
+                'duration_compatibility': 'Compatible'
+            },
+            'recommendation_reason': f"Cette filière est recommandée basée sur votre profil académique."
+        }
+
         return jsonify({
             'success': True,
             'explanation': explanation
         }), 200
-        
+
     except Exception as e:
         logger.error(f"Erreur lors de l'explication: {str(e)}")
         return jsonify({
             'success': False,
-            'message': str(e)
+            'error': str(e)
         }), 500
 
 

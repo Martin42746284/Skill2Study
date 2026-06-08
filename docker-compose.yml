@@ -25,7 +25,7 @@ services:
   # ─── SERVICE IA PYTHON ──────────────────────────────────────────────
   ai-service:
     build:
-      context: ./backend/ai_service
+      context: ./ai-service
       dockerfile: Dockerfile
     container_name: skill2study_ai_service
     environment:
@@ -34,8 +34,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./backend/ai_service/logs:/app/logs
-      - ./backend/ai_service/models:/app/models
+      - ./ai-service/logs:/app/logs
+      - ./ai-service/models:/app/models
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
@@ -50,37 +50,37 @@ services:
     restart: unless-stopped
 
 
-  # ─── BACKEND NODE.JS ────────────────────────────────────────────────
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: skill2study_backend
-    environment:
-      DATABASE_URL: postgresql://postgres:martin4274@postgres:5432/orientation_db
-      DB_SSL: 'false'
-      NODE_ENV: production
-      PORT: 3000
-      JWT_SECRET: ${JWT_SECRET:-a498f89f2ae792d05e15bd74e8055cb58e7bd89cc251066b322ef247b6df8aa2009eed1fe3bf54a5b8e98237f6067e8e33582aa3389914f67d1b58571a1e070e}
-      CLIENT_URL: http://localhost:3001
-      AI_SERVICE_URL: http://ai-service:5000
-      EMAIL_SERVICE: ${EMAIL_SERVICE:-gmail}
-      EMAIL_USER: ${EMAIL_USER}
-      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
-      EMAIL_FROM: ${EMAIL_FROM}
-      LOG_LEVEL: info
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./backend/logs:/app/logs
-    depends_on:
-      postgres:
-        condition: service_healthy
-      ai-service:
-        condition: service_healthy
-    networks:
-      - skill2study-network
-    restart: unless-stopped
+  # ─── BACKEND NODE.JS (lancé localement avec npm run dev) ──────────
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: skill2study_backend
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:martin4274@postgres:5432/orientation_db
+  #     DB_SSL: 'false'
+  #     NODE_ENV: production
+  #     PORT: 3000
+  #     JWT_SECRET: ${JWT_SECRET:-a498f89f2ae792d05e15bd74e8055cb58e7bd89cc251066b322ef247b6df8aa2009eed1fe3bf54a5b8e98237f6067e8e33582aa3389914f67d1b58571a1e070e}
+  #     CLIENT_URL: http://localhost:3001
+  #     AI_SERVICE_URL: http://ai-service:5000
+  #     EMAIL_SERVICE: ${EMAIL_SERVICE:-gmail}
+  #     EMAIL_USER: ${EMAIL_USER}
+  #     EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+  #     EMAIL_FROM: ${EMAIL_FROM}
+  #     LOG_LEVEL: info
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./backend/logs:/app/logs
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     ai-service:
+  #       condition: service_healthy
+  #   networks:
+  #     - skill2study-network
+  #   restart: unless-stopped
 
 
   # ─── FRONTEND REACT (OPTIONNEL) ─────────────────────────────────────

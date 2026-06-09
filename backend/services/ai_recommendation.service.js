@@ -34,6 +34,19 @@ class AIRecommendationService {
   }
 
   /**
+   * Point d'entrée principal pour générer des recommandations
+   * Appelle le service Python IA pour obtenir des recommandations intelligentes
+   *
+   * @param {ProfilAcademique} profil
+   * @param {Filiere[]} filieres
+   * @param {Object} scoresTest
+   * @returns {Array} Recommandations avec scores ML
+   */
+  static async generateRecommendations(profil, filieres, scoresTest = null) {
+    return this.generateRecommendationsML(profil, filieres, scoresTest);
+  }
+
+  /**
    * Générer des recommandations avec le moteur ML ensemble
    * Appelle le service Python IA pour obtenir des recommandations intelligentes
    *
@@ -51,6 +64,8 @@ class AIRecommendationService {
       };
 
       logger.info(`📤 Appel IA service: ${filieres.length} filières à scorer`);
+      logger.debug(`   Profil: ${JSON.stringify(payload.profil).substring(0, 100)}...`);
+      logger.debug(`   Première filière: ${JSON.stringify(payload.filieres[0]).substring(0, 150)}...`);
 
       const response = await axiosInstance.post(
         `${AI_SERVICE_URL}/api/recommendations/generate`,
@@ -59,6 +74,7 @@ class AIRecommendationService {
 
       if (!response.data.success) {
         logger.warn('⚠️ Service IA a retourné une erreur:', response.data.message);
+        logger.warn('   Response:', JSON.stringify(response.data).substring(0, 200));
         return null;
       }
 
@@ -255,10 +271,19 @@ class AIRecommendationService {
       duree_annees: filiere.duree_annees || 3,
       taux_emploi: filiere.taux_emploi || 0,
       debouches: filiere.debouches || [],
+      parcours: (filiere.parcours || []).map(p => ({
+        id: p.id,
+        nom: p.nom,
+        specialisation: p.specialisation || '',
+        duree_mois: p.duree_mois || 36,
+        debouches_professionnels: p.debouches_professionnels || [],
+        competences_acquises: p.competences_acquises || []
+      })),
       universite: {
         id: filiere.universite?.id,
         nom: filiere.universite?.nom,
-        type: filiere.universite?.type
+        type: filiere.universite?.type,
+        ville: filiere.universite?.ville
       }
     };
   }

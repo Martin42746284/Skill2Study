@@ -16,3 +16,10 @@ Lancement local :
 pip install Flask==2.3.3 Flask-CORS==4.0.0 numpy==1.26.4 pandas==2.1.4 scikit-learn==1.3.2 joblib==1.3.1 python-dotenv==1.0.0 requests==2.31.0 psycopg2-binary==2.9.9 SQLAlchemy==2.0.23 gunicorn==21.2.0
 
 python3 app.py
+
+# restart et recréer l'image
+
+docker-compose down ai-service
+docker-compose build --no-cache ai-service
+docker-compose up -d ai-service
+sleep 15

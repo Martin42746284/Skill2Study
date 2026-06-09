@@ -34,9 +34,20 @@ exports.genererRecommendations = async (req, res, next) => {
 
     let resultats = [];
 
-    // Utiliser le fallback avec justifications enrichies (plus robuste que le service IA complexe)
-    logger.info(`📊 Génération des recommandations pour utilisateur ${userId}`);
-    resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
+    // Utiliser le service IA si demandé
+    if (use_ai) {
+      try {
+        logger.info(`🤖 Tentative utilisation du service IA pour recommandations (utilisateur ${userId})`);
+        resultats = await AIRecommendationService.generateRecommendations(profil, filieres, scoresTest);
+        logger.info(`🤖 Service IA: ${resultats.length} recommandations générées`);
+      } catch (error) {
+        logger.warn(`⚠️  Service IA indisponible, fallback sur le service local: ${error.message}`);
+        resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
+      }
+    } else {
+      logger.info(`📊 Génération des recommandations pour utilisateur ${userId}`);
+      resultats = RecommendationService.calculerRecommandations(profil, filieres, scoresTest, reglesActives);
+    }
 
     // Enrichir avec des justifications personnalisées pour chaque recommandation
     resultats = resultats.map(rec => ({

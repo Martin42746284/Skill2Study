@@ -399,12 +399,19 @@ class RecommendationMLService:
         """Scorer le budget"""
         budget_max = profil_features.get('budget_max_mensuel', 0)
         cout_annuel = filiere.get('cout_annuel', 0)
-        
+
+        # Convertir en nombres si nécessaire
+        try:
+            budget_max = float(budget_max) if budget_max else 0
+            cout_annuel = float(cout_annuel) if cout_annuel else 0
+        except (ValueError, TypeError):
+            return 70
+
         if not budget_max or not cout_annuel:
             return 70
-        
+
         cout_mensuel = cout_annuel / 12
-        
+
         if cout_mensuel <= budget_max * 0.7:
             return 100
         elif cout_mensuel <= budget_max:
@@ -418,10 +425,20 @@ class RecommendationMLService:
         """Scorer la durée des études"""
         duree_max = profil_features.get('duree_max_etudes', 0)
         duree_filiere = filiere.get('duree_annees', 0)
-        
+
+        # Convertir duree_filiere en nombre (peut être string comme "3" ou "2-4")
+        try:
+            if isinstance(duree_filiere, str):
+                # Si c'est un format comme "2-4", prendre la première valeur
+                duree_filiere = float(duree_filiere.split('-')[0].strip())
+            else:
+                duree_filiere = float(duree_filiere)
+        except (ValueError, AttributeError):
+            return 70
+
         if not duree_max or not duree_filiere:
             return 70
-        
+
         if duree_filiere <= duree_max:
             return 100
         elif duree_filiere <= duree_max + 1:

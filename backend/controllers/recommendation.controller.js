@@ -50,15 +50,20 @@ exports.genererRecommendations = async (req, res, next) => {
     }
 
     // Enrichir avec des justifications personnalisées pour chaque recommandation
-    resultats = resultats.map(rec => ({
-      ...rec,
-      justification: _generatePersonalizedJustification(
-        profil,
-        rec.filiere,
-        {score: rec.score, factors: rec.details},
-        scoresTest
-      )
-    }));
+    resultats = resultats.map(rec => {
+      // Récupérer l'objet filière complet si ce n'est pas déjà présent
+      const filiere = rec.filiere || filieres.find(f => f.id === rec.filiere_id);
+      return {
+        ...rec,
+        filiere, // Ajouter l'objet filière complet
+        justification: _generatePersonalizedJustification(
+          profil,
+          filiere,
+          {score: rec.score, factors: rec.details},
+          scoresTest
+        )
+      };
+    });
 
     logger.info(`✓ ${resultats.length} recommandations générées avec justifications personnalisées`);
 

@@ -1158,7 +1158,8 @@ class RecommendationMLService:
                 profil.get('competences_score', 50),
                 profil.get('budget_max_mensuel', 500),
                 profil.get('duree_max_etudes', 3),
+                profil.get('test_alignment_score', 0.5) * 100,  # 6ème feature pour correspondre au modèle RF
             ]
             features.append(f)
-        
+
         return np.array(features)

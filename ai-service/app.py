@@ -14,7 +14,13 @@ from services.recommendation_ml import RecommendationMLService
 from services.data_processor import DataProcessor
 from services.model_trainer import ModelTrainer
 from services.database_service import DatabaseService
-from config.database import db_config
+
+try:
+    from config.database import db_config
+    print("✓ db_config imported successfully")
+except Exception as e:
+    print(f"✗ Failed to import db_config: {e}")
+    raise
 
 # Configuration
 load_dotenv()
@@ -25,10 +31,15 @@ CORS(app)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+logger.info("Starting AI Recommendation Service...")
+logger.info(f"DATABASE_URL env var: {os.getenv('DATABASE_URL', 'NOT SET')}")
+
 # Instance du service de recommandation
 ml_service = RecommendationMLService()
 data_processor = DataProcessor()
 model_trainer = ModelTrainer()
+
+logger.info("AI Service initialized successfully")
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -43,7 +54,8 @@ def health_check():
         db_service = DatabaseService(db_session)
         db_status = db_service.test_connection()
         db_session.close()
-    except:
+    except Exception as e:
+        logger.error(f"Health check - Database error: {str(e)}")
         db_status = False
 
     return jsonify({

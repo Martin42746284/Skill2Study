@@ -8,7 +8,7 @@ const Filiere = sequelize.define('Filiere', {
   code: { type: DataTypes.STRING(50), unique: true },
   domaine: { type: DataTypes.STRING(100) },           // ex: Sciences, Lettres, Droit
   specialite: { type: DataTypes.STRING(150) },
-  niveaux: { type: DataTypes.JSON, defaultValue: [] },  // ex: ["Licence", "Master", "Doctorat"]
+  niveau: { type: DataTypes.ENUM('Licence', 'Master', 'Doctorat', 'DTS', 'DUT', 'Ingénieur') },
   duree_annees: { type: DataTypes.STRING(50) },  // ex: "3 - 5", "2 ans", "4"
   cout_annuel: { type: DataTypes.FLOAT },
   cout_description: { type: DataTypes.STRING(255) },  // ex: "Gratuit", "Généralement pris en charge par l'État"

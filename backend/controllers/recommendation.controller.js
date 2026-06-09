@@ -24,7 +24,13 @@ exports.genererRecommendations = async (req, res, next) => {
     // Charger les règles actives de recommandation
     const reglesActives = await RecommendationRules.findOne({ where: { est_default: true, actif: true } });
 
-    const filieres = await Filiere.findAll({ where: { actif: true }, include: [{ model: Universite, as: 'universite' }] });
+    const filieres = await Filiere.findAll({
+      where: { actif: true },
+      include: [
+        { model: Universite, as: 'universite' },
+        { model: require('../models').Parcours, as: 'parcours', where: { actif: true }, required: false }
+      ]
+    });
 
     let resultats = [];
 

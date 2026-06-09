@@ -328,13 +328,14 @@ class RecommendationMLService:
             # POIDS OPTIMISÉS - Critères utilisateur essentiels au début
             weights = {
                 'test_alignment': 0.25,          # [STAR] Réponses du test d'orientation
-                'objectifs_secteur': 0.20,       # [STAR] Objectif professionnel + secteur
+                'objectifs_secteur': 0.20,       # [STAR] Objectif professionnel + secteur + parcours
                 'serie_bac': 0.15,
                 'moyenne_generale': 0.12,
-                'centres_interet': 0.12,
-                'distance_ville': 0.08,          # Localisation (ville préférence + distance)
-                'duree': 0.05,
-                'competences': 0.03
+                'centres_interet': 0.10,
+                'parcours_specialisations': 0.08,  # Alignement avec spécialisations des parcours
+                'distance_ville': 0.05,          # Localisation (ville préférence + distance)
+                'duree': 0.03,
+                'competences': 0.02
             }
 
             scores = {}
@@ -365,6 +366,9 @@ class RecommendationMLService:
 
             # Score compétences
             scores['competences'] = profil_features.get('competences_score', 50)
+
+            # Score alignement avec spécialisations des parcours
+            scores['parcours_specialisations'] = self._score_parcours_specialisations(profil_features, filiere)
 
             # Score pondéré final
             weighted_score = sum(scores[k] * weights[k] for k in weights.keys())
@@ -467,7 +471,7 @@ class RecommendationMLService:
     ) -> float:
         """
         Scorer l'alignement entre les objectifs professionnels / secteur visé
-        et la filière (CRITÈRE PRINCIPAL)
+        et la filière via les parcours associés (CRITÈRE PRINCIPAL)
         """
         try:
             score = 50  # Score neutre par défaut
@@ -494,12 +498,39 @@ class RecommendationMLService:
                 else:
                     score = 45
 
-            # 2. Vérifier les débouchés vs objectifs professionnels
+            # 2. Vérifier les parcours et spécialisations vs objectifs professionnels
             objectifs = profil_features.get('objectifs_professionnels', '').lower()
-            debouches = [d.lower() for d in filiere.get('debouches', [])]
+            parcours_list = filiere.get('parcours', [])  # Liste des parcours associés
 
-            if objectifs and debouches:
-                # Chercher des correspondances dans les débouchés
+            if objectifs and parcours_list:
+                # Analyser chaque parcours
+                specialisations = [p.get('specialisation', '').lower() for p in parcours_list if p.get('specialisation')]
+                debouches_parcours = []
+
+                for parcours in parcours_list:
+                    debouches_parcours.extend([d.lower() for d in parcours.get('debouches_professionnels', [])])
+
+                # Chercher des correspondances dans les spécialisations et débouchés des parcours
+                objectif_words = objectifs.split()
+                matches = 0
+
+                # Match avec spécialisations
+                for word in objectif_words:
+                    if len(word) > 3 and any(word in spec for spec in specialisations):
+                        matches += 1
+
+                # Match avec débouchés des parcours
+                for word in objectif_words:
+                    if len(word) > 3 and any(word in debouche for debouche in debouches_parcours):
+                        matches += 1
+
+                if matches > 0:
+                    # Bonus selon le nombre de correspondances
+                    parcours_score = min(90 + matches * 5, 100)
+                    score = (score * 0.6) + (parcours_score * 0.4)
+            elif objectifs and filiere.get('debouches'):
+                # Fallback: utiliser débouchés de la filière si pas de parcours
+                debouches = [d.lower() for d in filiere.get('debouches', [])]
                 objectif_words = objectifs.split()
                 matches = 0
                 for word in objectif_words:
@@ -507,7 +538,6 @@ class RecommendationMLService:
                         matches += 1
 
                 if matches > 0:
-                    # Bonus selon le nombre de correspondances
                     debouche_score = min(90 + matches * 5, 100)
                     score = (score * 0.6) + (debouche_score * 0.4)
 
@@ -929,6 +959,79 @@ class RecommendationMLService:
             return f"Localisation exacte: {ville_filiere} ✓"
         else:
             return f"Localisation: {ville_filiere} (vous préférez: {ville_pref})"
+
+    def _score_parcours_specialisations(
+        self,
+        profil_features: Dict[str, Any],
+        filiere: Dict[str, Any]
+    ) -> float:
+        """
+        Scorer l'alignement avec les spécialisations et parcours disponibles
+        Basé sur: nom du parcours, spécialisation, durée
+        """
+        try:
+            score = 70  # Score neutre favorable
+            parcours_list = filiere.get('parcours', [])
+
+            if not parcours_list:
+                return score  # Pas de parcours = score neutre
+
+            centres_interet = profil_features.get('centres_interet', [])
+            objectifs = profil_features.get('objectifs_professionnels', '').lower()
+            duree_preference = profil_features.get('duree_max_etudes', 3)
+
+            # Analyser chaque parcours
+            parcours_scores = []
+
+            for parcours in parcours_list:
+                parcours_score = 50
+
+                # 1. Match avec spécialisation
+                specialisation = parcours.get('specialisation', '').lower()
+                if specialisation:
+                    # Match avec centres d'intérêt
+                    for interet in centres_interet:
+                        if interet.lower() in specialisation:
+                            parcours_score = max(parcours_score, 85)
+                            break
+
+                    # Match avec objectifs professionnels
+                    if objectifs and objectifs in specialisation:
+                        parcours_score = max(parcours_score, 90)
+
+                # 2. Match avec nom du parcours
+                nom_parcours = parcours.get('nom', '').lower()
+                if nom_parcours:
+                    for interet in centres_interet:
+                        if interet.lower() in nom_parcours:
+                            parcours_score = max(parcours_score, 80)
+                            break
+
+                    if objectifs and objectifs in nom_parcours:
+                        parcours_score = max(parcours_score, 88)
+
+                # 3. Vérifier la durée du parcours
+                duree_parcours = parcours.get('duree_mois', 0)
+                if duree_parcours > 0:
+                    # Convertir mois en années
+                    duree_annees = duree_parcours / 12
+
+                    if duree_annees <= duree_preference:
+                        # Bonus si la durée correspond
+                        duree_bonus = max(10, 20 - abs(duree_annees - duree_preference) * 5)
+                        parcours_score = (parcours_score * 0.8) + (duree_bonus + 80) * 0.2
+
+                parcours_scores.append(parcours_score)
+
+            # Retourner le meilleur score parmi les parcours
+            if parcours_scores:
+                score = max(parcours_scores)
+
+            return min(max(score, 0), 100)
+
+        except Exception as e:
+            logger.error(f"Erreur dans _score_parcours_specialisations: {str(e)}")
+            return 70.0
 
     def _get_strengths(self, profil_features: Dict[str, Any], filiere: Dict[str, Any]) -> List[str]:
         """Identifier les points forts du match basés sur les critères clés"""

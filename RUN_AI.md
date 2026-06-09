@@ -23,3 +23,14 @@ docker-compose down ai-service
 docker-compose build --no-cache ai-service
 docker-compose up -d ai-service
 sleep 15
+
+# Connaitre la performance de model IA
+# Métriques de performance basées sur les recommandations existantes
+curl http://localhost:3000/api/metrics/model/performance
+
+# Importance des features
+curl http://localhost:3000/api/metrics/model/feature-importance
+
+# Qualité des recommandations (nécessite auth)
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  http://localhost:3000/api/metrics/recommendations/quality

@@ -18,6 +18,7 @@ const comparateurRoutes = require('./routes/comparateur.routes');
 const statsRoutes = require('./routes/stats.routes');
 const adminRoutes = require('./routes/admin.routes');
 const settingsRoutes = require('./routes/settings.routes');
+const metricsRoutes = require('./routes/metrics.routes');
 
 const { errorHandler } = require('./middlewares/error.middleware');
 const { notFound } = require('./middlewares/notFound.middleware');
@@ -77,6 +78,7 @@ app.use('/api/comparateur', comparateurRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/metrics', metricsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'OK', timestamp: new Date() }));

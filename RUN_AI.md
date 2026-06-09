@@ -34,3 +34,62 @@ curl http://localhost:3000/api/metrics/model/feature-importance
 # Qualité des recommandations (nécessite auth)
 curl -H "Authorization: Bearer YOUR_TOKEN" \
   http://localhost:3000/api/metrics/recommendations/quality
+
+
+# Insertion des données d'entrainement
+# Générer 100 utilisateurs (rapide pour tester)
+node scripts/generate-training-data.js 100
+
+# Ou générer 500 utilisateurs pour une bonne base d'entraînement
+node scripts/generate-training-data.js 500
+
+# Ou 1000+ pour une excellente base
+node scripts/generate-training-data.js 1000
+
+
+# Entrer dans la base de données
+# Lister les containers
+docker-compose ps
+
+# Accéder au container PostgreSQL
+docker-compose exec skill2study-postgres psql -U postgres -d orientation_db
+
+
+
+# Voir combien de données ont été générées
+cd backend
+node -e "
+require('dotenv').config();
+const { User, ProfilAcademique, Recommendation, SessionTest } = require('./models');
+Promise.all([
+  User.count(),
+  ProfilAcademique.count(),
+  SessionTest.count(),
+  Recommendation.count()
+]).then(([users, profils, sessions, recs]) => {
+  console.log('📊 Données générées:');
+  console.log('  ✓ Users:', users);
+  console.log('  ✓ Profils:', profils);
+  console.log('  ✓ Sessions test:', sessions);
+  console.log('  ✓ Recommandations:', recs);
+  process.exit(0);
+}).catch(e => console.error('Erreur:', e.message));
+"
+
+# reentrainement 
+node scripts/train-ai-model.js
+
+# evaluation
+node scripts/test-model-metrics.js
+
+# 1. Vérifier la génération
+node -e "require('dotenv').config(); const {User,ProfilAcademique,Recommendation,SessionTest}=require('./models'); Promise.all([User.count(),ProfilAcademique.count(),SessionTest.count(),Recommendation.count()]).then(([u,p,s,r])=>{console.log('Users:',u,'Profils:',p,'Sessions:',s,'Recs:',r); process.exit(0);})"
+
+# 2. Réentraîner le modèle
+node scripts/train-ai-model.js
+
+# 3. Évaluer les performances
+node scripts/test-model-metrics.js
+
+# 4. (Optionnel) Redémarrer le backend pour utiliser le nouveau modèle
+npm start

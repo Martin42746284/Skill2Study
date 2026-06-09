@@ -30,27 +30,46 @@ exports.comparerFilieres = async (req, res, next) => {
       });
     }
 
-    // Charger le profil de l'utilisateur et calculer les scores de compatibilité
+    // Charger les scores de compatibilité depuis les recommandations de l'utilisateur
+    // Pour assurer la cohérence entre la page de recommandations et la page de comparaison
     let scoresCompatibilite = {};
     if (user_id) {
-      const profil = await ProfilAcademique.findOne({ where: { user_id } });
-      const regles = await RecommendationRules.findOne({ where: { actif: true, est_default: true } });
+      const Recommendation = require('../models').Recommendation;
 
-      if (profil) {
-        // Calculer les scores de recommandation
-        const recommandations = RecommendationService.calculerRecommandations(
-          profil.dataValues,
-          filieres.map(f => f.dataValues),
-          profil.scores_test,
-          regles?.dataValues
-        );
-
-        // Créer un map score_compatibilite par filiere_id
-        recommandations.forEach(rec => {
-          scoresCompatibilite[rec.filiere.id] = Math.round(rec.score);
+      try {
+        // Récupérer les recommandations existantes de l'utilisateur
+        const recommendations = await Recommendation.findAll({
+          where: { user_id },
+          attributes: ['filiere_id', 'score_compatibilite'],
+          raw: true
         });
 
-        console.log('Scores de compatibilité calculés:', scoresCompatibilite);
+        // Créer un map score_compatibilite par filiere_id
+        recommendations.forEach(rec => {
+          scoresCompatibilite[rec.filiere_id] = Math.round(rec.score_compatibilite);
+        });
+
+        console.log('Scores de compatibilité récupérés depuis recommandations:', scoresCompatibilite);
+      } catch (err) {
+        console.warn('Erreur lors de la récupération des scores:', err.message);
+        // Fallback: recalculer avec l'ancien service si les recommandations ne sont pas disponibles
+        const profil = await ProfilAcademique.findOne({ where: { user_id } });
+        const regles = await RecommendationRules.findOne({ where: { actif: true, est_default: true } });
+
+        if (profil) {
+          const recommandations = RecommendationService.calculerRecommandations(
+            profil.dataValues,
+            filieres.map(f => f.dataValues),
+            profil.scores_test,
+            regles?.dataValues
+          );
+
+          recommandations.forEach(rec => {
+            scoresCompatibilite[rec.filiere.id] = Math.round(rec.score);
+          });
+
+          console.log('Scores de compatibilité calculés (fallback):', scoresCompatibilite);
+        }
       }
     }
 
@@ -89,14 +108,14 @@ function _calculerROI(filiere) {
   const { salaire_moyen_debutant, cout_annuel, duree_annees, nom } = filiere;
 
   // Log missing data for debugging
-  if (!salaire_moyen_debutant || !cout_annuel || !duree_annees) {
-    console.warn(`⚠️ ROI calculation incomplete for "${nom}":`, {
-      salaire: salaire_moyen_debutant || 'manquant',
-      cout: cout_annuel || 'manquant',
-      duree: duree_annees || 'manquant'
-    });
-    return null;
-  }
+  // if (!salaire_moyen_debutant || !cout_annuel || !duree_annees) {
+  //   console.warn(`⚠️ ROI calculation incomplete for "${nom}":`, {
+  //     salaire: salaire_moyen_debutant || 'manquant',
+  //     cout: cout_annuel || 'manquant',
+  //     duree: duree_annees || 'manquant'
+  //   });
+  //   return null;
+  // }
 
   // Avoid division by zero
   const coutTotal = cout_annuel * duree_annees;

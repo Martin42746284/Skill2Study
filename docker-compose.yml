@@ -1,10 +1,9 @@
 version: '3.8'
 
 services:
-  # ─── BASE DE DONNÉES PostgreSQL ──────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
-    container_name: skill2study_postgres
+    image: postgres:15-alpine
+    container_name: skill2study-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: martin4274
@@ -21,90 +20,34 @@ services:
     networks:
       - skill2study-network
 
-
-  # ─── SERVICE IA PYTHON ──────────────────────────────────────────────
   ai-service:
     build:
-      context: ./ai-service
-      dockerfile: Dockerfile
-    container_name: skill2study_ai_service
-    environment:
-      FLASK_ENV: production
-      PYTHONUNBUFFERED: 1
+      context: .
+      dockerfile: ai-service/Dockerfile
+    image: skill2study_ai-service:latest
+    container_name: skill2study-ai-service
     ports:
       - "5000:5000"
-    volumes:
-      - ./ai-service/logs:/app/logs
-      - ./ai-service/models:/app/models
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    networks:
-      - skill2study-network
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_URL=postgresql://postgres:martin4274@postgres:5432/orientation_db
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - skill2study-network
     restart: unless-stopped
-
-
-  # ─── BACKEND NODE.JS (lancé localement avec npm run dev) ──────────
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: skill2study_backend
-  #   environment:
-  #     DATABASE_URL: postgresql://postgres:martin4274@postgres:5432/orientation_db
-  #     DB_SSL: 'false'
-  #     NODE_ENV: production
-  #     PORT: 3000
-  #     JWT_SECRET: ${JWT_SECRET:-a498f89f2ae792d05e15bd74e8055cb58e7bd89cc251066b322ef247b6df8aa2009eed1fe3bf54a5b8e98237f6067e8e33582aa3389914f67d1b58571a1e070e}
-  #     CLIENT_URL: http://localhost:3001
-  #     AI_SERVICE_URL: http://ai-service:5000
-  #     EMAIL_SERVICE: ${EMAIL_SERVICE:-gmail}
-  #     EMAIL_USER: ${EMAIL_USER}
-  #     EMAIL_PASSWORD: ${EMAIL_PASSWORD}
-  #     EMAIL_FROM: ${EMAIL_FROM}
-  #     LOG_LEVEL: info
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./backend/logs:/app/logs
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     ai-service:
-  #       condition: service_healthy
-  #   networks:
-  #     - skill2study-network
-  #   restart: unless-stopped
-
-
-  # ─── FRONTEND REACT (OPTIONNEL) ─────────────────────────────────────
-  # Décommenter si vous voulez lancer le frontend dans Docker aussi
-  # frontend:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.frontend
-  #   container_name: skill2study_frontend
-  #   ports:
-  #     - "3001:3001"
-  #   environment:
-  #     REACT_APP_API_URL: http://localhost:3000
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - skill2study-network
-
-
-networks:
-  skill2study-network:
-    driver: bridge
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 20s
+      retries: 3
 
 volumes:
   postgres_data:
     driver: local
+
+networks:
+  skill2study-network:
+    driver: bridge

@@ -21,6 +21,7 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { useTheme } from "@/hooks/use-theme";
 import { useI18n } from "@/hooks/use-i18n";
 import AdminHeader from "@/components/AdminHeader";
+import { adminPages } from "@/config/adminPages";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -58,6 +59,17 @@ const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderP
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
   const user = getCurrentUser();
+  const location = useLocation();
+
+  const pageConfig = adminPages[location.pathname] || {
+    titleKey: "admin.administration",
+    descriptionKey: "admin.administration",
+  };
+
+  const currentPage = {
+    title: t(pageConfig.titleKey),
+    description: t(pageConfig.descriptionKey),
+  };
 
   const getInitials = (nom?: string, prenom?: string) => {
     const first = prenom?.[0] || "";
@@ -75,13 +87,8 @@ const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderP
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Center - Name Only */}
-      <Link to="/admin" className="flex items-center gap-2 flex-1 ml-2">
-        <span className="font-bold text-base">{platformName}</span>
-      </Link>
-
       {/* Right - Controls */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-shrink-0">
         {/* Language */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -306,8 +313,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     </div>
   );
 
+  const sidebarWidth = collapsed ? 68 : 256;
+
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="flex min-h-screen w-full bg-background" style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}>
       {/* Mobile Header with Controls */}
       <MobileHeader
         mobileOpen={mobileOpen}

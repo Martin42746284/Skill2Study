@@ -51,7 +51,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
-      <div className="flex h-20 items-center px-3 sm:px-4 md:px-6 lg:px-8 gap-4">
+      <div className="flex h-20 items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-3 flex-shrink-0 hover:opacity-80 transition-opacity">
           <div className="flex items-center justify-center rounded-lg bg-white p-1.5 flex-shrink-0">
             <img
@@ -70,8 +70,8 @@ const Navbar = () => {
           <NavItem to="/login" label={t("nav.login")} isActive={isActive("/login")} />
         </div>
 
-        {/* Register button, language, theme toggle and notifications */}
-        <div className="hidden md:flex md:flex-shrink-0 md:items-center md:gap-3">
+        {/* Register button, language, theme toggle and notifications - Desktop */}
+        <div className="hidden md:flex md:items-center md:gap-3">
           <NotificationDropdown />
           <LanguageToggle />
           <ThemeToggle />
@@ -83,7 +83,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile toggles and hamburger */}
-        <div className="ml-auto flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
           <NotificationDropdown />
           <LanguageToggle />
           <ThemeToggle />

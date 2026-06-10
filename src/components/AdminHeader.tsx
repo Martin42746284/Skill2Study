@@ -52,14 +52,14 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
   };
 
   return (
-    <header className="hidden lg:block fixed top-0 left-0 right-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" style={{ left: 'var(--sidebar-width, 0)' }}>
+    <header className="hidden lg:block fixed top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 right-0" style={{ left: 'var(--sidebar-width, 0)' }}>
       <div className="flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8 gap-6 w-full">
         {/* Left side - Page title & description */}
         <div className="hidden sm:flex flex-col min-w-0 flex-1">
-          <h1 className="text-xl font-semibold text-foreground truncate">
+          <h1 className="text-2xl font-bold text-foreground truncate">
             {currentPage.title}
           </h1>
-          <p className="text-sm text-muted-foreground truncate">
+          <p className="text-base text-muted-foreground truncate">
             {currentPage.description}
           </p>
         </div>

@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const getNavItems = (t: any) => [
   { titleKey: "dashboard.sidebar.dashboard", icon: LayoutDashboard, url: "/dashboard" },
@@ -46,6 +47,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const { settings } = useSettings();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -60,11 +62,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex items-center justify-center rounded-lg bg-white p-1 shrink-0">
             <img
               src="/logo.png"
-              alt="Skill2Study"
+              alt={settings.platform_name}
               className="h-12 w-12 object-contain rounded-md"
             />
           </div>
-          {!collapsed && <span className={cn("font-bold", theme === "dark" ? "text-white" : "text-foreground")}>Skill2Study</span>}
+          {!collapsed && <span className={cn("font-bold", theme === "dark" ? "text-white" : "text-foreground")}>{settings.platform_name}</span>}
         </Link>
         {/* Desktop collapse */}
         <button
@@ -151,10 +153,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Link to="/dashboard" className="ml-3 flex items-center gap-2">
           <img
             src="/logo.png"
-            alt="Skill2Study"
+            alt={settings.platform_name}
             className="h-10 w-10 object-contain rounded-lg"
           />
-          <span className="font-bold text-sm">Skill2Study</span>
+          <span className="font-bold text-sm">{settings.platform_name}</span>
         </Link>
       </div>
 

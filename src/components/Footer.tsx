@@ -1,9 +1,11 @@
 import { Brain, Mail, Phone, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const Footer = () => {
   const { t } = useTranslation();
+  const { settings } = useSettings();
 
   return (
     <footer className="border-t bg-card">
@@ -14,7 +16,7 @@ const Footer = () => {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shrink-0">
                 <Brain className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-base sm:text-lg font-bold">Skill2Study</span>
+              <span className="text-base sm:text-lg font-bold">{settings.platform_name}</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               {t("footer.description")}
@@ -42,7 +44,7 @@ const Footer = () => {
           <div>
             <h4 className="text-sm sm:text-base font-semibold mb-3 sm:mb-4">{t("footer.contact.title")}</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> <span>{t("footer.contact.email")}</span></li>
+              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> <a href={`mailto:${settings.contact_email}`} className="hover:text-foreground transition-colors">{settings.contact_email}</a></li>
               <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> <span>{t("footer.contact.phone")}</span></li>
               <li className="flex items-center gap-2"><MapPin className="h-4 w-4 shrink-0" /> <span>{t("footer.contact.location")}</span></li>
             </ul>

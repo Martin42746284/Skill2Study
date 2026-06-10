@@ -530,7 +530,8 @@
     "hero": {
       "title": "Turn your skills",
       "titleHighlight": "into study opportunities.",
-      "description": "Discover universities and degree programs perfectly matched to your profile with our Artificial Intelligence-powered orientation platform."
+      "description": "Discover universities and degree programs perfectly matched to your profile with our Artificial Intelligence-powered orientation platform.",
+      "platformDescription": "{{description}}"
     },
     "heroButtons": {
       "startOrientation": "Start Orientation",

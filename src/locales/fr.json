@@ -532,7 +532,8 @@
     "hero": {
       "title": "Transformez vos compétences",
       "titleHighlight": "en opportunités d'études",
-      "description": "Découvrez les universités et filières parfaitement adaptées à votre profil grâce à notre plateforme d'orientation alimentée par l'Inteligence Artificielle."
+      "description": "Découvrez les universités et filières parfaitement adaptées à votre profil grâce à notre plateforme d'orientation alimentée par l'Inteligence Artificielle.",
+      "platformDescription": "{{description}}"
     },
     "heroButtons": {
       "startOrientation": "Commencer l'orientation",

@@ -32,7 +32,6 @@ const AdminSettings = () => {
   const { toast } = useToast();
   const { settings, updateSettings, isLoading, refreshSettings } = useSettings();
   const [platformName, setPlatformName] = useState(settings.platform_name);
-  const [platformDesc, setPlatformDesc] = useState(settings.platform_description);
   const [contactEmail, setContactEmail] = useState(settings.contact_email);
   const [emailNotif, setEmailNotif] = useState(settings.email_notifications);
   const [moderationAlert, setModerationAlert] = useState(settings.moderation_alerts);
@@ -50,7 +49,6 @@ const AdminSettings = () => {
   useEffect(() => {
     if (!hasInitialized && !isLoading) {
       setPlatformName(settings.platform_name);
-      setPlatformDesc(settings.platform_description);
       setContactEmail(settings.contact_email);
       setEmailNotif(settings.email_notifications);
       setModerationAlert(settings.moderation_alerts);
@@ -69,7 +67,6 @@ const AdminSettings = () => {
       setSaving(true);
       const newSettings = {
         platform_name: platformName,
-        platform_description: platformDesc,
         contact_email: contactEmail,
         email_notifications: emailNotif,
         moderation_alerts: moderationAlert,
@@ -145,7 +142,7 @@ const AdminSettings = () => {
             <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
               <Globe className="h-5 w-5 text-primary" /> {t("admin.pages.settings.generalInfo")}
             </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="platform-name">{t("admin.pages.settings.platformName")}</Label>
                 <Input id="platform-name" value={platformName} onChange={(e) => setPlatformName(e.target.value)} />
@@ -153,10 +150,6 @@ const AdminSettings = () => {
               <div className="grid gap-2">
                 <Label htmlFor="contact-email">{t("admin.pages.settings.contactEmail")}</Label>
                 <Input id="contact-email" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
-              </div>
-              <div className="grid gap-2 sm:col-span-2 lg:col-span-1">
-                <Label htmlFor="platform-desc">{t("admin.pages.settings.platformDescription")}</Label>
-                <Input id="platform-desc" value={platformDesc} onChange={(e) => setPlatformDesc(e.target.value)} />
               </div>
             </div>
           </section>

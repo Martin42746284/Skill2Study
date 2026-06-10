@@ -91,7 +91,7 @@ const Index = () => {
               </h1>
 
               <p className="mb-6 sm:mb-8 max-w-lg text-base sm:text-lg text-muted-foreground leading-relaxed">
-                {settings.platform_description}
+                {t("home.hero.platformDescription", { description: settings.platform_description })}
               </p>
 
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-8 sm:mb-12">

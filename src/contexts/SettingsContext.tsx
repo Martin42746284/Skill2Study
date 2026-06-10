@@ -26,12 +26,12 @@ const defaultSettings: AppSettings = {
   platform_name: "Skill2Study",
   platform_description: "Plateforme intelligente d'aide à la décision pour l'orientation universitaire post-bac à Madagascar",
   contact_email: "contact@orientai.mg",
-  email_notifications: true,
-  moderation_alerts: true,
+  email_notifications: false,
+  moderation_alerts: false,
   weekly_reports: false,
   two_factor_auth: false,
-  open_registration: true,
-  email_verification: true,
+  open_registration: false,
+  email_verification: false,
   maintenance_mode: false,
 };
 
@@ -45,10 +45,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     loadSettingsFromBackend();
 
-    // Set up polling to check for settings changes every 5 seconds
+    // Set up polling to check for settings changes every 2 seconds
     const pollInterval = setInterval(() => {
       loadSettingsFromBackend();
-    }, 5000);
+    }, 2000);
 
     // Listen for storage changes (logout from another tab)
     const handleStorageChange = () => {
@@ -64,13 +64,16 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
   const loadSettingsFromBackend = async () => {
     try {
-      // Only load admin settings if the user is an admin
       const user = getCurrentUser();
+
+      // Try to load from admin API if user is admin
       if (user?.role === "admin") {
         try {
           const response = await admin.getSettings() as any;
           const settingsData = response?.settings || response || defaultSettings;
           setSettings(settingsData);
+          // Cache in localStorage for persistence
+          localStorage.setItem('appSettings', JSON.stringify(settingsData));
           if (isLoading) setIsLoading(false);
           return;
         } catch (adminError) {
@@ -78,16 +81,37 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         }
       }
 
-      // For non-admin users or if admin call fails, use default settings
+      // For non-admin users or if admin call fails, try to load from localStorage first
+      const cachedSettings = localStorage.getItem('appSettings');
+      if (cachedSettings) {
+        try {
+          const settingsData = JSON.parse(cachedSettings);
+          setSettings(settingsData);
+          if (isLoading) setIsLoading(false);
+          return;
+        } catch (parseError) {
+          console.debug("Error parsing cached settings:", parseError);
+        }
+      }
+
+      // If no cached settings, use defaults
       setSettings(defaultSettings);
+      localStorage.setItem('appSettings', JSON.stringify(defaultSettings));
       if (isLoading) setIsLoading(false);
     } catch (error) {
-      console.debug("Error loading settings from backend:", error);
-      // Fall back to default settings if backend call fails
-      if (isLoading) {
+      console.debug("Error loading settings:", error);
+      // Load from localStorage as fallback
+      const cachedSettings = localStorage.getItem('appSettings');
+      if (cachedSettings) {
+        try {
+          setSettings(JSON.parse(cachedSettings));
+        } catch {
+          setSettings(defaultSettings);
+        }
+      } else {
         setSettings(defaultSettings);
-        setIsLoading(false);
       }
+      if (isLoading) setIsLoading(false);
     }
   };
 

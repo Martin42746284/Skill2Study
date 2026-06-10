@@ -75,14 +75,9 @@ const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderP
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Center - Logo & Name */}
+      {/* Center - Name Only */}
       <Link to="/admin" className="flex items-center gap-2 flex-1 ml-2">
-        <img
-          src="/logo.png"
-          alt={platformName}
-          className="h-12 w-12 object-contain rounded-lg"
-        />
-        <span className="font-bold text-base hidden sm:inline">{platformName}</span>
+        <span className="font-bold text-base">{platformName}</span>
       </Link>
 
       {/* Right - Controls */}

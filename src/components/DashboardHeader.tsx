@@ -189,14 +189,14 @@ const DashboardHeader = ({ count, countLabel }: DashboardHeaderProps) => {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <Link to="/dashboard/profile">
-                <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/profile" className="cursor-pointer">
                   <div className="w-full flex items-center justify-center gap-2">
                     <User className="h-4 w-4" />
                     <span>{t("dashboard.sidebar.profile")}</span>
                   </div>
-                </DropdownMenuItem>
-              </Link>
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

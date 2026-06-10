@@ -114,6 +114,7 @@
         "save": "Enregistrer",
         "cancel": "Annuler",
         "delete": "Supprimer",
+        "deletedMsg" :"a été supprimé",
         "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet utilisateur ?",
         "deleteConfirmTitle": "Confirmation de suppression",
         "noDataMessage": "Aucun utilisateur trouvé"
@@ -172,6 +173,7 @@
         "domain": "Domaine",
         "programs": "Parcours",
         "filiereSingular": "Filière",
+        "deletedMsg" :"a été supprimé",
         "filieresPlural": "Filières",
         "photoTooLarge": "L'image doit faire moins de 5MB",
         "formRequiredFields": "Veuillez remplir tous les champs obligatoires",
@@ -239,6 +241,7 @@
         "save": "Enregistrer",
         "cancel": "Annuler",
         "all" : "Tous",
+        "deletedMsg" :"a été supprimé",
         "delete": "Supprimer",
         "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette filière ?",
         "deleteConfirmTitle": "Confirmation de suppression",

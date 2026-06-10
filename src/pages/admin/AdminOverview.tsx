@@ -258,9 +258,9 @@ const AdminOverview = () => {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold">{t("admin.dashboard")}</h1>
-            <p className="mt-1 text-muted-foreground">
+            {/* <p className="mt-1 text-muted-foreground">
               {t("admin.statistics")}
-            </p>
+            </p> */}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

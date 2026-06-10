@@ -163,7 +163,7 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
               >
                 <Avatar className="h-9 w-9">
                   <AvatarImage
-                    src={`https://avatar.vercel.sh/${user?.email}`}
+                    src={`${user?.email}`}
                     alt={`${user?.prenom} ${user?.nom}`}
                   />
                   <AvatarFallback className="bg-primary/20 text-primary text-sm font-semibold">
@@ -176,7 +176,7 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
               <div className="flex items-center gap-3 px-4 py-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src={`https://avatar.vercel.sh/${user?.email}`}
+                    src={`${user?.email}`}
                     alt={`${user?.prenom} ${user?.nom}`}
                   />
                   <AvatarFallback className="bg-primary/20 text-primary font-semibold">

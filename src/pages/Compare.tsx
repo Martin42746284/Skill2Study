@@ -338,16 +338,6 @@ const Compare = () => {
     return (
       <DashboardLayout>
         <div className="animate-fade-in">
-          <div className="mb-6 sm:mb-8">
-            <div className="mb-2 flex items-center gap-2">
-              <Sparkles className="h-4 sm:h-5 w-4 sm:w-5 text-primary shrink-0" />
-              <h1 className="text-2xl sm:text-3xl font-bold">{t("compare.title")}</h1>
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {t("compare.description")}
-            </p>
-          </div>
-
           <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 sm:p-6 flex items-start gap-3 sm:gap-4">
             <AlertCircle className="h-5 sm:h-6 w-5 sm:w-6 text-amber-600 shrink-0 mt-0.5" />
             <div className="min-w-0 flex-1">
@@ -389,13 +379,6 @@ const Compare = () => {
   return (
     <DashboardLayout>
       <div className="animate-fade-in pb-[280px]">
-        <div className="mb-6 px-4 sm:px-6 lg:px-8 max-w-full">
-          <h1 className="text-2xl font-bold text-foreground mb-1">{t("compare.title")}</h1>
-          <p className="text-muted-foreground text-sm">
-            {t("compare.description")}
-          </p>
-        </div>
-
         {/* Desktop Table - Horizontally Scrollable */}
         <div className="hidden lg:flex lg:flex-col rounded-2xl border border-border bg-card shadow-card overflow-hidden mx-4 sm:mx-6 lg:mx-8 flex-1 min-h-0">
           <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-muted shrink-0">

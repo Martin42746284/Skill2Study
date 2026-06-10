@@ -1,7 +1,7 @@
 import { useI18n } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
 import { getCurrentUser, auth } from "@/lib/api";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Moon, Sun, Globe } from "lucide-react";
+import { Moon, Sun, Globe, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminPages } from "@/config/adminPages";
 
@@ -52,21 +52,21 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
   };
 
   return (
-    <header className="hidden lg:block sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 gap-6">
+    <header className="hidden lg:block fixed top-0 left-0 right-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" style={{ left: 'var(--sidebar-width, 0)' }}>
+      <div className="flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8 gap-6 w-full">
         {/* Left side - Page title & description */}
         <div className="hidden sm:flex flex-col min-w-0 flex-1">
-          <h1 className="text-lg font-semibold text-foreground truncate">
+          <h1 className="text-xl font-semibold text-foreground truncate">
             {currentPage.title}
           </h1>
-          <p className="text-xs text-muted-foreground truncate">
+          <p className="text-sm text-muted-foreground truncate">
             {currentPage.description}
           </p>
         </div>
 
         {/* Center - Counter badge (Desktop only) */}
         {count !== undefined && countLabel && (
-          <div className="hidden md:flex items-center px-5 py-2 rounded-lg bg-accent/30 border border-accent/50">
+          <div className="hidden md:flex items-center px-6 py-2.5 rounded-lg bg-accent/30 border border-accent/50">
             <span className="text-base font-semibold text-foreground">
               {count} {countLabel}
             </span>
@@ -74,17 +74,17 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
         )}
 
         {/* Right side - Controls */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-3">
           {/* Language */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 hover:bg-accent transition-colors"
+                className="h-12 w-12 hover:bg-accent transition-colors"
                 title={t("language.toggleLanguage")}
               >
-                <Globe className="h-4 w-4" />
+                <Globe className="h-6 w-6" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
@@ -113,15 +113,15 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 hover:bg-accent transition-colors"
+                className="h-12 w-12 hover:bg-accent transition-colors"
                 title={t("theme.toggleTheme")}
               >
                 {theme === "dark" ? (
-                  <Moon className="h-4 w-4" />
+                  <Moon className="h-6 w-6" />
                 ) : theme === "light" ? (
-                  <Sun className="h-4 w-4" />
+                  <Sun className="h-6 w-6" />
                 ) : (
-                  <Sun className="h-4 w-4 opacity-50" />
+                  <Sun className="h-6 w-6 opacity-50" />
                 )}
               </Button>
             </DropdownMenuTrigger>
@@ -159,23 +159,39 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-9 px-2 hover:bg-accent transition-colors"
+                className="h-12 px-3 hover:bg-accent transition-colors"
               >
-                <Avatar className="h-6 w-6">
+                <Avatar className="h-9 w-9">
                   <AvatarImage
                     src={`https://avatar.vercel.sh/${user?.email}`}
                     alt={`${user?.prenom} ${user?.nom}`}
                   />
-                  <AvatarFallback className="bg-primary/20 text-primary text-xs font-semibold">
+                  <AvatarFallback className="bg-primary/20 text-primary text-sm font-semibold">
                     {getInitials(user?.nom, user?.prenom)}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel className="text-xs font-semibold truncate">
-                {user?.email}
-              </DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="flex items-center gap-3 px-4 py-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage
+                    src={`https://avatar.vercel.sh/${user?.email}`}
+                    alt={`${user?.prenom} ${user?.nom}`}
+                  />
+                  <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                    {getInitials(user?.nom, user?.prenom)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold truncate">
+                    {user?.prenom} {user?.nom}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

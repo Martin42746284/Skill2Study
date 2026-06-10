@@ -477,6 +477,52 @@
         "profile": "My Profile",
         "settings": "Settings",
         "logout": "Logout"
+      },
+      "pages": {
+        "dashboard": {
+          "title": "Dashboard",
+          "description": "Welcome to your personal orientation space"
+        },
+        "tests": {
+          "title": "Orientation Test",
+          "description": "Discover your ideal fields"
+        },
+        "recommendations": {
+          "title": "Your Recommendations",
+          "description": "Scroll horizontally"
+        },
+        "compare": {
+          "title": "Compare Fields",
+          "description": "Compare recommended fields"
+        },
+        "search": {
+          "title": "Search",
+          "description": "Find a university or field"
+        },
+        "favorites": {
+          "title": "My Favorites",
+          "description": "Manage your favorite fields"
+        },
+        "history": {
+          "title": "History",
+          "description": "View your activity history"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Manage your notifications"
+        },
+        "map": {
+          "title": "University Map",
+          "description": "Explore universities on the map"
+        },
+        "profile": {
+          "title": "My Profile",
+          "description": "Manage your personal information"
+        },
+        "settings": {
+          "title": "Settings",
+          "description": "Modify your preferences"
+        }
       }
   },
   "compare": {

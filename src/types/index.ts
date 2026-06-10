@@ -12,6 +12,8 @@ export interface User {
   ville?: string;
   budget_mensuel?: number;
   actif: boolean;
+  photo?: string;
+  avatar_url?: string;
   createdAt?: string;
   updatedAt?: string;
 }

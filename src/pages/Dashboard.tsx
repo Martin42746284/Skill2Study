@@ -250,13 +250,6 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="animate-fade-in">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold">{welcomeMessage}</h1>
-          <p className="mt-1 text-sm sm:text-base text-muted-foreground">
-            {t("dashboard.subtitle")}
-          </p>
-        </div>
-
         <div className="mb-6 sm:mb-8 rounded-xl border bg-card p-4 sm:p-6 shadow-card">
           <div className="flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3 sm:gap-4">

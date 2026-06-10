@@ -479,6 +479,52 @@
         "profile": "Mon profil",
         "settings": "Paramètres",
         "logout": "Déconnexion"
+      },
+      "pages": {
+        "dashboard": {
+          "title": "Tableau de Bord",
+          "description": "Bienvenue sur votre espace personnel d'orientation"
+        },
+        "tests": {
+          "title": "Test d'Orientation",
+          "description": "Découvrez vos filières idéales"
+        },
+        "recommendations": {
+          "title": "Vos Recommandations",
+          "description": "Défilez horizontalement"
+        },
+        "compare": {
+          "title": "Comparer les Filières",
+          "description": "Comparez les filières recommandées"
+        },
+        "search": {
+          "title": "Recherche",
+          "description": "Trouvez une université ou filière"
+        },
+        "favorites": {
+          "title": "Mes Favoris",
+          "description": "Gérez vos filières favorites"
+        },
+        "history": {
+          "title": "Historique",
+          "description": "Consultez votre historique d'activité"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Gérez vos notifications"
+        },
+        "map": {
+          "title": "Carte Universitaire",
+          "description": "Explorez les universités sur la carte"
+        },
+        "profile": {
+          "title": "Mon Profil",
+          "description": "Gérrez vos informations personnelles"
+        },
+        "settings": {
+          "title": "Paramètres",
+          "description": "Modifiez vos préférences"
+        }
       }
   },  
   "compare": {

@@ -175,9 +175,7 @@ const Recommendations = () => {
               <Sparkles className="h-4 sm:h-5 w-4 sm:w-5 text-primary shrink-0" />
               <h1 className="text-2xl sm:text-3xl font-bold">{t("recommendations.title")}</h1>
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {t("compare.description")}
-            </p>
+
           </div>
 
           <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 sm:p-6 flex items-start gap-3 sm:gap-4">
@@ -217,15 +215,6 @@ const Recommendations = () => {
   return (
     <DashboardLayout>
       <div className="animate-fade-in overflow-x-hidden w-full">
-        <div className="mb-4 sm:mb-6">
-          <div className="mb-2 flex items-center gap-2">
-            <Sparkles className="h-4 sm:h-5 w-4 sm:w-5 text-primary shrink-0" />
-            <h1 className="text-2xl sm:text-3xl font-bold truncate">{t("recommendations.title")}</h1>
-          </div>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            {t("compare.description")}
-          </p>
-        </div>
 
         <div className="mb-4 sm:mb-6 rounded-xl border bg-accent/50 p-3 sm:p-4 flex items-start gap-2 sm:gap-3 min-h-[60px]">
           <Info className="h-4 sm:h-5 w-4 sm:w-5 text-primary mt-0.5 shrink-0" />

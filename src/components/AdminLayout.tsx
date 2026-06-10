@@ -66,13 +66,13 @@ const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderP
   };
 
   return (
-    <div className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b bg-card px-4 lg:hidden">
+    <div className="fixed left-0 right-0 top-0 z-50 flex h-20 items-center justify-between border-b bg-card px-4 lg:hidden">
       {/* Left - Hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
         className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
       >
-        <Menu className="h-5 w-5" />
+        <Menu className="h-6 w-6" />
       </button>
 
       {/* Center - Logo & Name */}
@@ -80,23 +80,23 @@ const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderP
         <img
           src="/logo.png"
           alt={platformName}
-          className="h-10 w-10 object-contain rounded-lg"
+          className="h-12 w-12 object-contain rounded-lg"
         />
-        <span className="font-bold text-sm hidden sm:inline">{platformName}</span>
+        <span className="font-bold text-base hidden sm:inline">{platformName}</span>
       </Link>
 
       {/* Right - Controls */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         {/* Language */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 hover:bg-accent transition-colors"
+              className="h-11 w-11 hover:bg-accent transition-colors"
               title={t("language.toggleLanguage")}
             >
-              <Globe className="h-4 w-4" />
+              <Globe className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
@@ -125,15 +125,15 @@ const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderP
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 hover:bg-accent transition-colors"
+              className="h-11 w-11 hover:bg-accent transition-colors"
               title={t("theme.toggleTheme")}
             >
               {theme === "dark" ? (
-                <Moon className="h-4 w-4" />
+                <Moon className="h-5 w-5" />
               ) : theme === "light" ? (
-                <Sun className="h-4 w-4" />
+                <Sun className="h-5 w-5" />
               ) : (
-                <Sun className="h-4 w-4 opacity-50" />
+                <Sun className="h-5 w-5 opacity-50" />
               )}
             </Button>
           </DropdownMenuTrigger>
@@ -171,9 +171,9 @@ const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderP
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="h-9 px-2 hover:bg-accent transition-colors"
+              className="h-11 px-2 hover:bg-accent transition-colors"
             >
-              <Avatar className="h-6 w-6">
+              <Avatar className="h-8 w-8">
                 <AvatarImage
                   src={`https://avatar.vercel.sh/${user?.email}`}
                   alt={`${user?.prenom} ${user?.nom}`}
@@ -184,10 +184,26 @@ const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderP
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel className="text-xs font-semibold truncate">
-              {user?.email}
-            </DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-56">
+            <div className="flex items-center gap-3 px-4 py-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage
+                  src={`https://avatar.vercel.sh/${user?.email}`}
+                  alt={`${user?.prenom} ${user?.nom}`}
+                />
+                <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                  {getInitials(user?.nom, user?.prenom)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold truncate">
+                  {user?.prenom} {user?.nom}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user?.email}
+                </p>
+              </div>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -212,19 +228,19 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      <div className="flex h-14 items-center justify-between border-b px-4 shrink-0">
+      <div className="flex h-20 items-center justify-between border-b px-4 shrink-0">
         <Link to="/admin" className="flex items-center gap-2">
           <div className="flex items-center justify-center rounded-lg bg-white p-1 shrink-0">
             <img
               src="/logo.png"
               alt={settings.platform_name}
-              className="h-10 w-10 object-contain rounded-md"
+              className="h-12 w-12 object-contain rounded-md"
             />
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className={cn("font-bold text-xs", theme === "dark" ? "text-white" : "text-foreground")}>{settings.platform_name}</span>
-              <span className="text-[9px] text-muted-foreground font-medium">{t("admin.administration")}</span>
+              <span className={cn("font-bold text-sm", theme === "dark" ? "text-white" : "text-foreground")}>{settings.platform_name}</span>
+              <span className="text-xs text-muted-foreground font-medium">{t("admin.administration")}</span>
             </div>
           )}
         </Link>
@@ -333,7 +349,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         className={cn(
           "flex-1 flex flex-col transition-all duration-300",
           collapsed ? "lg:ml-[68px]" : "lg:ml-64",
-          "pt-14 lg:pt-0"
+          "pt-20"
         )}
       >
         <AdminHeader />

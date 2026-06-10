@@ -51,7 +51,6 @@ const getNavItems = (t: any) => [
 ];
 
 const getBottomItems = (t: any) => [
-  { titleKey: "dashboard.sidebar.profile", icon: User, url: "/dashboard/profile" },
   { titleKey: "dashboard.sidebar.settings", icon: Settings, url: "/dashboard/settings" },
 ];
 

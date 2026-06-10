@@ -106,39 +106,38 @@ const Index = () => {
         `}</style>
 
         {/* Top left icon - Graduation Cap 1 */}
-        <div className="absolute top-32 sm:top-40 left-2 sm:left-6 float-icon">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F2c20374710134a77915dda22ae31b38d%2F609f0111061643adb6a47e11b75489b7?format=webp"
-            alt="graduation"
-            className="h-10 w-10 sm:h-12 sm:w-12 floating-img"
-          />
+        <div className="absolute top-32 sm:top-40 left-2 sm:left-6 float-icon text-primary/60">
+          <GraduationCap className="h-12 w-12 sm:h-14 sm:w-14" />
         </div>
 
         {/* Top right icon - Lightbulb */}
-        <div className="absolute top-36 sm:top-44 right-2 sm:right-8 float-icon-reverse">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F2c20374710134a77915dda22ae31b38d%2F30ac47e21c0f4b4199054d119d53051b?format=webp"
-            alt="idea"
-            className="h-9 w-9 sm:h-11 sm:w-11 floating-img"
-          />
+        <div className="absolute top-36 sm:top-44 right-2 sm:right-8 float-icon-reverse text-accent/60">
+          <Lightbulb className="h-11 w-11 sm:h-13 sm:w-13" />
         </div>
 
         {/* Bottom left icon - Book */}
-        <div className="absolute bottom-32 left-1 sm:left-4 float-icon-reverse">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F2c20374710134a77915dda22ae31b38d%2Fae2489d95f2846c99b9ec3358ba731e4?format=webp"
-            alt="book"
-            className="h-10 w-10 sm:h-12 sm:w-12 floating-img"
-          />
+        <div className="absolute bottom-32 left-1 sm:left-4 float-icon-reverse text-primary/50">
+          <BookOpen className="h-12 w-12 sm:h-14 sm:w-14" />
         </div>
 
-        {/* Bottom right icon - Graduation Cap 2 */}
-        <div className="absolute bottom-24 right-1 sm:right-6 float-icon">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F2c20374710134a77915dda22ae31b38d%2F2cf79d2547e341428d5e023e4f94ff88?format=webp"
-            alt="graduation"
-            className="h-9 w-9 sm:h-11 sm:w-11 floating-img"
-          />
+        {/* Middle left icon - Brain */}
+        <div className="absolute top-1/2 left-1/4 float-icon text-primary/55">
+          <Brain className="h-10 w-10 sm:h-12 sm:w-12" />
+        </div>
+
+        {/* Middle right icon - Users */}
+        <div className="absolute top-1/3 right-1/3 float-icon-reverse text-accent/55">
+          <Users className="h-10 w-10 sm:h-12 sm:w-12" />
+        </div>
+
+        {/* Top center icon - Sparkles */}
+        <div className="absolute top-1/4 left-1/2 float-icon text-primary/45">
+          <Sparkles className="h-9 w-9 sm:h-11 sm:w-11" />
+        </div>
+
+        {/* Bottom center icon - ClipboardCheck */}
+        <div className="absolute bottom-1/3 right-1/4 float-icon-reverse text-accent/45">
+          <ClipboardCheck className="h-9 w-9 sm:h-11 sm:w-11" />
         </div>
 
         <div className="container relative mx-auto px-3 sm:px-4 md:px-6 lg:px-8">

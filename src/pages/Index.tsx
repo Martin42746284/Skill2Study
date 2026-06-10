@@ -4,6 +4,7 @@ import AnimatedSection from "@/components/AnimatedSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "react-i18next";
 import {
   Brain,
@@ -19,13 +20,17 @@ import {
   BookOpen,
   Lightbulb,
 } from "lucide-react";
-import heroImage from "@/assets/hero-illustration.png";
+import heroImageSombre from "@/assets/hero-illustrationSombre.png";
+import heroImageClair from "@/assets/hero-illustrationClair.png";
 import { getApprovedTestimonials } from "@/data/testimonials";
 
 const Index = () => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const approvedTestimonials = getApprovedTestimonials();
   const { settings } = useSettings();
+
+  const heroImage = theme === "dark" ? heroImageSombre : heroImageClair;
 
   const steps = [
     {
@@ -78,13 +83,66 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-24 overflow-hidden">
-        {/* Éléments de fond animés */}
+        {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-background to-background" />
+
+        {/* Floating gradient orbs */}
         <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse delay-700" />
 
+        {/* Animated floating icons */}
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px); opacity: 0.5; }
+            50% { transform: translateY(-10px); opacity: 0.65; }
+          }
+          @keyframes float-reverse {
+            0%, 100% { transform: translateY(0px); opacity: 0.5; }
+            50% { transform: translateY(10px); opacity: 0.65; }
+          }
+          .float-icon { animation: float 6s ease-in-out infinite; }
+          .float-icon-reverse { animation: float-reverse 7s ease-in-out infinite; }
+          .floating-img { filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15)); }
+        `}</style>
+
+        {/* Top left icon - Graduation Cap 1 */}
+        <div className="absolute top-32 sm:top-40 left-2 sm:left-6 float-icon">
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2F2c20374710134a77915dda22ae31b38d%2F609f0111061643adb6a47e11b75489b7?format=webp"
+            alt="graduation"
+            className="h-10 w-10 sm:h-12 sm:w-12 floating-img"
+          />
+        </div>
+
+        {/* Top right icon - Lightbulb */}
+        <div className="absolute top-36 sm:top-44 right-2 sm:right-8 float-icon-reverse">
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2F2c20374710134a77915dda22ae31b38d%2F30ac47e21c0f4b4199054d119d53051b?format=webp"
+            alt="idea"
+            className="h-9 w-9 sm:h-11 sm:w-11 floating-img"
+          />
+        </div>
+
+        {/* Bottom left icon - Book */}
+        <div className="absolute bottom-32 left-1 sm:left-4 float-icon-reverse">
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2F2c20374710134a77915dda22ae31b38d%2Fae2489d95f2846c99b9ec3358ba731e4?format=webp"
+            alt="book"
+            className="h-10 w-10 sm:h-12 sm:w-12 floating-img"
+          />
+        </div>
+
+        {/* Bottom right icon - Graduation Cap 2 */}
+        <div className="absolute bottom-24 right-1 sm:right-6 float-icon">
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2F2c20374710134a77915dda22ae31b38d%2F2cf79d2547e341428d5e023e4f94ff88?format=webp"
+            alt="graduation"
+            className="h-9 w-9 sm:h-11 sm:w-11 floating-img"
+          />
+        </div>
+
         <div className="container relative mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="grid items-center gap-6 sm:gap-8 lg:gap-12 lg:grid-cols-2">
+          <div className="grid items-stretch gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2">
             <AnimatedSection direction="left" className="flex flex-col justify-center">
               <h1 className="mb-8 text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                 {t("home.hero.title")} <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">{t("home.hero.titleHighlight")}</span>
@@ -128,18 +186,19 @@ const Index = () => {
             </AnimatedSection>
 
             <AnimatedSection direction="right" delay={0.2} className="flex items-center justify-center">
-              <div className="relative w-full max-w-xl">
-                {/* Carré de fond avec gradient */}
-                <div className="absolute -inset-6 bg-gradient-to-br from-primary/10 to-accent/10 rounded-3xl blur-2xl" />
-                {/* Image avec effet de card */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6">
+              <div className="relative w-full flex items-center justify-center">
+                {/* Large background gradient blob */}
+                <div className="absolute -inset-4 bg-gradient-to-br from-primary/15 to-accent/15 rounded-3xl blur-3xl" />
+
+                {/* Image container with full image visible */}
+                <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-2 border-border/60 bg-background">
                   <img
                     src={heroImage}
-                    alt="Illustration de l'orientation universitaire avec des étudiants et l'intelligence artificielle"
-                    className="w-full rounded-2xl object-cover aspect-square"
+                    alt="Illustration de l'orientation universitaire"
+                    className="w-full h-auto object-contain"
                   />
-                  {/* Overlay subtle */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-background/40 via-transparent to-transparent" />
+                  {/* Gradient overlay for enhanced contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent rounded-2xl" />
                 </div>
               </div>
             </AnimatedSection>

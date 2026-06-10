@@ -254,7 +254,7 @@ const AdminOverview = () => {
 
   return (
     <AdminLayout>
-      <div className="animate-fade-in space-y-8">
+      <div className="animate-fade-in space-y-6 sm:space-y-8 overflow-hidden">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold">{t("admin.dashboard")}</h1>
@@ -301,8 +301,8 @@ const AdminOverview = () => {
         </div>
 
         {/* Activity and Growth Charts */}
-        <div className="grid gap-8 lg:grid-cols-2">
-          <Card className="p-6">
+        <div className="grid gap-4 sm:gap-8 lg:grid-cols-2">
+          <Card className="p-4 sm:p-6">
             <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
               <Activity className="h-5 w-5 text-primary" />
               {t("admin.weeklyActivity")}
@@ -320,7 +320,7 @@ const AdminOverview = () => {
             </ResponsiveContainer>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
               <TrendingUp className="h-5 w-5 text-primary" />
               {t("admin.userGrowth")}
@@ -339,13 +339,13 @@ const AdminOverview = () => {
         </div>
 
         {/* Detailed Statistics Section */}
-        <div className="border-t pt-8">
-          <h2 className="text-2xl font-bold mb-6">{t("admin.detailedAnalysis")}</h2>
+        <div className="border-t pt-6 sm:pt-8">
+          <h2 className="text-2xl font-bold mb-4 sm:mb-6">{t("admin.detailedAnalysis")}</h2>
 
-          <div className="grid gap-8 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-8 lg:grid-cols-2">
             {/* Taux de Recommandation par Filière */}
-            <Card className="p-6">
-              <div className="mb-6">
+            <Card className="p-4 sm:p-6">
+              <div className="mb-4 sm:mb-6">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Target className="h-5 w-5 text-primary" />
                   {t("admin.recommendationRate")}
@@ -368,8 +368,8 @@ const AdminOverview = () => {
             </Card>
 
             {/* Répartition par Série Bac */}
-            <Card className="p-6">
-              <div className="mb-6">
+            <Card className="p-4 sm:p-6">
+              <div className="mb-4 sm:mb-6">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Users className="h-5 w-5 text-primary" />
                   {t("admin.distributionBySeries")}
@@ -377,8 +377,8 @@ const AdminOverview = () => {
                 <p className="text-xs text-muted-foreground mt-1">{t("admin.userProfiles")}</p>
               </div>
               {repartitionSeries.length > 0 ? (
-                <div className="flex gap-8">
-                  <ResponsiveContainer width="60%" height={300}>
+                <div className="flex flex-col lg:flex-row gap-4 sm:gap-8">
+                  <ResponsiveContainer width="100%" height={300} minWidth={250} minHeight={250}>
                     <PieChart>
                       <Pie data={repartitionSeries} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={2} dataKey="value">
                         {repartitionSeries.map((_, idx) => (
@@ -388,7 +388,7 @@ const AdminOverview = () => {
                       <Tooltip formatter={(value: any) => [value, "Utilisateurs"]} contentStyle={{ borderRadius: "8px", border: `1px solid ${gridColor}`, fontSize: "12px", backgroundColor: theme === "dark" ? "#27272a" : "#ffffff", color: textColor }} />
                     </PieChart>
                   </ResponsiveContainer>
-                  <div className="flex-1 space-y-2">
+                  <div className="space-y-2 lg:flex-1">
                     {repartitionSeries.map((item, idx) => (
                       <div key={idx} className="text-sm">
                         <div className="flex items-center gap-2 mb-1">
@@ -406,8 +406,8 @@ const AdminOverview = () => {
             </Card>
 
             {/* Top Filières */}
-            <Card className="p-6">
-              <div className="mb-6">
+            <Card className="p-4 sm:p-6">
+              <div className="mb-4 sm:mb-6">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-primary" />
                   {t("admin.top8Fields")}
@@ -440,8 +440,8 @@ const AdminOverview = () => {
             </Card>
 
             {/* Répartition par Domaine */}
-            <Card className="p-6">
-              <div className="mb-6">
+            <Card className="p-4 sm:p-6">
+              <div className="mb-4 sm:mb-6">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <BookOpen className="h-5 w-5 text-primary" />
                   {t("admin.domainDistribution")}
@@ -496,7 +496,7 @@ const AdminOverview = () => {
         </div>
 
         {/* User Profiles Summary */}
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <h2 className="text-lg font-semibold mb-4">{t("admin.userProfilesSummary")}</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-lg border border-border bg-muted p-4">
@@ -514,8 +514,8 @@ const AdminOverview = () => {
           </div>
         </Card>
 
-        <div className="mt-8 rounded-xl border bg-card shadow-card">
-          <div className="flex items-center justify-between p-6 border-b">
+        <div className="mt-6 sm:mt-8 rounded-xl border bg-card shadow-card">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-primary" />
               {t("admin.recentUsers")}

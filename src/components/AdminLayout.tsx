@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
-  GraduationCap,
   ClipboardCheck,
   Settings,
   LogOut,
@@ -11,16 +10,28 @@ import {
   X,
   Building2,
   MessageSquare,
-  Sliders,
   BookOpen,
-  Layers,
-  BarChart3,
+  Moon,
+  Sun,
+  Globe,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useTheme } from "@/hooks/use-theme";
+import { useI18n } from "@/hooks/use-i18n";
 import AdminHeader from "@/components/AdminHeader";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { getCurrentUser, auth } from "@/lib/api";
 
 const getNavItems = (t: any) => [
   { titleKey: "admin.sidebar.overview", icon: LayoutDashboard, url: "/admin" },
@@ -35,6 +46,154 @@ const getNavItems = (t: any) => [
 const getBottomItems = (t: any) => [
   { titleKey: "admin.sidebar.settings", icon: Settings, url: "/admin/settings" },
 ];
+
+interface MobileHeaderProps {
+  mobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
+  platformName: string;
+}
+
+const MobileHeader = ({ mobileOpen, setMobileOpen, platformName }: MobileHeaderProps) => {
+  const { currentLanguage, changeLanguage } = useI18n();
+  const { theme, setTheme } = useTheme();
+  const { t } = useTranslation();
+  const user = getCurrentUser();
+
+  const getInitials = (nom?: string, prenom?: string) => {
+    const first = prenom?.[0] || "";
+    const last = nom?.[0] || "";
+    return (first + last).toUpperCase();
+  };
+
+  return (
+    <div className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b bg-card px-4 lg:hidden">
+      {/* Left - Hamburger */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {/* Center - Logo & Name */}
+      <Link to="/admin" className="flex items-center gap-2 flex-1 ml-2">
+        <img
+          src="/logo.png"
+          alt={platformName}
+          className="h-10 w-10 object-contain rounded-lg"
+        />
+        <span className="font-bold text-sm hidden sm:inline">{platformName}</span>
+      </Link>
+
+      {/* Right - Controls */}
+      <div className="flex items-center gap-1">
+        {/* Language */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 hover:bg-accent transition-colors"
+              title={t("language.toggleLanguage")}
+            >
+              <Globe className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuLabel className="text-xs font-semibold">
+              {t("language.toggleLanguage")}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => changeLanguage("fr")}
+              className={cn(currentLanguage === "fr" && "bg-accent")}
+            >
+              <span className="text-sm">🇫🇷 {t("language.french")}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => changeLanguage("en")}
+              className={cn(currentLanguage === "en" && "bg-accent")}
+            >
+              <span className="text-sm">🇬🇧 {t("language.english")}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Theme */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 hover:bg-accent transition-colors"
+              title={t("theme.toggleTheme")}
+            >
+              {theme === "dark" ? (
+                <Moon className="h-4 w-4" />
+              ) : theme === "light" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Sun className="h-4 w-4 opacity-50" />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuLabel className="text-xs font-semibold">
+              {t("theme.toggleTheme")}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => setTheme("light")}
+              className={cn(theme === "light" && "bg-accent")}
+            >
+              <Sun className="h-4 w-4 mr-2" />
+              <span className="text-sm">{t("theme.light")}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setTheme("dark")}
+              className={cn(theme === "dark" && "bg-accent")}
+            >
+              <Moon className="h-4 w-4 mr-2" />
+              <span className="text-sm">{t("theme.dark")}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setTheme("system")}
+              className={cn(theme === "system" && "bg-accent")}
+            >
+              <span className="text-sm mr-2">⚙️</span>
+              <span className="text-sm">{t("theme.system")}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Profile Avatar */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="h-9 px-2 hover:bg-accent transition-colors"
+            >
+              <Avatar className="h-6 w-6">
+                <AvatarImage
+                  src={`https://avatar.vercel.sh/${user?.email}`}
+                  alt={`${user?.prenom} ${user?.nom}`}
+                />
+                <AvatarFallback className="bg-primary/20 text-primary text-xs font-semibold">
+                  {getInitials(user?.nom, user?.prenom)}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel className="text-xs font-semibold truncate">
+              {user?.email}
+            </DropdownMenuLabel>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+};
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -52,20 +211,20 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const bottomItems = getBottomItems(t);
 
   const sidebarContent = (
-    <>
-      <div className="flex h-16 items-center justify-between border-b px-4">
+    <div className="flex flex-col h-full">
+      <div className="flex h-14 items-center justify-between border-b px-4 shrink-0">
         <Link to="/admin" className="flex items-center gap-2">
           <div className="flex items-center justify-center rounded-lg bg-white p-1 shrink-0">
             <img
               src="/logo.png"
               alt={settings.platform_name}
-              className="h-12 w-12 object-contain rounded-md"
+              className="h-10 w-10 object-contain rounded-md"
             />
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className={cn("font-bold text-sm", theme === "dark" ? "text-white" : "text-foreground")}>{settings.platform_name}</span>
-              <span className="text-[10px] text-muted-foreground font-medium">{t("admin.administration")}</span>
+              <span className={cn("font-bold text-xs", theme === "dark" ? "text-white" : "text-foreground")}>{settings.platform_name}</span>
+              <span className="text-[9px] text-muted-foreground font-medium">{t("admin.administration")}</span>
             </div>
           )}
         </Link>
@@ -83,7 +242,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         </button>
       </div>
 
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="flex-1 overflow-y-auto space-y-1 p-3">
         {navItems.map((item) => {
           const active = location.pathname === item.url;
           return (
@@ -105,7 +264,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         })}
       </nav>
 
-      <div className="border-t p-3 space-y-1">
+      <div className="border-t p-3 space-y-1 shrink-0">
         {bottomItems.map((item) => {
           const active = location.pathname === item.url;
           return (
@@ -133,27 +292,17 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           {!collapsed && <span>{t("admin.sidebar.logout")}</span>}
         </Link>
       </div>
-    </>
+    </div>
   );
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <div className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center border-b bg-card px-4 lg:hidden">
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-        <Link to="/admin" className="ml-3 flex items-center gap-2">
-          <img
-            src="/logo.png"
-            alt={settings.platform_name}
-            className="h-10 w-10 object-contain rounded-lg"
-          />
-          <span className="font-bold text-sm">{settings.platform_name}</span>
-        </Link>
-      </div>
+      {/* Mobile Header with Controls */}
+      <MobileHeader
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+        platformName={settings.platform_name}
+      />
 
       {mobileOpen && (
         <div
@@ -164,7 +313,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-full flex-col border-r bg-card transition-all duration-300 lg:flex",
+          "hidden lg:flex fixed left-0 top-0 z-50 h-full flex-col border-r bg-card transition-all duration-300",
           collapsed ? "lg:w-[68px]" : "lg:w-64"
         )}
       >

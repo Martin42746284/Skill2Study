@@ -358,15 +358,15 @@ const AdminUniversities = () => {
   return (
     <AdminLayout>
       <div className="animate-fade-in">
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
-          {/* Left - Search inputs */}
-          <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:items-center">
-            <div className="relative flex-1 max-w-md">
+        <div className="mb-8 space-y-3">
+          {/* Search & Filter - Full width on mobile */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder={t("admin.pages.universities.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-10" />
+              <Input placeholder={t("admin.pages.universities.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-10 w-full" />
             </div>
             <Select value={cityFilter} onValueChange={setCityFilter}>
-              <SelectTrigger className="w-full sm:w-[160px] h-10">
+              <SelectTrigger className="h-10 sm:w-[160px] w-full">
                 <SelectValue placeholder={t("admin.pages.universities.filterByCity")} />
               </SelectTrigger>
               <SelectContent>
@@ -376,9 +376,9 @@ const AdminUniversities = () => {
             </Select>
           </div>
 
-          {/* Right - Counter & Buttons */}
-          <div className="flex items-center gap-3 sm:justify-end flex-wrap">
-            <div className="hidden sm:flex items-center px-3 py-1 rounded-lg bg-accent/30 border border-accent/50">
+          {/* Counter & Buttons */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center px-3 py-1 rounded-lg bg-accent/30 border border-accent/50">
               <span className="text-xs font-medium text-muted-foreground">
                 {unis.length} {t("admin.pages.universities.noResults").toLowerCase()}
               </span>

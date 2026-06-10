@@ -250,16 +250,16 @@ const AdminUsers = () => {
 
   return (
     <AdminLayout>
-      <div className="animate-fade-in">
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
-          {/* Left - Search inputs */}
-          <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:items-center">
+      <div className="animate-fade-in overflow-hidden">
+        <div className="mb-8 space-y-3">
+          {/* Search & Filter - Full width on mobile */}
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder={t("admin.pages.users.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-10" />
+              <Input placeholder={t("admin.pages.users.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-10 w-full" />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[160px] h-10">
+              <SelectTrigger className="h-10 sm:w-[160px] w-full">
                 <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
                 <SelectValue placeholder={t("admin.status")} />
               </SelectTrigger>
@@ -272,9 +272,9 @@ const AdminUsers = () => {
             </Select>
           </div>
 
-          {/* Right - Counter & Buttons */}
-          <div className="flex items-center gap-3 sm:justify-end flex-wrap">
-            <div className="hidden sm:flex items-center px-3 py-1 rounded-lg bg-accent/30 border border-accent/50">
+          {/* Counter & Buttons */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center px-3 py-1 rounded-lg bg-accent/30 border border-accent/50">
               <span className="text-xs font-medium text-muted-foreground">
                 {users.length} {t("admin.pages.users.noResults").toLowerCase()}
               </span>
@@ -303,40 +303,40 @@ const AdminUsers = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <th className="p-4">{t("admin.name")}</th>
-                  <th className="p-4">{t("admin.pages.users.role")}</th>
-                  <th className="p-4">{t("admin.pages.users.serie")}</th>
-                  <th className="p-4">{t("admin.pages.users.tests")}</th>
-                  <th className="p-4">{t("admin.date")}</th>
-                  <th className="p-4">{t("admin.status")}</th>
-                  <th className="p-4 text-right">{t("common.edit")}</th>
+                <tr className="border-b text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/40 sticky top-0">
+                  <th className="p-3 sm:p-4">{t("admin.name")}</th>
+                  <th className="p-3 sm:p-4 hidden sm:table-cell">{t("admin.pages.users.role")}</th>
+                  <th className="p-3 sm:p-4 hidden md:table-cell">{t("admin.pages.users.serie")}</th>
+                  <th className="p-3 sm:p-4 hidden lg:table-cell">{t("admin.pages.users.tests")}</th>
+                  <th className="p-3 sm:p-4 hidden xl:table-cell">{t("admin.date")}</th>
+                  <th className="p-3 sm:p-4">{t("admin.status")}</th>
+                  <th className="p-3 sm:p-4 text-right">{t("common.edit")}</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((user) => (
                   <tr key={user.id} className="border-b last:border-0 hover:bg-accent/30 transition-colors">
-                    <td className="p-4">
+                    <td className="p-3 sm:p-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground flex-shrink-0">
                           {user.name.charAt(0)}
                         </div>
-                        <div>
-                          <p className="text-sm font-medium">{user.name}</p>
-                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{user.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 text-sm">{user.role}</td>
-                    <td className="p-4 text-sm text-muted-foreground">{user.serie}</td>
-                    <td className="p-4 text-sm font-medium">{user.tests}</td>
-                    <td className="p-4 text-sm text-muted-foreground">{user.date}</td>
-                    <td className="p-4">
+                    <td className="p-3 sm:p-4 text-sm hidden sm:table-cell">{user.role}</td>
+                    <td className="p-3 sm:p-4 text-sm text-muted-foreground hidden md:table-cell">{user.serie}</td>
+                    <td className="p-3 sm:p-4 text-sm font-medium hidden lg:table-cell">{user.tests}</td>
+                    <td className="p-3 sm:p-4 text-sm text-muted-foreground hidden xl:table-cell">{user.date}</td>
+                    <td className="p-3 sm:p-4">
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge(user.status)}`}>
                         {user.status}
                       </span>
                     </td>
-                    <td className="p-4 text-right">
+                    <td className="p-3 sm:p-4 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">

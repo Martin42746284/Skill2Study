@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Moon, Sun, Globe, LogOut } from "lucide-react";
+import { Moon, Sun, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminPages } from "@/config/adminPages";
 
@@ -45,14 +45,14 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
     navigate("/login");
   };
 
-  const getInitials = (firstName?: string, lastName?: string) => {
-    const first = firstName?.[0] || "";
-    const last = lastName?.[0] || "";
+  const getInitials = (nom?: string, prenom?: string) => {
+    const first = prenom?.[0] || "";
+    const last = nom?.[0] || "";
     return (first + last).toUpperCase();
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="hidden lg:block sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 gap-6">
         {/* Left side - Page title & description */}
         <div className="hidden sm:flex flex-col min-w-0 flex-1">
@@ -66,25 +66,25 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
 
         {/* Center - Counter badge (Desktop only) */}
         {count !== undefined && countLabel && (
-          <div className="hidden md:flex items-center px-4 py-1.5 rounded-lg bg-accent/30 border border-accent/50">
-            <span className="text-sm font-medium text-muted-foreground">
+          <div className="hidden md:flex items-center px-5 py-2 rounded-lg bg-accent/30 border border-accent/50">
+            <span className="text-base font-semibold text-foreground">
               {count} {countLabel}
             </span>
           </div>
         )}
 
         {/* Right side - Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Language Dropdown */}
+        <div className="flex items-center gap-1">
+          {/* Language */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 hover:bg-accent transition-colors"
+                className="h-9 w-9 hover:bg-accent transition-colors"
                 title={t("language.toggleLanguage")}
               >
-                <Globe className="h-5 w-5" />
+                <Globe className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
@@ -94,71 +94,59 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => changeLanguage("fr")}
-                className={cn(
-                  "cursor-pointer",
-                  currentLanguage === "fr" && "bg-accent"
-                )}
+                className={cn(currentLanguage === "fr" && "bg-accent")}
               >
                 <span className="text-sm">🇫🇷 {t("language.french")}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => changeLanguage("en")}
-                className={cn(
-                  "cursor-pointer",
-                  currentLanguage === "en" && "bg-accent"
-                )}
+                className={cn(currentLanguage === "en" && "bg-accent")}
               >
                 <span className="text-sm">🇬🇧 {t("language.english")}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Theme Dropdown */}
+          {/* Theme */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 hover:bg-accent transition-colors"
+                className="h-9 w-9 hover:bg-accent transition-colors"
                 title={t("theme.toggleTheme")}
               >
                 {theme === "dark" ? (
-                  <Moon className="h-5 w-5" />
+                  <Moon className="h-4 w-4" />
                 ) : theme === "light" ? (
-                  <Sun className="h-5 w-5" />
+                  <Sun className="h-4 w-4" />
                 ) : (
-                  <Sun className="h-5 w-5 opacity-50" />
+                  <Sun className="h-4 w-4 opacity-50" />
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuLabel className="text-xs font-semibold">
                 {t("theme.toggleTheme")}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setTheme("light")}
-                className={cn(
-                  "cursor-pointer",
-                  theme === "light" && "bg-accent"
-                )}
+                className={cn(theme === "light" && "bg-accent")}
               >
                 <Sun className="h-4 w-4 mr-2" />
                 <span className="text-sm">{t("theme.light")}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setTheme("dark")}
-                className={cn("cursor-pointer", theme === "dark" && "bg-accent")}
+                className={cn(theme === "dark" && "bg-accent")}
               >
                 <Moon className="h-4 w-4 mr-2" />
                 <span className="text-sm">{t("theme.dark")}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setTheme("system")}
-                className={cn(
-                  "cursor-pointer",
-                  theme === "system" && "bg-accent"
-                )}
+                className={cn(theme === "system" && "bg-accent")}
               >
                 <span className="text-sm mr-2">⚙️</span>
                 <span className="text-sm">{t("theme.system")}</span>
@@ -166,33 +154,25 @@ const AdminHeader = ({ count, countLabel }: AdminHeaderProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Admin Profile Dropdown */}
+          {/* Profile Avatar */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-10 px-2 sm:px-3 flex items-center gap-2 hover:bg-accent transition-colors"
+                className="h-9 px-2 hover:bg-accent transition-colors"
               >
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-6 w-6">
                   <AvatarImage
-                    src={user?.avatar || `https://avatar.vercel.sh/${user?.email}`}
-                    alt={`${user?.firstName} ${user?.lastName}`}
+                    src={`https://avatar.vercel.sh/${user?.email}`}
+                    alt={`${user?.prenom} ${user?.nom}`}
                   />
                   <AvatarFallback className="bg-primary/20 text-primary text-xs font-semibold">
-                    {getInitials(user?.firstName, user?.lastName)}
+                    {getInitials(user?.nom, user?.prenom)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="hidden sm:block text-left min-w-0">
-                  <p className="text-sm font-medium leading-none truncate">
-                    {user?.firstName}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ""}
-                  </p>
-                </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel className="text-xs font-semibold truncate">
                 {user?.email}
               </DropdownMenuLabel>

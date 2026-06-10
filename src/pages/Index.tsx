@@ -77,66 +77,66 @@ const Index = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-18 lg:pt-32 lg:pb-20 overflow-hidden">
+      <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-24 overflow-hidden">
         {/* Éléments de fond animés */}
         <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-background to-background" />
         <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse delay-700" />
 
         <div className="container relative mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="grid items-center gap-8 sm:gap-12 lg:gap-16 lg:grid-cols-2">
-            <AnimatedSection direction="left">
-              <h1 className="mb-6 text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+          <div className="grid items-center gap-6 sm:gap-8 lg:gap-12 lg:grid-cols-2">
+            <AnimatedSection direction="left" className="flex flex-col justify-center">
+              <h1 className="mb-8 text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                 {t("home.hero.title")} <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">{t("home.hero.titleHighlight")}</span>
               </h1>
 
-              <p className="mb-6 sm:mb-8 max-w-lg text-base sm:text-lg text-muted-foreground leading-relaxed">
+              <p className="mb-8 sm:mb-10 max-w-lg text-lg sm:text-xl text-muted-foreground leading-relaxed">
                 {t("home.hero.platformDescription", { description: settings.platform_description })}
               </p>
 
-              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-8 sm:mb-12">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-5 mb-10 sm:mb-14">
                 <Link to="/tests">
-                  <Button variant="hero" size="xl" className="shadow-lg hover:shadow-xl hover:shadow-primary/50">
+                  <Button variant="hero" size="xl" className="shadow-lg hover:shadow-xl hover:shadow-primary/50 h-14 px-8 text-base font-semibold">
                     {t("home.heroButtons.startOrientation")}
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
                 <Link to="/about">
-                  <Button variant="hero-outline" size="xl" className="hover:bg-accent/10">
+                  <Button variant="hero-outline" size="xl" className="hover:bg-accent/10 h-14 px-8 text-base font-semibold">
                     {t("home.heroButtons.learnMore")}
                   </Button>
                 </Link>
               </div>
 
-              <div className="space-y-3">
-                <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("home.whyChoose")}</h3>
-                <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4 lg:gap-6">
+              <div className="space-y-4">
+                <h3 className="text-sm sm:text-base font-semibold text-muted-foreground uppercase tracking-wider">{t("home.whyChoose")}</h3>
+                <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 sm:gap-5 lg:gap-8">
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
-                    <span className="text-sm font-medium">{t("home.benefits.free")}</span>
+                    <CheckCircle2 className="h-6 w-6 text-success flex-shrink-0" />
+                    <span className="text-base font-medium">{t("home.benefits.free")}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
-                    <span className="text-sm font-medium">{t("home.benefits.instant")}</span>
+                    <CheckCircle2 className="h-6 w-6 text-success flex-shrink-0" />
+                    <span className="text-base font-medium">{t("home.benefits.instant")}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
-                    <span className="text-sm font-medium">{t("home.benefits.personalized")}</span>
+                    <CheckCircle2 className="h-6 w-6 text-success flex-shrink-0" />
+                    <span className="text-base font-medium">{t("home.benefits.personalized")}</span>
                   </div>
                 </div>
               </div>
             </AnimatedSection>
 
-            <AnimatedSection direction="right" delay={0.2}>
-              <div className="relative">
+            <AnimatedSection direction="right" delay={0.2} className="flex items-center justify-center">
+              <div className="relative w-full max-w-xl">
                 {/* Carré de fond avec gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 rounded-3xl blur-2xl" />
+                <div className="absolute -inset-6 bg-gradient-to-br from-primary/10 to-accent/10 rounded-3xl blur-2xl" />
                 {/* Image avec effet de card */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-3">
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6">
                   <img
                     src={heroImage}
                     alt="Illustration de l'orientation universitaire avec des étudiants et l'intelligence artificielle"
-                    className="w-full rounded-2xl object-cover"
+                    className="w-full rounded-2xl object-cover aspect-square"
                   />
                   {/* Overlay subtle */}
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-background/40 via-transparent to-transparent" />

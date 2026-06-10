@@ -110,60 +110,60 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
-      <div className="flex min-h-screen items-center justify-center px-3 sm:px-4 pt-16">
+      <div className="flex-1 flex items-center justify-center px-3 sm:px-4 pt-20 sm:pt-24 pb-6 sm:pb-8">
         <div className="w-full max-w-md animate-fade-in">
-          <div className="rounded-2xl border bg-card p-6 sm:p-8 shadow-card">
-            <div className="mb-6 sm:mb-8 text-center">
-              <div className="mx-auto mb-4 inline-flex items-center justify-center rounded-xl bg-white p-2">
+          <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-card">
+            <div className="mb-4 text-center">
+              <div className="mx-auto mb-3 inline-flex items-center justify-center rounded-lg bg-white p-1.5">
                 <img
                   src="/logo.png"
                   alt="Logo"
-                  className="h-32 sm:h-40 w-32 sm:w-40 rounded-lg object-cover"
+                  className="h-14 w-14 rounded-md object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold">{t("auth.register.title")}</h1>
-              <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+              <h1 className="text-lg font-bold">{t("auth.register.title")}</h1>
+              <p className="mt-1 text-xs text-muted-foreground">
                 {t("auth.register.subtitle")}
               </p>
             </div>
 
-            <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-sm">{t("auth.register.firstName")}</Label>
+            <form className="space-y-3" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="firstName" className="text-xs">{t("auth.register.firstName")}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input id="firstName" placeholder={t("auth.register.firstNamePlaceholder")} className="pl-10 text-sm" value={form.firstName} onChange={(e) => handleChange("firstName", e.target.value)} />
+                    <Input id="firstName" placeholder={t("auth.register.firstNamePlaceholder")} className="pl-10 h-9 text-xs" value={form.firstName} onChange={(e) => handleChange("firstName", e.target.value)} />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-sm">{t("auth.register.lastName")}</Label>
-                  <Input id="lastName" placeholder={t("auth.register.lastNamePlaceholder")} className="text-sm" value={form.lastName} onChange={(e) => handleChange("lastName", e.target.value)} />
+                <div className="space-y-1.5">
+                  <Label htmlFor="lastName" className="text-xs">{t("auth.register.lastName")}</Label>
+                  <Input id="lastName" placeholder={t("auth.register.lastNamePlaceholder")} className="h-9 text-xs" value={form.lastName} onChange={(e) => handleChange("lastName", e.target.value)} />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm">{t("auth.register.email")}</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-xs">{t("auth.register.email")}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="email" type="email" placeholder={t("auth.register.emailPlaceholder")} className="pl-10 text-sm" value={form.email} onChange={(e) => handleChange("email", e.target.value)} />
+                  <Input id="email" type="email" placeholder={t("auth.register.emailPlaceholder")} className="pl-10 h-9 text-xs" value={form.email} onChange={(e) => handleChange("email", e.target.value)} />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm">{t("auth.register.password")}</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="password" className="text-xs">{t("auth.register.password")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder={t("auth.register.passwordPlaceholder")}
-                    className="pl-10 pr-10 text-sm"
+                    className="pl-10 pr-10 h-9 text-xs"
                     value={form.password}
                     onChange={(e) => handleChange("password", e.target.value)}
                   />
@@ -181,15 +181,15 @@ const Register = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm">{t("auth.register.confirmPassword")}</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="confirmPassword" className="text-xs">{t("auth.register.confirmPassword")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder={t("auth.register.confirmPasswordPlaceholder")}
-                    className="pl-10 pr-10 text-sm"
+                    className="pl-10 pr-10 h-9 text-xs"
                     value={form.confirmPassword}
                     onChange={(e) => handleChange("confirmPassword", e.target.value)}
                   />
@@ -207,13 +207,13 @@ const Register = () => {
                 </div>
               </div>
 
-              <Button variant="hero" size="lg" className="w-full text-sm sm:text-base" disabled={loading}>
+              <Button variant="hero" size="sm" className="w-full text-xs mt-1.5" disabled={loading}>
                 {loading ? `${t("auth.register.signUp")}…` : t("auth.register.signUp")}
                 {!loading && <ArrowRight className="ml-1 h-4 w-4" />}
               </Button>
             </form>
 
-            <p className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-muted-foreground">
+            <p className="mt-2 text-center text-xs text-muted-foreground">
               {t("auth.register.haveAccount")}{" "}
               <Link to="/login" className="font-medium text-primary hover:underline">
                 {t("auth.register.loginLink")}

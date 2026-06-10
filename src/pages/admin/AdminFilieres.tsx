@@ -373,53 +373,58 @@ const AdminFilieres = () => {
   return (
     <AdminLayout>
       <div className="animate-fade-in">
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">{t("admin.pages.filieres.title")}</h1>
-            <p className="mt-1 text-muted-foreground">{filiereList.length} {t("admin.pages.filieres.noResults").toLowerCase()}</p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* Left - Search inputs */}
+          <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:items-center">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder={t("admin.pages.filieres.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-10" />
+            </div>
+            <Select value={niveauFilter} onValueChange={setNiveauFilter}>
+              <SelectTrigger className="w-full sm:w-[160px] h-10">
+                <SelectValue placeholder={t("admin.pages.filieres.niveau")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("admin.pages.filieres.all")}</SelectItem>
+                {niveaux.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={univFilter} onValueChange={setUnivFilter}>
+              <SelectTrigger className="w-full sm:w-[160px] h-10">
+                <SelectValue placeholder={t("admin.pages.filieres.filterByUniversity")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("admin.pages.filieres.all")}</SelectItem>
+                {univerList.map((u) => <SelectItem key={u.id} value={String(u.id)}>{u.nom}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> {t("common.filter")}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleExportCSV}>
-                  {t("admin.pages.filieres.exportCSV")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button size="sm" onClick={openAddDialog}>
-              <Plus className="h-4 w-4 mr-1" /> {t("admin.pages.filieres.addNew")}
-            </Button>
-          </div>
-        </div>
 
-        <div className="mb-6 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder={t("admin.pages.filieres.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          {/* Right - Counter & Buttons */}
+          <div className="flex items-center gap-3 sm:justify-end flex-wrap">
+            <div className="hidden sm:flex items-center px-3 py-1 rounded-lg bg-accent/30 border border-accent/50">
+              <span className="text-xs font-medium text-muted-foreground">
+                {filiereList.length} {t("admin.pages.filieres.noResults").toLowerCase()}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <Plus className="h-4 w-4 mr-1" /> {t("common.filter")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportCSV}>
+                    {t("admin.pages.filieres.exportCSV")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button size="sm" onClick={openAddDialog}>
+                <Plus className="h-4 w-4 mr-1" /> {t("admin.pages.filieres.addNew")}
+              </Button>
+            </div>
           </div>
-          <Select value={niveauFilter} onValueChange={setNiveauFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder={t("admin.pages.filieres.niveau")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("admin.pages.filieres.all")}</SelectItem>
-              {niveaux.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={univFilter} onValueChange={setUnivFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder={t("admin.pages.filieres.filterByUniversity")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("admin.pages.filieres.all")}</SelectItem>
-              {univerList.map((u) => <SelectItem key={u.id} value={String(u.id)}>{u.nom}</SelectItem>)}
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="space-y-4">

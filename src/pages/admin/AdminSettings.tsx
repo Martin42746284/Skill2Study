@@ -130,11 +130,6 @@ const AdminSettings = () => {
   return (
     <AdminLayout>
       <div className="animate-fade-in h-full flex flex-col">
-        <div className="mb-6 shrink-0">
-          <h1 className="text-3xl font-bold">{t("admin.pages.settings.title")}</h1>
-          <p className="mt-1 text-muted-foreground">{t("admin.pages.settings.description")}</p>
-        </div>
-
         <div className="flex-1 overflow-y-auto pr-2 space-y-4">
 
           {/* General Settings */}

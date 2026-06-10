@@ -358,44 +358,49 @@ const AdminUniversities = () => {
   return (
     <AdminLayout>
       <div className="animate-fade-in">
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">{t("admin.pages.universities.title")}</h1>
-            <p className="mt-1 text-muted-foreground">{unis.length} {t("admin.pages.universities.noResults").toLowerCase()}</p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* Left - Search inputs */}
+          <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:items-center">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder={t("admin.pages.universities.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-10" />
+            </div>
+            <Select value={cityFilter} onValueChange={setCityFilter}>
+              <SelectTrigger className="w-full sm:w-[160px] h-10">
+                <SelectValue placeholder={t("admin.pages.universities.filterByCity")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("admin.pages.universities.all")}</SelectItem>
+                {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" /> {t("common.export")}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleExportCSV}>
-                  {t("admin.pages.universities.exportCSV")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button size="sm" onClick={openAddDialog}>
-              <Plus className="h-4 w-4 mr-1" /> {t("admin.pages.universities.addNew")}
-            </Button>
-          </div>
-        </div>
 
-        <div className="mb-6 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder={t("admin.pages.universities.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          {/* Right - Counter & Buttons */}
+          <div className="flex items-center gap-3 sm:justify-end flex-wrap">
+            <div className="hidden sm:flex items-center px-3 py-1 rounded-lg bg-accent/30 border border-accent/50">
+              <span className="text-xs font-medium text-muted-foreground">
+                {unis.length} {t("admin.pages.universities.noResults").toLowerCase()}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <Plus className="h-4 w-4 mr-1" /> {t("common.export")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportCSV}>
+                    {t("admin.pages.universities.exportCSV")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button size="sm" onClick={openAddDialog}>
+                <Plus className="h-4 w-4 mr-1" /> {t("admin.pages.universities.addNew")}
+              </Button>
+            </div>
           </div>
-          <Select value={cityFilter} onValueChange={setCityFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder={t("admin.pages.universities.filterByCity")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("admin.pages.universities.all")}</SelectItem>
-              {cities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="space-y-4">

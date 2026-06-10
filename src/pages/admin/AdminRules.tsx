@@ -293,10 +293,7 @@ const AdminRules = () => {
       <div className="animate-fade-in">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Définir les règles de recommandation</h1>
-            <p className="mt-1 text-muted-foreground">
-              Configurez les poids et filtres du système de recommandation IA
-            </p>
+            <p className="text-sm text-muted-foreground">{rules.length} règles configurées</p>
           </div>
           <Button size="sm" onClick={openAddDialog}>
             <Plus className="h-4 w-4 mr-1" /> Nouvelle règle

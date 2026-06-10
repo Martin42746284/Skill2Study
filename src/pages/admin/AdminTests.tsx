@@ -220,8 +220,7 @@ const AdminTests = () => {
       <div className="animate-fade-in">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">{t("admin.pages.tests.title")}</h1>
-            <p className="mt-1 text-muted-foreground">{t("admin.pages.tests.description")}</p>
+            <p className="text-sm text-muted-foreground">{questions.length} {t("admin.pages.tests.questions")}</p>
           </div>
           <Button size="sm" onClick={openAddDialog}>
             <Plus className="h-4 w-4 mr-1" /> {t("admin.pages.tests.addTest")}

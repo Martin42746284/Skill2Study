@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useTheme } from "@/hooks/use-theme";
+import AdminHeader from "@/components/AdminHeader";
 
 const getNavItems = (t: any) => [
   { titleKey: "admin.sidebar.overview", icon: LayoutDashboard, url: "/admin" },
@@ -181,12 +182,13 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
       <main
         className={cn(
-          "flex-1 transition-all duration-300",
+          "flex-1 flex flex-col transition-all duration-300",
           collapsed ? "lg:ml-[68px]" : "lg:ml-64",
           "pt-14 lg:pt-0"
         )}
       >
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+        <AdminHeader />
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>
   );

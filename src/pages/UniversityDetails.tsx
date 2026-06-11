@@ -74,6 +74,7 @@ const formatMoney = (amount?: number | null) => {
 
 const UniversityDetails = () => {
   const { id } = useParams();
+  const { t } = useTranslation();
   const [university, setUniversity] = useState<UniversityDetailsData | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
@@ -153,7 +154,7 @@ const UniversityDetails = () => {
     return (
       <DashboardLayout>
         <div className="animate-fade-in text-center py-20">
-          <p className="text-muted-foreground">Chargement de l'université…</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </DashboardLayout>
     );

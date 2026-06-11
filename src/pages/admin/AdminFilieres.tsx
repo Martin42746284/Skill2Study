@@ -260,8 +260,8 @@ const AdminFilieres = () => {
     try {
       if (!formUniversiteId || !formNom || formNiveaux.length === 0 || formSeriesBac.length === 0) {
         toast({
-          title: "Erreur",
-          description: "Veuillez remplir tous les champs obligatoires (au moins une série bac)",
+          title: t("common.error"),
+          description: t("admin.pages.filieres.formRequiredFields"),
           variant: "destructive"
         });
         return;
@@ -320,8 +320,8 @@ const AdminFilieres = () => {
       setDialogOpen(false);
     } catch (error) {
       toast({
-        title: "Erreur",
-        description: error instanceof Error ? error.message : "Impossible de sauvegarder la filière",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("admin.pages.filieres.savingError"),
         variant: "destructive"
       });
     }
@@ -352,7 +352,7 @@ const AdminFilieres = () => {
 
   const handleAddParcours = () => {
     if (!newParcoursNom.trim()) {
-      toast({ title: "Erreur", description: "Veuillez entrer un nom de parcours", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("admin.pages.parcours.formNamePlaceholder"), variant: "destructive" });
       return;
     }
     setFormParcours([...formParcours, {

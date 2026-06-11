@@ -363,16 +363,6 @@
         "save": "Save",
         "cancel": "Cancel"
       },
-      "rules": {
-        "title": "AI Rules",
-        "description": "Configure orientation algorithm rules",
-        "save": "Save",
-        "cancel": "Cancel",
-        "success": "Rules updated successfully",
-        "error": "Error updating rules",
-        "editAction": "Edit",
-        "deleteAction": "Delete"
-      },
       "settings": {
         "title": "System Settings",
         "description": "Configure general platform settings",
@@ -418,6 +408,28 @@
         "cancelledDesc": "Changes have not been saved",
         "maintenanceEnabled": "Maintenance mode enabled",
         "maintenanceDisabled": "Maintenance mode disabled"
+      },
+      "rules": {
+        "title": "AI Rules Management",
+        "description": "Configure orientation algorithm rules",
+        "loadingRules": "Loading rules...",
+        "loadError": "Unable to load rules",
+        "activeRule": "Active rule",
+        "newRule": "New rule",
+        "ruleCreated": "Rule created",
+        "ruleAddedSuccess": "has been successfully added.",
+        "ruleSaveError": "Unable to save the rule",
+        "ruleActivated": "Rule activated as default.",
+        "ruleActivateError": "Unable to activate the rule",
+        "ruleDeleted": "Rule successfully deleted",
+        "ruleDeleteError": "Unable to delete the rule",
+        "deleteConfirmTitle": "Delete rule",
+        "deleteConfirmDesc": "Are you sure you want to delete this rule? This action is irreversible.",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "activate": "Activate",
+        "formPlaceholder": "e.g., Standard rules"
       }
     }
   },
@@ -1041,7 +1053,14 @@
     "city": "City",
     "domain": "Domain",
     "level": "Level",
-    "view": "View"
+    "view": "View",
+    "establishment": "establishment",
+    "establishments": "establishments",
+    "found": "found",
+    "foundPlural": "found",
+    "field": "field",
+    "fieldPlural": "fields",
+    "details": "Details"
   },
   "history": {
     "title": "History",
@@ -1110,7 +1129,10 @@
     "saved": "Settings saved",
     "saveSettings": "Save Settings",
     "error": "Error saving settings",
-    "errorLoading": "Error loading settings"
+    "errorLoading": "Error loading settings",
+    "passwordChanged": "Your password has been changed successfully",
+    "accountDeleted": "Account deleted",
+    "accountDeletedMsg": "Your account has been successfully deleted"
   },
   "orientationTest": {
     "title": "Orientation Test",

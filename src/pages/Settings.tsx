@@ -191,8 +191,8 @@ const Settings = () => {
       setSaving(true);
       await usersApi.changePassword(passwordData);
       toast({
-        title: "Succès",
-        description: "Votre mot de passe a été changé avec succès",
+        title: t("common.success"),
+        description: t("settings.passwordChanged"),
       });
       setPasswordData({ current_password: "", new_password: "", confirm_password: "" });
     } catch (err) {
@@ -211,7 +211,7 @@ const Settings = () => {
     if (!deletePassword) {
       toast({
         title: t("common.error"),
-        description: "Le mot de passe est requis",
+        description: t("validation.required"),
         variant: "destructive",
       });
       return;
@@ -221,8 +221,8 @@ const Settings = () => {
       setSaving(true);
       await usersApi.deleteAccount(deletePassword);
       toast({
-        title: "Compte supprimé",
-        description: "Votre compte a été supprimé avec succès",
+        title: t("settings.accountDeleted"),
+        description: t("settings.accountDeletedMsg"),
       });
       // Logout and redirect
       auth.logout();

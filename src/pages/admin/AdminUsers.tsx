@@ -99,8 +99,8 @@ const AdminUsers = () => {
   useEffect(() => {
     if (loadError) {
       toast({
-        title: "Erreur",
-        description: loadError.message || "Impossible de charger les utilisateurs",
+        title: t("common.error"),
+        description: loadError.message || t("admin.pages.users.loadingError"),
         variant: "destructive"
       });
     }
@@ -115,8 +115,8 @@ const AdminUsers = () => {
   const handleExportCSV = () => {
     if (users.length === 0) {
       toast({
-        title: "Erreur",
-        description: "Aucun utilisateur à exporter",
+        title: t("common.error"),
+        description: t("admin.pages.users.noUsersFound"),
         variant: "destructive"
       });
       return;

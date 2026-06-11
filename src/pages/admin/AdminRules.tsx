@@ -112,8 +112,8 @@ const AdminRules = () => {
       setActiveRule(activeRuleData);
     } catch (error) {
       toast({
-        title: "Erreur",
-        description: error instanceof Error ? error.message : "Impossible de charger les règles",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("admin.pages.rules.loadError"),
         variant: "destructive",
       });
     } finally {
@@ -222,13 +222,13 @@ const AdminRules = () => {
 
         const newRule = response?.data?.rule || { id: Date.now(), nom: formName };
         setRules([...rules, newRule]);
-        toast({ title: "Règle créée", description: `${formName} a été ajoutée avec succès.` });
+        toast({ title: t("admin.pages.rules.ruleCreated"), description: `${formName} ${t("admin.pages.rules.ruleAddedSuccess")}` });
       }
       setDialogOpen(false);
     } catch (error) {
       toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder la règle",
+        title: t("common.error"),
+        description: t("admin.pages.rules.ruleSaveError"),
         variant: "destructive",
       });
       console.error("Error saving rule:", error);
@@ -246,11 +246,11 @@ const AdminRules = () => {
           est_default: r.id === ruleId,
         }))
       );
-      toast({ title: "Succès", description: "Règle activée comme défaut." });
+      toast({ title: t("common.success"), description: t("admin.pages.rules.ruleActivated") });
     } catch (error) {
       toast({
-        title: "Erreur",
-        description: "Impossible d'activer la règle",
+        title: t("common.error"),
+        description: t("admin.pages.rules.ruleActivateError"),
         variant: "destructive",
       });
       console.error("Error activating rule:", error);
@@ -265,8 +265,8 @@ const AdminRules = () => {
       toast({ title: "Règle supprimée", variant: "destructive" });
     } catch (error) {
       toast({
-        title: "Erreur",
-        description: error instanceof Error ? error.message : "Impossible de supprimer la règle",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("admin.pages.rules.ruleDeleteError"),
         variant: "destructive",
       });
       console.error("Error deleting rule:", error);
@@ -280,7 +280,7 @@ const AdminRules = () => {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">Chargement des règles...</p>
+          <p className="text-muted-foreground">{t("admin.pages.rules.loadingRules")}</p>
         </div>
       </AdminLayout>
     );
@@ -293,10 +293,10 @@ const AdminRules = () => {
       <div className="animate-fade-in">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-sm text-muted-foreground">{rules.length} règles configurées</p>
+            <p className="text-sm text-muted-foreground">{rules.length} {t("admin.pages.rules.activeRule")}</p>
           </div>
           <Button size="sm" onClick={openAddDialog}>
-            <Plus className="h-4 w-4 mr-1" /> Nouvelle règle
+            <Plus className="h-4 w-4 mr-1" /> {t("admin.pages.rules.newRule")}
           </Button>
         </div>
 
@@ -305,7 +305,7 @@ const AdminRules = () => {
           <div className="mb-8 rounded-xl border-2 border-primary/50 bg-primary/5 p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <Check className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Règle active</h2>
+              <h2 className="text-lg font-semibold">{t("admin.pages.rules.activeRule")}</h2>
               <Badge className="bg-primary">{activeRule.nom}</Badge>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
@@ -453,7 +453,7 @@ const AdminRules = () => {
                     <Input
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
-                      placeholder="ex: Règles standard"
+                      placeholder={t("admin.pages.rules.formPlaceholder")}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -603,7 +603,7 @@ const AdminRules = () => {
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
-                <X className="h-4 w-4 mr-2" /> Annuler
+                <X className="h-4 w-4 mr-2" /> {t("common.cancel")}
               </Button>
               <Button onClick={handleSave} disabled={!formName.trim() || !!weightError}>
                 <Save className="h-4 w-4 mr-2" />
@@ -617,15 +617,15 @@ const AdminRules = () => {
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Supprimer la règle</AlertDialogTitle>
+              <AlertDialogTitle>{t("admin.pages.rules.deleteConfirmTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Êtes-vous sûr de vouloir supprimer cette règle ? Cette action est irréversible.
+                {t("admin.pages.rules.deleteConfirmDesc")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex gap-3 justify-end">
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Supprimer
+                {t("common.delete")}
               </AlertDialogAction>
             </div>
           </AlertDialogContent>

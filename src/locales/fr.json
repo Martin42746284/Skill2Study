@@ -363,16 +363,6 @@
         "save": "Enregistrer",
         "cancel": "Annuler"
       },
-      "rules": {
-        "title": "Règles IA",
-        "description": "Configurez les règles de l'algorithme d'orientation",
-        "save": "Enregistrer",
-        "cancel": "Annuler",
-        "success": "Règles mise à jour avec succès",
-        "error": "Erreur lors de la mise à jour des règles",
-        "editAction": "Modifier",
-        "deleteAction": "Supprimer"
-      },
       "settings": {
         "title": "Paramètres du Système",
         "description": "Configurez les paramètres généraux de la plateforme",
@@ -418,6 +408,28 @@
         "cancelledDesc": "Les modifications n'ont pas été enregistrées",
         "maintenanceEnabled": "Mode maintenance activé",
         "maintenanceDisabled": "Mode maintenance désactivé"
+      },
+      "rules": {
+        "title": "Gestion des Règles IA",
+        "description": "Configurer les règles de l'algorithme d'orientation",
+        "loadingRules": "Chargement des règles...",
+        "loadError": "Impossible de charger les règles",
+        "activeRule": "Règle active",
+        "newRule": "Nouvelle règle",
+        "ruleCreated": "Règle créée",
+        "ruleAddedSuccess": "a été ajoutée avec succès.",
+        "ruleSaveError": "Impossible de sauvegarder la règle",
+        "ruleActivated": "Règle activée comme défaut.",
+        "ruleActivateError": "Impossible d'activer la règle",
+        "ruleDeleted": "Règle supprimée avec succès",
+        "ruleDeleteError": "Impossible de supprimer la règle",
+        "deleteConfirmTitle": "Supprimer la règle",
+        "deleteConfirmDesc": "Êtes-vous sûr de vouloir supprimer cette règle ? Cette action est irréversible.",
+        "cancel": "Annuler",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "activate": "Activer",
+        "formPlaceholder": "ex: Règles standard"
       }
     }
   },
@@ -1041,7 +1053,14 @@
     "city": "Ville",
     "domain": "Domaine",
     "level": "Niveau",
-    "view": "Voir"
+    "view": "Voir",
+    "establishment": "établissement",
+    "establishments": "établissements",
+    "found": "trouvé",
+    "foundPlural": "trouvés",
+    "field": "filière",
+    "fieldPlural": "filières",
+    "details": "Détails"
   },
   "history": {
     "title": "Historique",
@@ -1110,7 +1129,10 @@
     "saved": "Paramètres enregistrés",
     "saveSettings": "Enregistrer les paramètres",
     "error": "Erreur lors de l'enregistrement",
-    "errorLoading": "Erreur lors du chargement des paramètres"
+    "errorLoading": "Erreur lors du chargement des paramètres",
+    "passwordChanged": "Votre mot de passe a été changé avec succès",
+    "accountDeleted": "Compte supprimé",
+    "accountDeletedMsg": "Votre compte a été supprimé avec succès"
   },
   "orientationTest": {
     "title": "Test d'orientation",

@@ -202,7 +202,7 @@ const Search = () => {
 
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {results.length} établissement{results.length !== 1 ? "s" : ""} trouvé{results.length !== 1 ? "s" : ""}
+            {results.length} {t("search.establishment")}{results.length !== 1 ? t("search.establishments").slice(-1) : ""} {t("search.found")}{results.length !== 1 ? t("search.foundPlural").slice(-1) : ""}
           </p>
         </div>
 
@@ -272,7 +272,7 @@ const Search = () => {
                     </div>
                     <div className="mb-3 flex items-center gap-1 text-xs text-foreground">
                       <GraduationCap className="h-3.5 w-3.5 shrink-0" />
-                      {uni.filieresCount} filière{uni.filieresCount > 1 ? "s" : ""}
+                      {uni.filieresCount} {t("search.field")}{uni.filieresCount > 1 ? t("search.fieldPlural").slice(-1) : ""}
                     </div>
                     <div className="mb-3 flex flex-1 flex-wrap gap-1.5">
                       {uni.specialties.slice(0, 2).map((spec) => (
@@ -287,7 +287,7 @@ const Search = () => {
                       )}
                     </div>
                     <div className="mt-auto flex items-center gap-1 text-xs font-medium text-primary group-hover:gap-2 transition-all">
-                      Détails <ArrowRight className="h-3.5 w-3.5" />
+                      {t("search.details")} <ArrowRight className="h-3.5 w-3.5" />
                     </div>
                   </div>
                 </div>

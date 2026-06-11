@@ -122,6 +122,12 @@ const AdminFilieres = () => {
       filList = (filiereResAny as any).data;
     }
 
+    // Normaliser: convertir niveau (string) en niveaux (array)
+    filList = filList.map(f => ({
+      ...f,
+      niveaux: f.niveaux || (f.niveau ? [f.niveau] : [])
+    }));
+
     // Appliquer le skip et limit
     return filList.slice(skip, skip + limit);
   };
@@ -447,10 +453,14 @@ const AdminFilieres = () => {
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           <h3 className="font-semibold">{fil.nom}</h3>
-                          {fil.niveaux && fil.niveaux.map(n => (
-                            <Badge key={n} className="text-[10px]">{n}</Badge>
-                          ))}
-                          <Badge variant="secondary" className="text-[10px]">{fil.difficulte}</Badge>
+                          {fil.niveaux && fil.niveaux.length > 0 ? (
+                            fil.niveaux.map(n => (
+                              <Badge key={n} className="text-[10px]">{n}</Badge>
+                            ))
+                          ) : fil.niveau ? (
+                            <Badge className="text-[10px]">{fil.niveau}</Badge>
+                          ) : null}
+                          {fil.difficulte && <Badge variant="secondary" className="text-[10px]">{fil.difficulte}</Badge>}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                           <Building2 className="h-3 w-3" />

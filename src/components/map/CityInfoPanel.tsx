@@ -36,6 +36,7 @@ export interface CityUniversity {
   type: string;
   ville: string;
   wilaya?: string | null;
+  adresse?: string | null;
   site_web?: string | null;
   telephone?: string | null;
   logo_url?: string | null;
@@ -53,6 +54,8 @@ export interface CityMarker {
 interface CityInfoPanelProps {
   selectedCity: CityMarker | null;
   onClose: () => void;
+  onUniversitySelect?: (university: any) => void;
+  selectedUniversity?: any;
 }
 
 const formatUniversityType = (type: string) => {
@@ -61,7 +64,7 @@ const formatUniversityType = (type: string) => {
   return type;
 };
 
-const CityInfoPanel = ({ selectedCity, onClose }: CityInfoPanelProps) => {
+const CityInfoPanel = ({ selectedCity, onClose, onUniversitySelect, selectedUniversity }: CityInfoPanelProps) => {
   const [expandedUni, setExpandedUni] = useState<number | null>(null);
 
   return (
@@ -106,10 +109,20 @@ const CityInfoPanel = ({ selectedCity, onClose }: CityInfoPanelProps) => {
                 const filieres = uni.filieres || [];
 
                 return (
-                  <div key={uni.id} className="group overflow-hidden">
+                  <div key={uni.id} className={`group overflow-hidden ${selectedUniversity?.id === uni.id ? "bg-primary/5 border-l-4 border-primary" : ""}`}>
                     <div
                       className="p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-                      onClick={() => setExpandedUni(isExpanded ? null : uni.id)}
+                      onClick={() => {
+                        setExpandedUni(isExpanded ? null : uni.id);
+                        if (onUniversitySelect && selectedCity) {
+                          onUniversitySelect({
+                            id: uni.id,
+                            nom: uni.nom,
+                            lat: selectedCity.lat,
+                            lng: selectedCity.lng
+                          });
+                        }
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">

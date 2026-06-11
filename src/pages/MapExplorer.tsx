@@ -1,7 +1,10 @@
-import { useEffect, useCallback, useMemo, useState } from "react";
+import React from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF } from "@react-google-maps/api";
 import { useTranslation } from "react-i18next";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useTheme } from "@/hooks/use-theme";
+import { useGeocoding } from "@/hooks/useGeocoding";
 import CityInfoPanel, { type CityMarker } from "@/components/map/CityInfoPanel";
 import { universities as universitiesApi } from "@/lib/api";
 
@@ -50,6 +53,7 @@ interface MapUniversity {
   type: string;
   ville: string;
   wilaya?: string | null;
+  adresse?: string | null;
   site_web?: string | null;
   telephone?: string | null;
   logo_url?: string | null;
@@ -79,6 +83,7 @@ const mapCityMarkers = (items: MapUniversity[]): CityMarker[] => {
       type: uni.type,
       ville: uni.ville,
       wilaya: uni.wilaya,
+      adresse: uni.adresse,
       site_web: uni.site_web,
       telephone: uni.telephone,
       logo_url: uni.logo_url,
@@ -91,11 +96,19 @@ const mapCityMarkers = (items: MapUniversity[]): CityMarker[] => {
 
 const MapExplorer = () => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const { geocodeAddress } = useGeocoding();
   const [selectedCity, setSelectedCity] = useState<CityMarker | null>(null);
+  const [selectedUniversity, setSelectedUniversity] = useState<any>(null);
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
   const [cities, setCities] = useState<CityMarker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [geocodedCoords, setGeocodedCoords] = useState<Map<number, { lat: number; lng: number }>>(new Map());
+  const mapRef = useRef<google.maps.Map | null>(null);
+
+  const markerColor = theme === "dark" ? "#60a5fa" : "#3b82f6";
+  const markerStrokeColor = theme === "dark" ? "#1e293b" : "#ffffff";
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
@@ -107,7 +120,7 @@ const MapExplorer = () => {
     const loadUniversities = async () => {
       try {
         setLoading(true);
-        const response = await universitiesApi.getAll(1, 10000);
+        const response = await universitiesApi.getAll(1, 10000) as any;
         const items = Array.isArray(response?.universites) ? response.universites : [];
         if (!cancelled) {
           setCities(mapCityMarkers(items));
@@ -130,11 +143,68 @@ const MapExplorer = () => {
     };
   }, [t]);
 
+  useEffect(() => {
+    const geocodeUniversities = async () => {
+      if (!isLoaded || cities.length === 0) return;
+
+      const allUnis = cities.flatMap(city => city.universities);
+      const coordsMap = new Map<number, { lat: number; lng: number }>();
+
+      for (const uni of allUnis) {
+        if (geocodedCoords.has(uni.id)) {
+          coordsMap.set(uni.id, geocodedCoords.get(uni.id)!);
+          continue;
+        }
+
+        const coords = await geocodeAddress(
+          uni.adresse || uni.nom,
+          uni.ville,
+          "Madagascar"
+        );
+
+        if (coords) {
+          coordsMap.set(uni.id, coords);
+        }
+      }
+
+      if (coordsMap.size > 0) {
+        setGeocodedCoords(coordsMap);
+      }
+    };
+
+    geocodeUniversities();
+  }, [cities, isLoaded, geocodeAddress, geocodedCoords]);
+
   const totalUnis = useMemo(() => cities.reduce((sum, city) => sum + city.universities.length, 0), [cities]);
 
   const onMarkerClick = useCallback((city: CityMarker) => {
     setSelectedCity((prev) => (prev?.id === city.id ? null : city));
+    setSelectedUniversity(null);
   }, []);
+
+  const handleUniversitySelect = useCallback((university: any) => {
+    const coords = geocodedCoords.get(university.id);
+    let lat = university.lat;
+    let lng = university.lng;
+
+    if (coords) {
+      lat = coords.lat;
+      lng = coords.lng;
+    } else if (selectedCity) {
+      // Fallback to city coordinates with slight offset to distinguish multiple universities
+      lat = selectedCity.lat + (Math.random() - 0.5) * 0.01;
+      lng = selectedCity.lng + (Math.random() - 0.5) * 0.01;
+    }
+
+    setSelectedUniversity({ ...university, lat, lng });
+  }, [geocodedCoords, selectedCity]);
+
+  useEffect(() => {
+    if (selectedUniversity && mapRef.current && isLoaded) {
+      mapRef.current.panTo({ lat: selectedUniversity.lat, lng: selectedUniversity.lng });
+      mapRef.current.setZoom(12);
+    }
+  }, [selectedUniversity, isLoaded]);
 
   if (loadError) {
     return (
@@ -183,6 +253,7 @@ const MapExplorer = () => {
                 center={center}
                 zoom={6}
                 options={mapOptions}
+                onLoad={(map) => { mapRef.current = map; }}
               >
                 {cities.map((city) => (
                   <MarkerF
@@ -217,6 +288,26 @@ const MapExplorer = () => {
                     )}
                   </MarkerF>
                 ))}
+                {selectedUniversity && (
+                  <MarkerF
+                    position={{ lat: selectedUniversity.lat, lng: selectedUniversity.lng }}
+                    icon={{
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 12,
+                      fillColor: markerColor,
+                      fillOpacity: 0.9,
+                      strokeColor: markerStrokeColor,
+                      strokeWeight: 3,
+                    }}
+                  >
+                    <InfoWindowF position={{ lat: selectedUniversity.lat, lng: selectedUniversity.lng }}>
+                      <div className="p-3 bg-white rounded" style={{ minWidth: "200px" }}>
+                        <p className="font-bold text-sm text-gray-900 mb-1">{selectedUniversity.nom}</p>
+                        <p className="text-xs text-gray-600">📍 {selectedUniversity.lat.toFixed(4)}, {selectedUniversity.lng.toFixed(4)}</p>
+                      </div>
+                    </InfoWindowF>
+                  </MarkerF>
+                )}
               </GoogleMap>
             )}
           </div>
@@ -225,7 +316,7 @@ const MapExplorer = () => {
           {/* Desktop: Fixed sidebar | Mobile: Modal overlay */}
           <div className="hidden lg:flex lg:w-96 lg:flex-col lg:border-l lg:bg-card lg:overflow-hidden">
             <div className="flex-1 overflow-y-auto pr-2">
-              <CityInfoPanel selectedCity={selectedCity} onClose={() => setSelectedCity(null)} />
+              <CityInfoPanel selectedCity={selectedCity} onClose={() => setSelectedCity(null)} onUniversitySelect={handleUniversitySelect} selectedUniversity={selectedUniversity} />
             </div>
           </div>
 
@@ -246,7 +337,7 @@ const MapExplorer = () => {
               </div>
               {/* Mobile panel content */}
               <div className="flex-1 overflow-y-auto">
-                <CityInfoPanel selectedCity={selectedCity} onClose={() => setSelectedCity(null)} />
+                <CityInfoPanel selectedCity={selectedCity} onClose={() => setSelectedCity(null)} onUniversitySelect={handleUniversitySelect} selectedUniversity={selectedUniversity} />
               </div>
             </div>
           )}

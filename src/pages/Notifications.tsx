@@ -23,8 +23,9 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { cn } from "@/lib/utils";
 import { notifications as notificationsApi } from "@/lib/api";
 
@@ -50,37 +51,53 @@ const typeConfig = {
 const Notifications = () => {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  // Fetch function pour infinite scroll - DEFINE FIRST
+  const fetchNotifications = useCallback(async (skip: number, limit: number) => {
+    return allNotifications.slice(skip, skip + limit);
+  }, [allNotifications]);
+
+  const { items: notifications, isLoading: loading, observerTarget, setItems: setNotificationsDisplay } = useInfiniteScroll<Notification>(
+    fetchNotifications,
+    { initialPageSize: 20, threshold: 300 }
+  );
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
-    const loadNotifications = async () => {
+    const loadAllNotifications = async () => {
       try {
-        setLoading(true);
-        const response = await notificationsApi.getNotifications(50, 0) as any;
-        setNotifications(response.notifications || []);
+        setIsInitialLoading(true);
+        const response = await notificationsApi.getNotifications(500, 0) as any;
+        const notifs = response.notifications || [];
+        setAllNotifications(notifs);
+        // Charger les premières données du hook
+        setNotificationsDisplay(notifs.slice(0, 20));
         setError(null);
       } catch (err) {
         const message = err instanceof Error ? err.message : t("notifications.errorLoading");
         setError(message);
         console.error('Error loading notifications:', err);
       } finally {
-        setLoading(false);
+        setIsInitialLoading(false);
       }
     };
 
-    loadNotifications();
-  }, [t]);
+    loadAllNotifications();
+  }, [t, setNotificationsDisplay]);
 
   const markAllRead = async () => {
     try {
       await notificationsApi.markAllRead();
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      const updated = allNotifications.map((n) => ({ ...n, read: true }));
+      setAllNotifications(updated);
+      setNotificationsDisplay(updated.slice(0, 20));
       toast({ title: t("notifications.markedAsRead") });
     } catch (err) {
       const message = err instanceof Error ? err.message : t("common.error");
@@ -95,9 +112,10 @@ const Notifications = () => {
   const markAsRead = async (id: number) => {
     try {
       await notificationsApi.markAsRead(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true, read_at: new Date().toISOString() } : n))
-      );
+      const updated = notifications.map((n) => (n.id === id ? { ...n, read: true, read_at: new Date().toISOString() } : n));
+      setNotificationsDisplay(updated);
+      const allUpdated = allNotifications.map((n) => (n.id === id ? { ...n, read: true, read_at: new Date().toISOString() } : n));
+      setAllNotifications(allUpdated);
     } catch (err) {
       const message = err instanceof Error ? err.message : t("common.error");
       toast({
@@ -118,7 +136,10 @@ const Notifications = () => {
     try {
       setDeleting(true);
       await notificationsApi.deleteNotification(deletingId);
-      setNotifications((prev) => prev.filter((n) => n.id !== deletingId));
+      const updated = notifications.filter((n) => n.id !== deletingId);
+      setNotificationsDisplay(updated);
+      const allUpdated = allNotifications.filter((n) => n.id !== deletingId);
+      setAllNotifications(allUpdated);
       toast({ title: t("notifications.deleted") });
       setShowDeleteConfirm(false);
       setDeletingId(null);
@@ -160,7 +181,7 @@ const Notifications = () => {
     return date.toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
   };
 
-  if (loading) {
+  if (isInitialLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center py-20">
@@ -206,7 +227,7 @@ const Notifications = () => {
           </div>
         )}
 
-        {notifications.length === 0 ? (
+        {notifications.length === 0 && allNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center flex-1">
             <div className="rounded-xl border bg-card p-8 sm:p-12 text-center shadow-card">
               <Bell className="h-10 sm:h-12 w-10 sm:w-12 text-muted-foreground mb-4 mx-auto" />
@@ -263,6 +284,20 @@ const Notifications = () => {
                 </div>
               );
             })}
+
+            {/* Infinite scroll loading indicator */}
+            {loading && allNotifications.length > 0 && (
+              <div className="flex justify-center py-6">
+                <div className="animate-spin">
+                  <svg className="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+              </div>
+            )}
+
+            <div ref={observerTarget} className="h-10" />
           </div>
         )}
       </div>

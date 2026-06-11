@@ -18,6 +18,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { comparator as comparatorApi, filieres as filieresApi, recommendations as recommendationsApi } from "@/lib/api";
 import { useTestCompletion } from "@/hooks/use-test-completion";
 
@@ -79,14 +80,23 @@ const compatibilityScoreColor = (score?: number | null) => {
 const Compare = () => {
   const { t } = useTranslation();
   const { hasCompletedTest, testLoading, testError } = useTestCompletion();
-  const [comparisons, setComparisons] = useState<ComparisonItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allComparisons, setAllComparisons] = useState<ComparisonItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const pageVisitedRef = useRef(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  // Fetch function pour infinite scroll - DEFINE FIRST
+  const fetchComparisons = useCallback(async (skip: number, limit: number) => {
+    return allComparisons.slice(skip, skip + limit);
+  }, [allComparisons]);
+
+  const { items: comparisons, isLoading: loading, observerTarget, setItems: setComparisons } = useInfiniteScroll<ComparisonItem>(
+    fetchComparisons,
+    { initialPageSize: 12, threshold: 300 }
+  );
 
   const loadComparison = useCallback(async () => {
     try {
-      setLoading(true);
       // Petit délai pour que les données soient à jour sur le serveur
       await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -188,18 +198,19 @@ const Compare = () => {
         return scoreB - scoreA;
       });
 
-      setComparisons(items);
+      setAllComparisons(items);
+      // Charger les premières données du hook
+      setComparisons(items.slice(0, 12));
       setError(null);
+      setIsInitialLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("common.error"));
-    } finally {
-      setLoading(false);
+      setIsInitialLoading(false);
     }
-  }, [t]);
+  }, [t, setComparisons]);
 
   useEffect(() => {
     if (!hasCompletedTest) {
-      setLoading(false);
       return;
     }
 
@@ -563,6 +574,20 @@ const Compare = () => {
             </Link>
           ))}
         </div>
+
+        {/* Infinite scroll loading indicator */}
+        {loading && allComparisons.length > 0 && (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin">
+              <svg className="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+        )}
+
+        <div ref={observerTarget} className="h-10" />
 
       </div>
 

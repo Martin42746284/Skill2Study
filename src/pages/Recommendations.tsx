@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import DashboardLayout from "@/components/DashboardLayout";
 import { cn } from "@/lib/utils";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { recommendations as recommendationsApi, users as usersApi, tests as testsApi } from "@/lib/api";
 import { useTestCompletion } from "@/hooks/use-test-completion";
 
@@ -54,17 +55,28 @@ type RecommendationRow = {
 const Recommendations = () => {
   const { t } = useTranslation();
   const { hasCompletedTest, testLoading, testError } = useTestCompletion();
-  const [recommendations, setRecommendations] = useState<RecommendationRow[]>([]);
+  const [allRecommendations, setAllRecommendations] = useState<RecommendationRow[]>([]);
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
-  const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const pageVisitedRef = useRef(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const loadRecommendations = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  // Fetch function pour infinite scroll - DEFINE FIRST
+  const fetchRecommendations = useCallback(async (skip: number, limit: number) => {
+    return allRecommendations.slice(skip, skip + limit);
+  }, [allRecommendations]);
+
+  const { items: recommendations, isLoading: loading, observerTarget, error: infiniteScrollError, setItems: setRecommendations } = useInfiniteScroll<RecommendationRow>(
+    fetchRecommendations,
+    { initialPageSize: 15, threshold: 300 }
+  );
+
+  const loadAllRecommendations = useCallback(async () => {
+    setLoadError(null);
+    setIsInitialLoading(true);
 
     try {
       const favorisResponse = await usersApi.getFavoris() as any;
@@ -89,22 +101,21 @@ const Recommendations = () => {
         recs = recResponse.recommendations || [];
       }
 
-      setRecommendations(recs);
+      setAllRecommendations(recs);
+      // Charger les premières données du hook
+      setRecommendations(recs.slice(0, 15));
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("recommendations.noRecommendations"));
+      setLoadError(err instanceof Error ? err.message : t("recommendations.noRecommendations"));
     } finally {
-      setLoading(false);
+      setIsInitialLoading(false);
     }
-  }, [t]);
+  }, [t, setRecommendations]);
 
   useEffect(() => {
     if (hasCompletedTest) {
-      loadRecommendations();
-    } else if (hasCompletedTest === false) {
-      // Test is not completed, don't load recommendations
-      setLoading(false);
+      loadAllRecommendations();
     }
-  }, [hasCompletedTest, loadRecommendations]);
+  }, [hasCompletedTest, loadAllRecommendations]);
 
   // Recharge les recommandations quand la page devient visible
   useEffect(() => {
@@ -113,7 +124,7 @@ const Recommendations = () => {
         // Page devient visible et on l'a déjà visitée une fois
         // Forcer un recharge des données
         if (hasCompletedTest) {
-          loadRecommendations();
+          loadAllRecommendations();
         }
       }
       if (!document.hidden) {
@@ -123,7 +134,7 @@ const Recommendations = () => {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [hasCompletedTest, loadRecommendations]);
+  }, [hasCompletedTest, loadAllRecommendations]);
 
   const summary = useMemo(() => {
     const total = recommendations.length;
@@ -153,7 +164,7 @@ const Recommendations = () => {
     }
   };
 
-  if (testLoading || loading) {
+  if (testLoading || isInitialLoading) {
     return (
       <DashboardLayout>
         <div className="flex min-h-[50vh] items-center justify-center">
@@ -200,13 +211,13 @@ const Recommendations = () => {
     );
   }
 
-  if (error) {
+  if (loadError) {
     return (
       <DashboardLayout>
         <div className="rounded-xl border bg-card p-6 shadow-card">
           <h1 className="text-xl font-semibold">{t("common.error")}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{error}</p>
-          <Button className="mt-4" onClick={loadRecommendations}>{t("common.back")}</Button>
+          <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
+          <Button className="mt-4" onClick={loadAllRecommendations}>{t("common.back")}</Button>
         </div>
       </DashboardLayout>
     );
@@ -348,7 +359,7 @@ const Recommendations = () => {
           })}
         </div>
 
-        {recommendations.length === 0 && (
+        {recommendations.length === 0 && allRecommendations.length === 0 && (
           <div className="mt-4 sm:mt-6 lg:mt-8 rounded-xl border bg-card p-6 sm:p-8 lg:p-12 text-center shadow-card">
             <Target className="mx-auto mb-3 sm:mb-4 h-9 sm:h-10 lg:h-12 w-9 sm:w-10 lg:w-12 text-muted-foreground/40" />
             <h3 className="mb-1 text-base sm:text-lg font-semibold">{t("recommendations.noRecommendations")}</h3>
@@ -360,6 +371,20 @@ const Recommendations = () => {
             </Link>
           </div>
         )}
+
+        {/* Infinite scroll loading indicator */}
+        {loading && (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin">
+              <svg className="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+        )}
+
+        <div ref={observerTarget} className="h-10" />
 
         <div className="mt-4 sm:mt-6 lg:mt-8 rounded-xl border bg-gradient-to-r from-primary/10 to-accent/10 p-4 sm:p-6 text-center">
           <h3 className="mb-2 text-base sm:text-lg font-semibold">{t("recommendations.exploreOtherUniversities")}</h3>

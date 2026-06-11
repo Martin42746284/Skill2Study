@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   X,
   ArrowRight,
 } from "lucide-react";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { universities as universitiesApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -53,39 +54,56 @@ const Search = () => {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState(t("search.all"));
   const [provinceFilter, setProvinceFilter] = useState(t("search.all"));
-  const [universities, setUniversities] = useState<SearchUniversity[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allUniversities, setAllUniversities] = useState<SearchUniversity[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
+  // Fetch function pour infinite scroll - DEFINE FIRST
+  const fetchUniversities = useCallback(async (skip: number, limit: number) => {
+    return allUniversities.slice(skip, skip + limit);
+  }, [allUniversities]);
+
+  const { items: universities, isLoading: loading, observerTarget, setItems: setUniversities } = useInfiniteScroll<SearchUniversity>(
+    fetchUniversities,
+    { initialPageSize: 20, threshold: 300 }
+  );
+
+  // Charger les données brutes D'ABORD
   useEffect(() => {
     let cancelled = false;
 
-    const loadUniversities = async () => {
+    const loadAllUniversitiesData = async () => {
       try {
-        setLoading(true);
-        const response = await universitiesApi.getAll(1, 10000);
+        setLoadError(null);
+        setIsInitialLoading(true);
+        const response = await universitiesApi.getAll(1, 10000) as any;
         const items = Array.isArray(response?.universites) ? response.universites : [];
         if (!cancelled) {
-          setUniversities(items.map(mapUniversity));
-          setError(null);
+          const mapped = items.map(mapUniversity);
+          setAllUniversities(mapped);
+          // Charger les premières données du hook après avoir les données brutes
+          setUniversities(mapped.slice(0, 20));
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : t("common.loading"));
+          setLoadError(err instanceof Error ? err.message : t("common.loading"));
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setIsInitialLoading(false);
+        }
       }
     };
 
-    loadUniversities();
+    loadAllUniversitiesData();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t, setUniversities]);
 
   const typeFilters = [t("search.all"), "Public", "Privé"];
-  const provinces = useMemo(() => [t("search.all"), ...Array.from(new Set(universities.map((uni) => uni.province)))], [universities]);
+  const provinces = useMemo(() => [t("search.all"), ...Array.from(new Set(allUniversities.map((uni) => uni.province)))], [allUniversities]);
 
   const results = useMemo(() => {
     let filtered = universities;
@@ -115,7 +133,7 @@ const Search = () => {
     }
 
     return filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }, [query, typeFilter, provinceFilter, universities]);
+  }, [query, typeFilter, provinceFilter, universities, t]);
 
   return (
     <DashboardLayout>
@@ -188,13 +206,13 @@ const Search = () => {
           </p>
         </div>
 
-        {loading ? (
+        {isInitialLoading ? (
           <div className="rounded-xl border bg-card p-12 text-center shadow-card">
             <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
           </div>
-        ) : error ? (
+        ) : loadError ? (
           <div className="rounded-xl border bg-card p-12 text-center shadow-card">
-            <p className="text-sm text-destructive">{error}</p>
+            <p className="text-sm text-destructive">{loadError}</p>
           </div>
         ) : results.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border bg-card p-12 text-center shadow-card">
@@ -277,6 +295,20 @@ const Search = () => {
             ))}
           </div>
         )}
+
+        {/* Infinite scroll loading indicator */}
+        {loading && allUniversities.length > 0 && (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin">
+              <svg className="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+        )}
+
+        <div ref={observerTarget} className="h-10" />
       </div>
     </DashboardLayout>
   );

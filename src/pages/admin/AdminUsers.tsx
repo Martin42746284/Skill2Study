@@ -46,6 +46,7 @@ import {
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { admin } from "@/lib/api";
 import { downloadCSV } from "@/lib/export";
 import type { User } from "@/types";
@@ -55,14 +56,12 @@ const AdminUsers = () => {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [users, setUsers] = useState<User[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -71,39 +70,41 @@ const AdminUsers = () => {
   const [formSerie, setFormSerie] = useState<"Série C" | "Série D" | "Série A" | "Tech." | "-">("Série C");
   const [formStatus, setFormStatus] = useState<"Actif" | "Inactif" | "Suspendu">("Actif");
 
+  const fetchUsers = async (skip: number, limit: number) => {
+    // Calculate page from skip (page = skip / limit + 1)
+    const page = Math.floor(skip / limit) + 1;
+    const response = await admin.getUsers(page, limit) as any;
+    const users = response?.data || response?.users || [];
+
+    if (Array.isArray(users)) {
+      return users.map((u: any) => ({
+        id: u.id,
+        name: `${u.prenom || ''} ${u.nom || ''}`.trim() || 'Sans nom',
+        email: u.email || '',
+        role: u.role === 'admin' ? 'Admin' : 'Étudiant',
+        serie: u.serie_bac || '-',
+        status: u.actif ? 'Actif' : 'Inactif',
+        date: u.date_creation ? new Date(u.date_creation).toLocaleDateString('fr-FR') : 'N/A',
+        tests: u.tests_passes || 0,
+      }));
+    }
+    return [];
+  };
+
+  const { items: users, isLoading: loading, observerTarget, error: loadError, setItems: setUsers } = useInfiniteScroll<User>(
+    fetchUsers,
+    { initialPageSize: 30, threshold: 300 }
+  );
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await admin.getUsers(1, 100) as any;
-        const users = response?.data || response?.users || [];
-
-        if (Array.isArray(users)) {
-          const formattedUsers = users.map((u: any) => ({
-            id: u.id,
-            name: `${u.prenom || ''} ${u.nom || ''}`.trim() || 'Sans nom',
-            email: u.email || '',
-            role: u.role === 'admin' ? 'Admin' : 'Étudiant',
-            serie: u.serie_bac || '-',
-            status: u.actif ? 'Actif' : 'Inactif',
-            date: u.date_creation ? new Date(u.date_creation).toLocaleDateString('fr-FR') : 'N/A',
-            tests: u.tests_passes || 0,
-          }));
-          setUsers(formattedUsers);
-        }
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: error instanceof Error ? error.message : "Impossible de charger les utilisateurs",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, [toast]);
+    if (loadError) {
+      toast({
+        title: "Erreur",
+        description: loadError.message || "Impossible de charger les utilisateurs",
+        variant: "destructive"
+      });
+    }
+  }, [loadError, toast]);
 
   const filtered = users.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
@@ -112,6 +113,14 @@ const AdminUsers = () => {
   });
 
   const handleExportCSV = () => {
+    if (users.length === 0) {
+      toast({
+        title: "Erreur",
+        description: "Aucun utilisateur à exporter",
+        variant: "destructive"
+      });
+      return;
+    }
     const data = users.map(u => ({
       ID: u.id,
       Nom: u.name,
@@ -238,16 +247,6 @@ const AdminUsers = () => {
     return styles[status] || "bg-muted text-muted-foreground";
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
     <AdminLayout>
       <div className="animate-fade-in overflow-hidden">
@@ -368,6 +367,20 @@ const AdminUsers = () => {
             </div>
           )}
         </div>
+
+        {/* Infinite scroll trigger */}
+        {loading && (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin">
+              <svg className="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+        )}
+
+        <div ref={observerTarget} className="h-10" />
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

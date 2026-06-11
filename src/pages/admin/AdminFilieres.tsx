@@ -48,6 +48,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { filieres, universities } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { downloadCSV } from "@/lib/export";
@@ -59,14 +60,12 @@ const AdminFilieres = () => {
   const [search, setSearch] = useState("");
   const [niveauFilter, setNiveauFilter] = useState("all");
   const [univFilter, setUnivFilter] = useState("all");
-  const [filiereList, setFiliereList] = useState<Filiere[]>([]);
   const [univerList, setUniversList] = useState<University[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFiliere, setEditingFiliere] = useState<Filiere | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
 
   // Form state
   const [formUniversiteId, setFormUniversiteId] = useState("");
@@ -111,25 +110,31 @@ const AdminFilieres = () => {
     { value: "Défense et Sécurité", label: t("domaines.defense_securite") }
   ];
 
+  const fetchFilieres = async (skip: number, limit: number) => {
+    const filiereRes = await filieres.getAll();
+    let filList: Filiere[] = [];
+    const filiereResAny = filiereRes as unknown;
+    if (Array.isArray(filiereResAny)) {
+      filList = filiereResAny;
+    } else if (typeof filiereResAny === 'object' && filiereResAny !== null && 'filieres' in filiereResAny && Array.isArray((filiereResAny as any).filieres)) {
+      filList = (filiereResAny as any).filieres;
+    } else if (typeof filiereResAny === 'object' && filiereResAny !== null && 'data' in filiereResAny && Array.isArray((filiereResAny as any).data)) {
+      filList = (filiereResAny as any).data;
+    }
+
+    // Appliquer le skip et limit
+    return filList.slice(skip, skip + limit);
+  };
+
+  const { items: filiereList, isLoading: loading, observerTarget, error: loadError, setItems: setFiliereList } = useInfiniteScroll<Filiere>(
+    fetchFilieres,
+    { initialPageSize: 30, threshold: 300 }
+  );
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUniversities = async () => {
       try {
-        setLoading(true);
-        const [filiereRes, univRes] = await Promise.all([
-          filieres.getAll(),
-          universities.getAll(),
-        ]);
-
-        let filList: Filiere[] = [];
-        const filiereResAny = filiereRes as unknown;
-        if (Array.isArray(filiereResAny)) {
-          filList = filiereResAny;
-        } else if (typeof filiereResAny === 'object' && filiereResAny !== null && 'filieres' in filiereResAny && Array.isArray((filiereResAny as any).filieres)) {
-          filList = (filiereResAny as any).filieres;
-        } else if (typeof filiereResAny === 'object' && filiereResAny !== null && 'data' in filiereResAny && Array.isArray((filiereResAny as any).data)) {
-          filList = (filiereResAny as any).data;
-        }
-
+        const univRes = await universities.getAll();
         let univs: University[] = [];
         const univResAny = univRes as unknown;
         if (Array.isArray(univResAny)) {
@@ -139,8 +144,6 @@ const AdminFilieres = () => {
         } else if (typeof univResAny === 'object' && univResAny !== null && 'data' in univResAny && Array.isArray((univResAny as any).data)) {
           univs = (univResAny as any).data;
         }
-
-        setFiliereList(filList);
         setUniversList(univs);
       } catch (error) {
         toast({
@@ -148,13 +151,21 @@ const AdminFilieres = () => {
           description: error instanceof Error ? error.message : t("admin.pages.filieres.loadingError"),
           variant: "destructive"
         });
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchData();
+    fetchUniversities();
   }, [toast]);
+
+  useEffect(() => {
+    if (loadError) {
+      toast({
+        title: t("common.error"),
+        description: loadError.message || t("admin.pages.filieres.loadingError"),
+        variant: "destructive"
+      });
+    }
+  }, [loadError, toast]);
 
   const niveaux = ["Licence", "Master", "Doctorat", "DTS", "DUT", "Ingénieur"];
   const niveauxTranslated = [
@@ -360,16 +371,6 @@ const AdminFilieres = () => {
     setFormParcours(formParcours.filter((_, i) => i !== index));
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">{t("admin.pages.filieres.loading")}</p>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
     <AdminLayout>
       <div className="animate-fade-in">
@@ -536,6 +537,20 @@ const AdminFilieres = () => {
             <p>{t("admin.pages.filieres.noResults")}</p>
           </div>
         )}
+
+        {/* Infinite scroll loading indicator */}
+        {loading && (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin">
+              <svg className="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+        )}
+
+        <div ref={observerTarget} className="h-10" />
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

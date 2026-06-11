@@ -47,6 +47,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { parcours, filieres } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Parcours as ParcoursType, Filiere } from "@/types";
@@ -57,14 +58,12 @@ const AdminParcours = () => {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [filiereFilter, setFiliereFilter] = useState("all");
-  const [parcoursList, setParcoursList] = useState<ParcoursType[]>([]);
   const [filiereList, setFiliereList] = useState<Filiere[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingParcours, setEditingParcours] = useState<ParcoursType | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
 
   // Form state
   const [formFiliereId, setFormFiliereId] = useState("");
@@ -74,25 +73,31 @@ const AdminParcours = () => {
   const [formDuree, setFormDuree] = useState("");
   const [formSpecialisation, setFormSpecialisation] = useState("");
 
+  const fetchParcours = async (skip: number, limit: number) => {
+    const parRes = await parcours.getAll();
+    let parList: ParcoursType[] = [];
+    const parResponse = parRes as any;
+    if (Array.isArray(parResponse)) {
+      parList = parResponse;
+    } else if (parResponse?.parcours && Array.isArray(parResponse.parcours)) {
+      parList = parResponse.parcours;
+    } else if (parResponse?.data && Array.isArray(parResponse.data)) {
+      parList = parResponse.data;
+    }
+
+    // Appliquer le skip et limit
+    return parList.slice(skip, skip + limit);
+  };
+
+  const { items: parcoursList, isLoading: loading, observerTarget, error: loadError, setItems: setParcoursList } = useInfiniteScroll<ParcoursType>(
+    fetchParcours,
+    { initialPageSize: 30, threshold: 300 }
+  );
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFilieres = async () => {
       try {
-        setLoading(true);
-        const [parRes, filRes] = await Promise.all([
-          parcours.getAll(),
-          filieres.getAll(),
-        ]);
-
-        let parList: ParcoursType[] = [];
-        const parResponse = parRes as any;
-        if (Array.isArray(parResponse)) {
-          parList = parResponse;
-        } else if (parResponse?.parcours && Array.isArray(parResponse.parcours)) {
-          parList = parResponse.parcours;
-        } else if (parResponse?.data && Array.isArray(parResponse.data)) {
-          parList = parResponse.data;
-        }
-
+        const filRes = await filieres.getAll();
         let fils: Filiere[] = [];
         const filResponse = filRes as any;
         if (Array.isArray(filResponse)) {
@@ -102,8 +107,6 @@ const AdminParcours = () => {
         } else if (filResponse?.data && Array.isArray(filResponse.data)) {
           fils = filResponse.data;
         }
-
-        setParcoursList(parList);
         setFiliereList(fils);
       } catch (error) {
         toast({
@@ -111,13 +114,21 @@ const AdminParcours = () => {
           description: error instanceof Error ? error.message : t("admin.pages.parcours.loadingError"),
           variant: "destructive"
         });
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchData();
+    fetchFilieres();
   }, [toast]);
+
+  useEffect(() => {
+    if (loadError) {
+      toast({
+        title: t("common.error"),
+        description: loadError.message || t("admin.pages.parcours.loadingError"),
+        variant: "destructive"
+      });
+    }
+  }, [loadError, toast]);
 
   const filtered = parcoursList.filter((p) => {
     const nomMatch = (p.nom || '').toLowerCase().includes(search.toLowerCase());
@@ -235,16 +246,6 @@ const AdminParcours = () => {
       setDeletingId(null);
     }
   };
-
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
-      </AdminLayout>
-    );
-  }
 
   return (
     <AdminLayout>
@@ -400,6 +401,20 @@ const AdminParcours = () => {
             <p>{t("admin.pages.parcours.noResults")}</p>
           </div>
         )}
+
+        {/* Infinite scroll loading indicator */}
+        {loading && (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin">
+              <svg className="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+        )}
+
+        <div ref={observerTarget} className="h-10" />
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

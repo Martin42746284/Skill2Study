@@ -51,6 +51,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { universities as universitiesApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { X, Image as ImageIcon } from "lucide-react";
@@ -81,44 +82,43 @@ const AdminUniversities = () => {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
-  const [unis, setUnis] = useState<University[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUni, setEditingUni] = useState<University | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const fetchUniversities = async (skip: number, limit: number) => {
+    const response = await universitiesApi.getAll() as any;
+    let unisList: University[] = [];
+
+    if (Array.isArray(response)) {
+      unisList = response;
+    } else if (response?.universites && Array.isArray(response.universites)) {
+      unisList = response.universites;
+    } else if (response?.data && Array.isArray(response.data)) {
+      unisList = response.data;
+    }
+
+    // Appliquer le skip et limit
+    return unisList.slice(skip, skip + limit);
+  };
+
+  const { items: unis, isLoading: loading, observerTarget, error: loadError, setItems: setUnis } = useInfiniteScroll<University>(
+    fetchUniversities,
+    { initialPageSize: 30, threshold: 300 }
+  );
+
   useEffect(() => {
-    const fetchUniversities = async () => {
-      try {
-        setLoading(true);
-        const response = await universitiesApi.getAll() as any;
-        let unis: University[] = [];
-
-        if (Array.isArray(response)) {
-          unis = response;
-        } else if (response?.universites && Array.isArray(response.universites)) {
-          unis = response.universites;
-        } else if (response?.data && Array.isArray(response.data)) {
-          unis = response.data;
-        }
-
-        setUnis(unis);
-      } catch (error) {
-        toast({
-          title: t("common.error"),
-          description: error instanceof Error ? error.message : t("admin.pages.universities.loadingError"),
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUniversities();
-  }, [t, toast]);
+    if (loadError) {
+      toast({
+        title: t("common.error"),
+        description: loadError.message || t("admin.pages.universities.loadingError"),
+        variant: "destructive"
+      });
+    }
+  }, [loadError, toast]);
 
   const cities = Array.from(new Set(unis.map((u) => u.ville || u.city)));
   const types = Array.from(new Set(unis.map((u) => u.type)));
@@ -345,16 +345,6 @@ const AdminUniversities = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
     <AdminLayout>
       <div className="animate-fade-in">
@@ -552,6 +542,20 @@ const AdminUniversities = () => {
             <p>{t("admin.pages.universities.noResults")}</p>
           </div>
         )}
+
+        {/* Infinite scroll loading indicator */}
+        {loading && (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin">
+              <svg className="h-6 w-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+        )}
+
+        <div ref={observerTarget} className="h-10" />
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

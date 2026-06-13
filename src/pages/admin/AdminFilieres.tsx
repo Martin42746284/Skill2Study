@@ -515,7 +515,7 @@ const AdminFilieres = () => {
                     </div>
                     {fil.description && (
                       <div className="rounded-lg border bg-card p-3">
-                        <p className="text-muted-foreground text-sm">{t("admin.pages.filieres.formDescription")}</p>
+                        <p className="text-muted-foreground text-sm">{t("admin.pages.filieres.filiereDescription")}</p>
                         <p className="text-sm mt-1">{fil.description}</p>
                       </div>
                     )}

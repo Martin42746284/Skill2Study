@@ -225,6 +225,7 @@
         "formNiveaux": "Niveaux",
         "formDifficulty": "Difficulté",
         "formDescription": "parcours",
+        "filiereDescription" : "Description",
         "formDuration": "Durée (ans)",
         "formCost": "Coût (AR)",
         "formCostDescription": "Description du coût",

@@ -225,6 +225,7 @@
         "formNiveaux": "Levels",
         "formDifficulty": "Difficulty",
         "formDescription": "Programs",
+        "filiereDescription" : "Description",
         "formDuration": "Duration (years)",
         "formCost": "Cost (AR)",
         "formCostDescription": "Cost description",

@@ -28,10 +28,10 @@ const defaultSettings: AppSettings = {
   contact_email: "contact@orientai.mg",
   email_notifications: false,
   moderation_alerts: false,
-  weekly_reports: false,
+  weekly_reports: true,
   two_factor_auth: false,
-  open_registration: false,
-  email_verification: false,
+  open_registration: true,
+  email_verification: true,
   maintenance_mode: false,
 };
 

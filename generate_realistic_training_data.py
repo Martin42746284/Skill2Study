@@ -51,7 +51,7 @@ def create_sample_data(conn):
         
         # 2. Mettre à jour les utilisateurs avec données académiques
         print("📚 Ajout de données académiques aux utilisateurs...")
-        series = ['S', 'L', 'ES', 'D', 'C']
+        series = ['S', 'L', 'A1', 'D', 'C']
 
         try:
             for i in range(1, 51):

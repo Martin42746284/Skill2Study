@@ -250,10 +250,10 @@ const Recommendations = () => {
           <Info className="h-4 sm:h-5 w-4 sm:w-5 text-primary mt-0.5 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="text-xs sm:text-sm font-medium">
-              Vos <strong>{summary.total}</strong> meilleures filière{summary.total > 1 ? "s" : ""} recommandée{summary.total > 1 ? "s" : ""} pour vous.
+              {t("recommendations.bestFiliersList", { count: summary.total, plural: summary.total > 1 ? "s" : "" })}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Basées sur votre profil académique et vos résultats au test d'orientation.
+              {t("recommendations.basedOnProfile")}
             </p>
           </div>
         </div>
@@ -327,7 +327,7 @@ const Recommendations = () => {
                         {/* Raisons principales */}
                         {((rec.justification.pourquoi_cette_recommandation?.raisons || rec.justification.raisons) || []).length > 0 && (
                           <div>
-                            <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">Justification</p>
+                            <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">{t("recommendations.justification")}</p>
                             <ul className="space-y-1">
                               {((rec.justification.pourquoi_cette_recommandation?.raisons || rec.justification.raisons) || [])
                                 .slice(0, 6)

@@ -139,7 +139,7 @@ const Dashboard = () => {
         setState((current) => ({
           ...current,
           loading: false,
-          error: err instanceof Error ? err.message : "Impossible de charger le tableau de bord.",
+          error: err instanceof Error ? err.message : t("dashboard.errorLoading"),
         }));
       }
     };

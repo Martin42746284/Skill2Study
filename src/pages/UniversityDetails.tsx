@@ -81,20 +81,20 @@ interface UniversityDetailsData {
   filieres?: UniversityFiliere[];
 }
 
-const formatUniversityType = (type: string) => {
-  if (type === "publique") return "Public";
-  if (type === "privee") return "Privé";
-  return type;
-};
-
-const formatMoney = (amount?: number | null) => {
-  if (amount == null) return "Non renseigné";
-  return `${new Intl.NumberFormat("fr-FR").format(amount)} Ar/an`;
-};
-
 const UniversityDetails = () => {
   const { id } = useParams();
   const { t } = useTranslation();
+
+  const formatUniversityType = (type: string) => {
+    if (type === "publique") return t("universityDetails.typePublic");
+    if (type === "privee") return t("universityDetails.typePrivate");
+    return type;
+  };
+
+  const formatMoney = (amount?: number | null) => {
+    if (amount == null) return t("universityDetails.notSpecifiedValue");
+    return `${new Intl.NumberFormat("fr-FR").format(amount)} ${t("universityDetails.moneyFormat")}`;
+  };
   const [university, setUniversity] = useState<UniversityDetailsData | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,7 +155,7 @@ const UniversityDetails = () => {
   const description =
     university?.description ||
     (university
-      ? `${university.nom} est un établissement d'enseignement supérieur à ${university.ville}.`
+      ? `${university.nom} ${t("universityDetails.defaultDescription")} ${university.ville}.`
       : "");
 
   const toggleFavorite = async (filiereId: number) => {
@@ -188,11 +188,11 @@ const UniversityDetails = () => {
       <DashboardLayout>
         <div className="animate-fade-in text-center py-20">
           <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-40" />
-          <h1 className="text-2xl font-bold mb-2">Université introuvable</h1>
-          <p className="text-muted-foreground mb-4">{error || "L'université demandée n'existe pas."}</p>
+          <h1 className="text-2xl font-bold mb-2">{t("universityDetails.notFound")}</h1>
+          <p className="text-muted-foreground mb-4">{error || t("universityDetails.notFoundDesc")}</p>
           <Link to="/dashboard/search">
             <Button variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-1" /> Retour à la recherche
+              <ArrowLeft className="h-4 w-4 mr-1" /> {t("universityDetails.backToSearch")}
             </Button>
           </Link>
         </div>
@@ -204,7 +204,7 @@ const UniversityDetails = () => {
     <DashboardLayout>
       <div className="animate-fade-in">
         <Link to="/dashboard/search" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Retour à la recherche
+          <ArrowLeft className="h-4 w-4" /> {t("universityDetails.backToSearch")}
         </Link>
 
         <div className="mb-8 rounded-xl border bg-card p-6 shadow-card">
@@ -223,7 +223,7 @@ const UniversityDetails = () => {
                 </span>
                 {university.date_fondation && (
                   <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-                    Fondée en {university.date_fondation}
+                    {t("universityDetails.foundedIn")} {university.date_fondation}
                   </span>
                 )}
               </div>
@@ -262,7 +262,7 @@ const UniversityDetails = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                 <GraduationCap className="h-4 w-4 text-primary" />
               </div>
-              <p className="text-xs text-muted-foreground">Filières</p>
+              <p className="text-xs text-muted-foreground">{t("universityDetails.fieldsCount")}</p>
             </div>
             <p className="text-2xl font-bold">{filieres.length}</p>
           </div>
@@ -271,7 +271,7 @@ const UniversityDetails = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-success/10">
                 <BookOpen className="h-4 w-4 text-success" />
               </div>
-              <p className="text-xs text-muted-foreground">Parcours</p>
+              <p className="text-xs text-muted-foreground">{t("universityDetails.programs")}</p>
             </div>
             <p className="text-2xl font-bold">{totalParcours}</p>
           </div>
@@ -280,7 +280,7 @@ const UniversityDetails = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-warning/10">
                 <Clock className="h-4 w-4 text-warning" />
               </div>
-              <p className="text-xs text-muted-foreground">Ville</p>
+              <p className="text-xs text-muted-foreground">{t("universityDetails.location")}</p>
             </div>
             <p className="text-sm font-bold">{university.ville}</p>
           </div>
@@ -289,14 +289,14 @@ const UniversityDetails = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10">
                 <Award className="h-4 w-4 text-secondary" />
               </div>
-              <p className="text-xs text-muted-foreground">Type</p>
+              <p className="text-xs text-muted-foreground">{t("universityDetails.type")}</p>
             </div>
             <p className="text-sm font-bold">{formatUniversityType(university.type)}</p>
           </div>
         </div>
 
         <div className="mb-8 rounded-xl border bg-card p-6 shadow-card">
-          <h2 className="text-lg font-semibold mb-3">À propos</h2>
+          <h2 className="text-lg font-semibold mb-3">{t("universityDetails.aboutTitle")}</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground pt-4 border-t">
             {university.adresse && (
@@ -320,12 +320,12 @@ const UniversityDetails = () => {
         <div className="mb-8 rounded-xl border bg-card p-6 shadow-card">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />
-            Filières ({filieres.length})
+            {t("universityDetails.filieresTitle")} ({filieres.length})
           </h2>
           <div className="space-y-4">
             {filieres.length === 0 ? (
               <div className="rounded-lg border p-4 text-sm text-muted-foreground">
-                Aucune filière disponible pour cet établissement.
+                {t("universityDetails.noFieldsAvailable")}
               </div>
             ) : (
               filieres.map((filiere) => {
@@ -340,7 +340,7 @@ const UniversityDetails = () => {
                     {recommendation && (
                       <div className="mb-4 rounded-lg bg-primary/5 border border-primary/20 p-3 flex items-center gap-2">
                         <Zap className="h-4 w-4 text-primary flex-shrink-0" />
-                        <p className="text-xs font-semibold text-primary">✨ Recommandée ({Math.round(score)}%)</p>
+                        <p className="text-xs font-semibold text-primary">Recommandée ({Math.round(score)}%)</p>
                       </div>
                     )}
 
@@ -362,29 +362,29 @@ const UniversityDetails = () => {
                         <p className="text-sm text-muted-foreground mb-4">{specialite}</p>
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
                           <div className="rounded-lg bg-accent/50 p-3">
-                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Durée</p>
-                            <p className="font-medium">{filiere.duree_annees || "Non renseignée"}</p>
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t("universityDetails.duration")}</p>
+                            <p className="font-medium">{filiere.duree_annees || t("universityDetails.notSpecified")}</p>
                           </div>
                           <div className="rounded-lg bg-accent/50 p-3">
-                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Coût</p>
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t("universityDetails.cost")}</p>
                             <p className="font-medium">{formatMoney(filiere.cout_annuel)}</p>
                             {filiere.cout_description && (
                               <p className="text-xs text-muted-foreground mt-1">{filiere.cout_description}</p>
                             )}
                           </div>
                           <div className="rounded-lg bg-accent/50 p-3">
-                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Langue</p>
-                            <p className="font-medium">{filiere.langue || "Non renseignée"}</p>
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t("universityDetails.language")}</p>
+                            <p className="font-medium">{filiere.langue || t("universityDetails.notSpecified")}</p>
                           </div>
                           <div className="rounded-lg bg-accent/50 p-3">
-                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Emploi</p>
-                            <p className="font-medium">{filiere.taux_emploi ? `${Math.round(filiere.taux_emploi)}%` : "Non renseigné"}</p>
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t("universityDetails.employmentRate")}</p>
+                            <p className="font-medium">{filiere.taux_emploi ? `${Math.round(filiere.taux_emploi)}%` : t("universityDetails.notSpecifiedValue")}</p>
                           </div>
                         </div>
                         {filiere.parcours && filiere.parcours.length > 0 && (
                           <div className="mt-4">
                             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                              Parcours
+                              {t("universityDetails.programs")}
                             </p>
                             <div className="flex flex-wrap gap-2">
                               {filiere.parcours.map((parcours) => (
@@ -403,7 +403,7 @@ const UniversityDetails = () => {
                           disabled={savingId === filiere.id}
                         >
                           <Heart className={`mr-1 h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
-                          {isSaved ? "Sauvegardée" : "Sauvegarder"}
+                          {isSaved ? t("universityDetails.saved") : t("universityDetails.save")}
                         </Button>
                       </div>
                     </div>
@@ -415,20 +415,20 @@ const UniversityDetails = () => {
         </div>
 
         <div className="mt-8 rounded-xl border bg-gradient-to-r from-primary/10 to-accent/10 p-6 text-center">
-          <h3 className="text-lg font-semibold mb-2">Intéressé par cet établissement ?</h3>
+          <h3 className="text-lg font-semibold mb-2">{t("universityDetails.interestedTitle")}</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Consultez les filières disponibles et sauvegardez celles qui correspondent à votre profil.
+            {t("universityDetails.interestedDesc")}
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/recommendations">
               <Button variant="default">
-                <Heart className="mr-1 h-4 w-4" /> Voir mes recommandations
+                <Heart className="mr-1 h-4 w-4" /> {t("universityDetails.viewMyRecommendations")}
               </Button>
             </Link>
             {university.site_web && (
               <a href={university.site_web.startsWith("http") ? university.site_web : `https://${university.site_web}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline">
-                  <ExternalLink className="mr-1 h-4 w-4" /> Visiter le site
+                  <ExternalLink className="mr-1 h-4 w-4" /> {t("universityDetails.visitWebsite")}
                 </Button>
               </a>
             )}

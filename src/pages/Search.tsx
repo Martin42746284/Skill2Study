@@ -30,7 +30,7 @@ interface SearchUniversity {
   logoUrl?: string;
 }
 
-const mapUniversity = (uni: any): SearchUniversity => {
+const mapUniversity = (uni: any, t?: any): SearchUniversity => {
   const filieres = Array.isArray(uni.filieres) ? uni.filieres : [];
   const specialties = filieres
     .map((f: any) => f.specialite || f.domaine || f.nom)
@@ -41,7 +41,7 @@ const mapUniversity = (uni: any): SearchUniversity => {
     name: uni.nom,
     province: uni.wilaya || uni.ville,
     city: uni.ville,
-    type: uni.type === "publique" ? "Public" : "Privé",
+    type: uni.type === "publique" ? (t ? t("search.typePublic") : "Public") : (t ? t("search.typePrivate") : "Privé"),
     specialties,
     filieresCount: filieres.length,
     description: uni.description,
@@ -80,7 +80,7 @@ const Search = () => {
         const response = await universitiesApi.getAll(1, 10000) as any;
         const items = Array.isArray(response?.universites) ? response.universites : [];
         if (!cancelled) {
-          const mapped = items.map(mapUniversity);
+          const mapped = items.map(uni => mapUniversity(uni, t));
           setAllUniversities(mapped);
           // Charger les premières données du hook après avoir les données brutes
           setUniversities(mapped.slice(0, 20));
@@ -102,7 +102,7 @@ const Search = () => {
     };
   }, [t, setUniversities]);
 
-  const typeFilters = [t("search.all"), "Public", "Privé"];
+  const typeFilters = [t("search.all"), t("search.typePublic"), t("search.typePrivate")];
   const provinces = useMemo(() => [t("search.all"), ...Array.from(new Set(allUniversities.map((uni) => uni.province)))], [allUniversities]);
 
   const results = useMemo(() => {

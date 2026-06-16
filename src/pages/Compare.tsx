@@ -48,18 +48,18 @@ interface ComparisonItem {
   inconvenients?: string[];
 }
 
-const formatType = (value?: string) => {
+const formatType = (value?: string, t?: any) => {
   if (!value) return "—";
-  if (value === "publique") return "Public";
-  if (value === "privee") return "Privé";
+  if (value === "publique") return t ? t("compare.typePublic") : "Public";
+  if (value === "privee") return t ? t("compare.typePrivate") : "Privé";
   return value;
 };
 
-const formatMoney = (value?: number | string | null) => {
-  if (value == null) return "Non renseigné";
+const formatMoney = (value?: number | string | null, t?: any) => {
+  if (value == null) return t ? t("compare.notSpecified") : "Non renseigné";
   const numValue = typeof value === 'string' ? parseFloat(value) : value;
-  if (isNaN(numValue)) return "Non renseigné";
-  return `${new Intl.NumberFormat("fr-FR").format(numValue)} Ar`;
+  if (isNaN(numValue)) return t ? t("compare.notSpecified") : "Non renseigné";
+  return `${new Intl.NumberFormat("fr-FR").format(numValue)} ${t ? t("compare.moneyFormat") : "Ar"}`;
 };
 
 const scoreColor = (score?: number | null) => {
@@ -355,7 +355,7 @@ const Compare = () => {
                 : "bg-info/20 text-info border border-info/30"
             )}
           >
-            {formatType(c.type_universite)}
+            {formatType(c.type_universite, t)}
           </span>
         ),
       },
@@ -397,7 +397,7 @@ const Compare = () => {
         icon: DollarSign,
         render: (c: ComparisonItem) => (
           <div>
-            <p className="text-sm font-medium text-foreground">{formatMoney(c.cout_annuel)}</p>
+            <p className="text-sm font-medium text-foreground">{formatMoney(c.cout_annuel, t)}</p>
             {c.cout_description && (
               <p className="text-xs text-muted-foreground mt-0.5">{c.cout_description}</p>
             )}
@@ -626,10 +626,10 @@ const Compare = () => {
 
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   {[
-                    { label: "Type", value: formatType(comp.type_universite) },
+                    { label: "Type", value: formatType(comp.type_universite, t) },
                     { label: "Niveaux", value: comp.niveaux && comp.niveaux.length > 0 ? comp.niveaux.join(", ") : "—" },
                     { label: "Durée", value: comp.duree_annees || "—" },
-                    { label: "Coût", value: formatMoney(comp.cout_annuel) },
+                    { label: "Coût", value: formatMoney(comp.cout_annuel, t) },
                   ].map((item) => (
                     <div key={item.label} className="bg-muted rounded-lg px-3 py-2">
                       <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{item.label}</p>

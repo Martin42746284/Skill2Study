@@ -180,7 +180,7 @@ const AdminTestimonials = () => {
           rating: parseInt(formRating),
           status: formStatus,
         } : t)));
-        toast({ title: t("admin.pages.testimonials.approved"), description: `Témoignage de ${formStudentName} mis à jour.` });
+        toast({ title: t("admin.pages.testimonials.approved"), description: `${t("admin.pages.testimonials.description")} de ${formStudentName} ${t("admin.pages.testimonials.updatedSuccessfully")}.` });
       } else {
         await admin.createTestimonial({
           student_name: formStudentName,
@@ -203,11 +203,11 @@ const AdminTestimonials = () => {
           status: formStatus,
           date: dateStr,
         }]);
-        toast({ title: t("admin.pages.testimonials.approved"), description: `Témoignage de ${formStudentName} ajouté avec succès.` });
+        toast({ title: t("admin.pages.testimonials.approved"), description: `${t("admin.pages.testimonials.description")} de ${formStudentName} ${t("admin.pages.testimonials.addedSuccessfully")}.` });
       }
       setDialogOpen(false);
     } catch (error) {
-      toast({ title: t("common.error"), description: "Impossible de sauvegarder le témoignage", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("admin.pages.testimonials.cannotSave"), variant: "destructive" });
       console.error('Error saving testimonial:', error);
     }
   };
@@ -217,9 +217,9 @@ const AdminTestimonials = () => {
       try {
         await admin.deleteTestimonial(deletingId);
         setTestimonials(testimonials.filter((t) => t.id !== deletingId));
-        toast({ title: t("admin.pages.testimonials.deleteTestimonial"), variant: "destructive" });
+        toast({ title: t("admin.pages.testimonials.deleteTestimonial"), description: t("admin.pages.testimonials.deletedSuccessfully"), variant: "destructive" });
       } catch (error) {
-        toast({ title: t("common.error"), description: "Impossible de supprimer le témoignage", variant: "destructive" });
+        toast({ title: t("common.error"), description: t("admin.pages.testimonials.cannotDelete"), variant: "destructive" });
         console.error('Error deleting testimonial:', error);
       } finally {
         setDeleteDialogOpen(false);
@@ -232,9 +232,9 @@ const AdminTestimonials = () => {
     try {
       await admin.approveTestimonial(id);
       setTestimonials(testimonials.map((t) => t.id === id ? { ...t, status: "Approuvé" } : t));
-      toast({ title: t("admin.pages.testimonials.approveTestimonial"), description: "Le témoignage est maintenant visible." });
+      toast({ title: t("admin.pages.testimonials.approveTestimonial"), description: t("admin.pages.testimonials.nowVisible") });
     } catch (error) {
-      toast({ title: t("common.error"), description: "Impossible d'approuver le témoignage", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("admin.pages.testimonials.cannotApprove"), variant: "destructive" });
       console.error('Error approving testimonial:', error);
     }
   };
@@ -243,9 +243,9 @@ const AdminTestimonials = () => {
     try {
       await admin.rejectTestimonial(id);
       setTestimonials(testimonials.map((t) => t.id === id ? { ...t, status: "Rejeté" } : t));
-      toast({ title: t("admin.pages.testimonials.rejectTestimonial"), variant: "destructive" });
+      toast({ title: t("admin.pages.testimonials.rejectTestimonial"), description: t("common.success"), variant: "destructive" });
     } catch (error) {
-      toast({ title: t("common.error"), description: "Impossible de rejeter le témoignage", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("admin.pages.testimonials.cannotReject"), variant: "destructive" });
       console.error('Error rejecting testimonial:', error);
     }
   };
@@ -294,7 +294,7 @@ const AdminTestimonials = () => {
             </div>
             <div>
               <p className="text-xl font-bold">{testimonials.filter(t => t.status === "Approuvé").length}</p>
-              <p className="text-xs text-muted-foreground">Approuvés</p>
+              <p className="text-xs text-muted-foreground">{t("admin.pages.testimonials.approvalsCount")}</p>
             </div>
           </div>
           <div className="rounded-xl border bg-card p-4 shadow-card flex items-center gap-3">
@@ -303,7 +303,7 @@ const AdminTestimonials = () => {
             </div>
             <div>
               <p className="text-xl font-bold">{testimonials.filter(t => t.status === "En attente").length}</p>
-              <p className="text-xs text-muted-foreground">En attente</p>
+              <p className="text-xs text-muted-foreground">{t("admin.pages.testimonials.pendingCount")}</p>
             </div>
           </div>
           <div className="rounded-xl border bg-card p-4 shadow-card flex items-center gap-3">
@@ -312,7 +312,7 @@ const AdminTestimonials = () => {
             </div>
             <div>
               <p className="text-xl font-bold">{testimonials.filter(t => t.status === "Rejeté").length}</p>
-              <p className="text-xs text-muted-foreground">Rejetés</p>
+              <p className="text-xs text-muted-foreground">{t("admin.pages.testimonials.rejectedCount")}</p>
             </div>
           </div>
         </div>
@@ -386,33 +386,33 @@ const AdminTestimonials = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label>{t("admin.name")}</Label>
-                  <Input value={formStudentName} onChange={(e) => setFormStudentName(e.target.value)} placeholder="ex: Mialy Rakoto" />
+                  <Input value={formStudentName} onChange={(e) => setFormStudentName(e.target.value)} placeholder={t("admin.pages.testimonials.studentNamePlaceholder")} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>{t("admin.pages.universities.title").split(' ')[1]}</Label>
-                  <Input value={formUniversityName} onChange={(e) => setFormUniversityName(e.target.value)} placeholder="ex: Université d'Antananarivo" />
+                  <Label>{t("universityDetails.title")}</Label>
+                  <Input value={formUniversityName} onChange={(e) => setFormUniversityName(e.target.value)} placeholder={t("admin.pages.testimonials.universityPlaceholder")} />
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>{t("admin.pages.filieres.title").split(' ')[1]}</Label>
-                <Input value={formCourseName} onChange={(e) => setFormCourseName(e.target.value)} placeholder="ex: Informatique" />
+                <Label>{t("admin.pages.filieres.title")}</Label>
+                <Input value={formCourseName} onChange={(e) => setFormCourseName(e.target.value)} placeholder={t("admin.pages.testimonials.fieldPlaceholder")} />
               </div>
               <div className="space-y-1.5">
                 <Label>{t("admin.pages.testimonials.description")}</Label>
-                <Textarea value={formText} onChange={(e) => setFormText(e.target.value)} placeholder="Le témoignage..." className="min-h-[80px]" />
+                <Textarea value={formText} onChange={(e) => setFormText(e.target.value)} placeholder={t("admin.pages.testimonials.testimonialPlaceholder")} className="min-h-[80px]" />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label>{t("admin.pages.testimonials.rating")}</Label>
+                  <Label>{t("admin.pages.testimonials.ratingLabel")}</Label>
                   <Select value={formRating} onValueChange={setFormRating}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {[1, 2, 3, 4, 5].map((n) => <SelectItem key={n} value={String(n)}>{n} étoile{n > 1 ? "s" : ""}</SelectItem>)}
+                      {[1, 2, 3, 4, 5].map((n) => <SelectItem key={n} value={String(n)}>{n} {t("admin.pages.testimonials.stars")}{n > 1 ? "s" : ""}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>{t("admin.status")}</Label>
+                  <Label>{t("admin.pages.testimonials.statusLabel")}</Label>
                   <Select value={formStatus} onValueChange={(value) => setFormStatus(value as "Approuvé" | "En attente" | "Rejeté")}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -451,7 +451,7 @@ const AdminTestimonials = () => {
                   </div>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  <p><strong>Université :</strong> {viewingItem.university_name}</p>
+                  <p><strong>{t("admin.pages.testimonials.university")} :</strong> {viewingItem.university_name}</p>
                 </div>
                 <div className="flex items-center gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -473,7 +473,7 @@ const AdminTestimonials = () => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{t("admin.pages.testimonials.deleteTestimonial")} ?</AlertDialogTitle>
-              <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
+              <AlertDialogDescription>{t("admin.pages.testimonials.irreversibleAction")}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t("admin.pages.testimonials.cancel")}</AlertDialogCancel>

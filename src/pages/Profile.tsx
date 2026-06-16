@@ -466,10 +466,10 @@ const Profile = () => {
           <div className="rounded-xl border bg-card p-6 shadow-card">
             <h3 className="mb-5 text-lg font-semibold flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
-              Centres d'Intérêt
+              {t("profile.interestsTitle")}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Sélectionnez vos domaines d'intérêt pour améliorer la qualité de vos recommandations
+              {t("profile.interestsDescription")}
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {CENTRES_INTERET_OPTIONS.map((interet) => (
@@ -493,7 +493,7 @@ const Profile = () => {
             </div>
             {form.centres_interet.length === 0 && (
               <div className="mt-4 p-3 rounded-md bg-accent/50 text-sm text-muted-foreground">
-                💡 Conseil : Sélectionner au moins 2-3 domaines d'intérêt pour des recommandations plus pertinentes
+                {t("profile.interestsTip")}
               </div>
             )}
           </div>
@@ -502,10 +502,10 @@ const Profile = () => {
           <div className="rounded-xl border bg-card p-6 shadow-card">
             <h3 className="mb-5 text-lg font-semibold flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Vos Compétences
+              {t("profile.competencesTitle")}
             </h3>
             <p className="text-sm text-muted-foreground mb-6">
-              Évaluez votre niveau pour chaque compétence (1 = Faible, 5 = Excellent)
+              {t("profile.competencesDescription")}
             </p>
             <div className="space-y-6">
               {COMPETENCES_OPTIONS.map((comp) => (
@@ -549,7 +549,7 @@ const Profile = () => {
             </div>
             {Object.keys(form.competences).length === 0 && (
               <div className="mt-6 p-3 rounded-md bg-accent/50 text-sm text-muted-foreground">
-                Conseil : Remplir vos compétences aide le modèle IA à mieux vous recommander des filières adaptées
+                {t("profile.competencesTip")}
               </div>
             )}
           </div>

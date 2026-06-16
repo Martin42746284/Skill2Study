@@ -39,7 +39,7 @@ async function getModelPerformance() {
     console.log(chalk.red(`  ✗ Faible (<50): ${metrics.score_distribution.poor_below_50}`));
 
     console.log(chalk.white('\n🎯 Qualité du modèle:'));
-    console.log(chalk.white(`  Score de santé: ${_getHealthColor(metrics.model_health)}${metrics.model_health}/100${chalk.reset()}`));
+    console.log(chalk.white(`  Score de santé: ${_getHealthColor(metrics.model_health)(metrics.model_health)}/100`));
     console.log(chalk.white(`  ${metrics.score_quality.percentage_70_plus}% des scores ≥ 70`));
     console.log(chalk.white(`  ${metrics.score_quality.percentage_50_plus}% des scores ≥ 50`));
 
@@ -95,7 +95,7 @@ async function getRecommendationQuality() {
     console.log(chalk.white(`Score de compatibilité moyen: ${chalk.cyan(quality_metrics.compatibility_score_avg + '/100')}`));
     console.log(chalk.white(`Taux de matching série bac: ${chalk.green(quality_metrics.serie_bac_match_rate + '%')}`));
     console.log(chalk.white(`Taux de matching moyenne: ${chalk.green(quality_metrics.moyenne_match_rate + '%')}`));
-    console.log(chalk.white(`\nScore de qualité global: ${_getQualityColor(quality_metrics.overall_quality_score)}${quality_metrics.overall_quality_score}/100${chalk.reset()}`));
+    console.log(chalk.white(`\nScore de qualité global: ${_getQualityColor(quality_metrics.overall_quality_score)(quality_metrics.overall_quality_score)}/100`));
 
     return quality_metrics;
 

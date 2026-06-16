@@ -93,3 +93,15 @@ node scripts/test-model-metrics.js
 
 # 4. (Optionnel) Redémarrer le backend pour utiliser le nouveau modèle
 npm start
+
+# SANS risque pour les données
+docker-compose down
+
+# Supprimer SEULEMENT l'image du service IA
+docker rmi skill2study-ai-service
+
+# Afficher les images de Docker
+docker images | grep -i ai
+
+# Vérifier les models enregistrés dans le conteneur
+docker exec skill2study-ai-service ls -la /app/models/

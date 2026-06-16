@@ -28,6 +28,8 @@ services:
     container_name: skill2study-ai-service
     ports:
       - "5000:5000"
+    volumes:
+      - ./ai-service:/app/ai-service
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://postgres:martin4274@postgres:5432/orientation_db

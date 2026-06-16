@@ -285,10 +285,22 @@ def train_model():
     try:
         data = request.get_json() or {}
         training_data = data.get('training_data', [])
-        from_database = data.get('from_database', True)  # Par défaut, utiliser la BD
+        from_database = data.get('from_database', False)
+        optimization_config = data.get('optimization_config', None)
 
-        # Récupérer les données depuis la base de données si demandé
-        if from_database:
+        logger.info(f"DEBUG: training_data reçue: {len(training_data)} samples, from_database={from_database}")
+        logger.info(f"DEBUG: optimization_config is None? {optimization_config is None}")
+        logger.info(f"DEBUG: data keys: {list(data.keys())}")
+        if optimization_config:
+            logger.info(f"DEBUG: optimization_config reçue: {optimization_config}")
+        else:
+            logger.info(f"DEBUG: optimization_config is None or empty")
+
+        # Utiliser les données envoyées si disponibles
+        if training_data:
+            logger.info(f"✓ Utilisation de {len(training_data)} samples envoyés")
+        # Sinon, récupérer depuis la base de données
+        elif from_database:
             logger.info("Récupération des données d'entraînement depuis PostgreSQL...")
             db_session = db_config.get_session()
             db_service = DatabaseService(db_session)
@@ -309,8 +321,8 @@ def train_model():
 
         logger.info(f"Entraînement des modèles avec {len(training_data)} exemples...")
 
-        # Entraîner les modèles
-        metrics = model_trainer.train_models(training_data)
+        # Entraîner les modèles avec optimization_config si fourni
+        metrics = model_trainer.train_models(training_data, optimization_config)
 
         return jsonify({
             'success': True,

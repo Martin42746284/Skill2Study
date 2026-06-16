@@ -1,9 +1,15 @@
 /**
- * Script de génération de données fictives pour entraîner le modèle IA
+ * Script de génération et d'augmentation de données pour entraîner le modèle IA
  * Génère des utilisateurs, profils académiques et recommandations réalistes
- * 
- * Usage: node scripts/generate-training-data.js [nombre_utilisateurs]
- * Exemple: node scripts/generate-training-data.js 500
+ * Peut aussi augmenter les données existantes (data augmentation)
+ *
+ * Usage:
+ *   node scripts/generate-training-data.js [nombre_utilisateurs]
+ *   node scripts/generate-training-data.js --augment [multiplicateur]
+ *
+ * Exemples:
+ *   node scripts/generate-training-data.js 500              # Générer 500 nouveaux users
+ *   node scripts/generate-training-data.js --augment 4      # Multiplier données existantes par 4x
  */
 
 require('dotenv').config();
@@ -24,7 +30,7 @@ let generatedCount = {
   recommendations: 0
 };
 
-async function generateTrainingData(numberOfUsers = 100) {
+async function generateTrainingData(numberOfUsers = 400) {
   try {
     logger.info(`\n🚀 Début de la génération de ${numberOfUsers} utilisateurs avec données d'entraînement...`);
 
@@ -288,8 +294,148 @@ function generatePointsAttention(profil, filiere) {
   return pointsAttention;
 }
 
-// Récupérer le nombre d'utilisateurs depuis les arguments
-const numberOfUsers = parseInt(process.argv[2]) || 100;
+// ============================================================================
+// AUGMENTATION DE DONNÉES (Data Augmentation)
+// ============================================================================
 
-// Lancer la génération
-generateTrainingData(numberOfUsers);
+async function augmentExistingData(multiplier = 4) {
+  try {
+    logger.info(`\n🔄 Début de l'augmentation de données (multiplicateur: ${multiplier}x)...`);
+
+    // Récupérer toutes les recommandations existantes
+    const existingRecommendations = await Recommendation.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ['id']
+        },
+        {
+          model: ProfilAcademique,
+          as: 'profil',
+          attributes: ['id', 'user_id', 'serie_bac', 'moyenne_generale', 'centres_interet']
+        }
+      ],
+      limit: 5000
+    });
+
+    logger.info(`✓ ${existingRecommendations.length} recommandations existantes trouvées`);
+
+    if (existingRecommendations.length === 0) {
+      logger.error('✗ Aucune recommandation existante à augmenter');
+      process.exit(1);
+    }
+
+    let augmentedCount = 0;
+    const batchSize = 100;
+    const augmentedRecommendations = [];
+
+    // Pour chaque recommandation, créer (multiplier - 1) variations
+    for (const rec of existingRecommendations) {
+      for (let i = 1; i < multiplier; i++) {
+        const variation = createDataVariation(rec, i);
+        augmentedRecommendations.push(variation);
+        augmentedCount++;
+
+        // Sauvegarder par batch pour ne pas surcharger la DB
+        if (augmentedRecommendations.length >= batchSize) {
+          await Recommendation.bulkCreate(augmentedRecommendations, {
+            ignoreDuplicates: false
+          });
+          logger.info(`✓ ${augmentedRecommendations.length} recommandations augmentées`);
+          augmentedRecommendations.length = 0;
+        }
+      }
+    }
+
+    // Sauvegarder les dernières
+    if (augmentedRecommendations.length > 0) {
+      await Recommendation.bulkCreate(augmentedRecommendations);
+      logger.info(`✓ ${augmentedRecommendations.length} dernières recommandations augmentées`);
+    }
+
+    // Résumé
+    console.log('\n' + '='.repeat(60));
+    logger.info('✅ Augmentation de données terminée !');
+    console.log('='.repeat(60));
+    console.log(`📊 Statistiques:`);
+    console.log(`  Original: ${existingRecommendations.length} recommandations`);
+    console.log(`  Augmenté: ${augmentedCount} variations créées`);
+    console.log(`  Total: ${existingRecommendations.length + augmentedCount} recommandations`);
+    console.log(`  Multiplicateur: ${((existingRecommendations.length + augmentedCount) / existingRecommendations.length).toFixed(2)}x`);
+    console.log('='.repeat(60) + '\n');
+
+  } catch (err) {
+    logger.error(`Erreur lors de l'augmentation: ${err.message}`);
+    process.exit(1);
+  } finally {
+    await sequelize.close();
+  }
+}
+
+/**
+ * Créer une variation d'une recommandation existante
+ * 3 types de perturbations aléatoires
+ */
+function createDataVariation(originalRec, variationType) {
+  const rec = originalRec.toJSON();
+  const perturbation = Math.random() * 0.1 - 0.05; // -5% à +5%
+
+  let scoreVariation;
+
+  switch (variationType % 3) {
+    // Type 1: Variation légère de la moyenne générale
+    case 1:
+      const moyenneDelta = (Math.random() - 0.5) * 2; // ±1 point
+      scoreVariation = Math.max(0, Math.min(100,
+        rec.score_compatibilite + moyenneDelta * 2
+      ));
+      break;
+
+    // Type 2: Variation des intérêts/compétences
+    case 2:
+      const interestDelta = (Math.random() - 0.5) * 8; // ±4 points
+      scoreVariation = Math.max(0, Math.min(100,
+        rec.score_compatibilite + interestDelta
+      ));
+      break;
+
+    // Type 3: Variation du budget/contraintes
+    case 0:
+    default:
+      const budgetDelta = (Math.random() - 0.5) * 6; // ±3 points
+      scoreVariation = Math.max(0, Math.min(100,
+        rec.score_compatibilite + budgetDelta
+      ));
+  }
+
+  return {
+    user_id: rec.user_id,
+    session_test_id: rec.session_test_id,
+    filiere_id: rec.filiere_id,
+    score_compatibilite: Math.round(scoreVariation * 100) / 100,
+    rang: rec.rang,
+    justification: {
+      ...rec.justification,
+      source: 'augmented_data',  // Marquer comme donnée augmentée
+      variation_type: variationType % 3
+    },
+    created_at: new Date(),
+    updated_at: new Date()
+  };
+}
+
+// ============================================================================
+// MAIN
+// ============================================================================
+
+const args = process.argv.slice(2);
+
+if (args[0] === '--augment') {
+  // Mode augmentation
+  const multiplier = parseInt(args[1]) || 4;
+  augmentExistingData(multiplier);
+} else {
+  // Mode génération normale
+  const numberOfUsers = parseInt(args[0]) || 100;
+  generateTrainingData(numberOfUsers);
+}

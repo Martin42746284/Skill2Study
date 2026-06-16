@@ -100,6 +100,20 @@ const OrientationTest = () => {
     }
   };
 
+  const handleAnswerSelected = async (optionId: number) => {
+    // Mettre à jour la réponse sélectionnée
+    setAnswers((current) => ({ ...current, [questions[currentStep].id]: optionId }));
+
+    // Avancer automatiquement après 300ms
+    setTimeout(async () => {
+      if (currentStep < questions.length - 1) {
+        await handleNext();
+      } else {
+        // Dernière question : montrer le bouton "Terminer" mais ne pas soumettre automatiquement
+      }
+    }, 300);
+  };
+
   const handleFinish = async () => {
     if (!sessionId) return;
     setSubmitting(true);
@@ -206,12 +220,14 @@ const OrientationTest = () => {
             {options.map((option) => (
               <button
                 key={option.id}
-                onClick={() => setAnswers((current) => ({ ...current, [q.id]: option.id }))}
+                onClick={() => handleAnswerSelected(option.id)}
+                disabled={submitting}
                 className={cn(
                   "w-full rounded-lg border p-4 text-left text-sm font-medium transition-all duration-200",
                   selected === option.id
                     ? "border-primary bg-accent text-accent-foreground shadow-sm"
-                    : "border-border bg-background text-foreground hover:border-primary/30 hover:bg-accent/50"
+                    : "border-border bg-background text-foreground hover:border-primary/30 hover:bg-accent/50",
+                  submitting && "opacity-50 cursor-not-allowed"
                 )}
               >
                 <div className="flex items-center gap-3">

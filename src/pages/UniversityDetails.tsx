@@ -18,8 +18,10 @@ import {
   Phone,
   Heart,
   Award,
+  Zap,
+  TrendingUp,
 } from "lucide-react";
-import { users as usersApi, universities as universitiesApi } from "@/lib/api";
+import { users as usersApi, universities as universitiesApi, recommendations as recommendationsApi } from "@/lib/api";
 
 interface UniversityParcours {
   id: number;
@@ -44,6 +46,24 @@ interface UniversityFiliere {
   debouches?: string[] | null;
   description?: string | null;
   parcours?: UniversityParcours[];
+  universite?: {
+    id: number;
+    nom: string;
+    type: string;
+    ville: string;
+  };
+  centres_interet?: string[];
+  competences_requises?: string[];
+}
+
+interface Recommendation {
+  id: number;
+  filiere?: {
+    id: number;
+    nom: string;
+  };
+  score_compatibilite: number;
+  justification?: Record<string, any>;
 }
 
 interface UniversityDetailsData {
@@ -80,6 +100,7 @@ const UniversityDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<number | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,19 +115,21 @@ const UniversityDetails = () => {
 
       try {
         setLoading(true);
-        const [universityResponse, favoritesResponse] = await Promise.all([
-          universitiesApi.getById(universityId),
-          usersApi.getFavoris(),
+        const [universityResponse, favoritesResponse, recsResponse] = await Promise.all([
+          universitiesApi.getById(universityId) as Promise<{ universite?: UniversityDetailsData }>,
+          usersApi.getFavoris() as Promise<{ favoris?: any[] }>,
+          recommendationsApi.getMine().catch(() => ({ recommendations: [] })) as Promise<{ recommendations?: Recommendation[] }>,
         ]);
 
         if (!cancelled) {
-          setUniversity(universityResponse?.universite || null);
-          const favoris = Array.isArray(favoritesResponse?.favoris) ? favoritesResponse.favoris : [];
+          setUniversity((universityResponse as any)?.universite || null);
+          const favoris = Array.isArray((favoritesResponse as any)?.favoris) ? (favoritesResponse as any).favoris : [];
           setFavoriteIds(
             favoris
               .map((favori: any) => Number(favori.filiere_id || favori.filiere?.id))
               .filter((value: number) => Number.isFinite(value))
           );
+          setRecommendations((recsResponse as any)?.recommendations || []);
           setError(null);
         }
       } catch (err) {
@@ -308,8 +331,19 @@ const UniversityDetails = () => {
               filieres.map((filiere) => {
                 const isSaved = favoriteIds.includes(filiere.id);
                 const specialite = filiere.specialite || filiere.domaine || filiere.nom;
+                const recommendation = recommendations.find(r => r.filiere?.id === filiere.id);
+                const score = recommendation?.score_compatibilite || 0;
+
                 return (
                   <div key={filiere.id} className="rounded-xl border p-5">
+                    {/* Indicateur de recommandation */}
+                    {recommendation && (
+                      <div className="mb-4 rounded-lg bg-primary/5 border border-primary/20 p-3 flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-primary flex-shrink-0" />
+                        <p className="text-xs font-semibold text-primary">✨ Recommandée ({Math.round(score)}%)</p>
+                      </div>
+                    )}
+
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap mb-2">

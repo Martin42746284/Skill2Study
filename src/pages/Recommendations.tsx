@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Info,
   AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -37,6 +38,24 @@ type RecommendationRow = {
     points_forts?: string[];
     points_attention?: string[];
     raisons?: string[];
+    pourquoi_cette_recommandation?: {
+      titre?: string;
+      raisons?: string[];
+      resume?: string;
+    };
+    criteres_analyzes?: Record<string, {
+      label: string;
+      impact: string;
+      score: number;
+      detail: string;
+    }>;
+    scores_details?: {
+      methode_ensemble?: number;
+      weighted_scoring?: number;
+      knn_similarity?: number;
+      random_forest?: number;
+      poids?: Record<string, string>;
+    };
   };
   filiere?: {
     id: number;
@@ -231,10 +250,10 @@ const Recommendations = () => {
           <Info className="h-4 sm:h-5 w-4 sm:w-5 text-primary mt-0.5 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="text-xs sm:text-sm font-medium">
-              {t("recommendations.title")} <strong>{summary.total}</strong> {t("search.fields")}{summary.total > 1 ? "s" : ""}.
+              Vos <strong>{summary.total}</strong> meilleures filière{summary.total > 1 ? "s" : ""} recommandée{summary.total > 1 ? "s" : ""} pour vous.
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {t("recommendations.filters")}
+              Basées sur votre profil académique et vos résultats au test d'orientation.
             </p>
           </div>
         </div>
@@ -302,23 +321,26 @@ const Recommendations = () => {
                       </span>
                     </div>
 
-                    <div className="mb-3 sm:mb-4">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {t("recommendations.whyThisRecommendation")}
-                      </p>
-                      <ul className="space-y-1">
-                        {reasons.length > 0 ? (
-                          reasons.slice(0, 4).map((reason, index) => (
-                            <li key={index} className="flex items-start gap-2 text-xs text-muted-foreground">
-                              <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-success" />
-                              <span className="line-clamp-1">{reason}</span>
-                            </li>
-                          ))
-                        ) : (
-                          <li className="text-xs text-muted-foreground">{t("recommendations.analysisCalculated")}</li>
+                    {/* Justification simple et professionnelle */}
+                    {rec.justification && (
+                      <div className="mb-4 sm:mb-5 border-t pt-3 space-y-2">
+                        {/* Raisons principales */}
+                        {((rec.justification.pourquoi_cette_recommandation?.raisons || rec.justification.raisons) || []).length > 0 && (
+                          <div>
+                            <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">Justification</p>
+                            <ul className="space-y-1">
+                              {((rec.justification.pourquoi_cette_recommandation?.raisons || rec.justification.raisons) || [])
+                                .slice(0, 6)
+                                .map((reason: string, index: number) => (
+                                  <li key={index} className="text-xs text-muted-foreground">
+                                    • {reason}
+                                  </li>
+                                ))}
+                            </ul>
+                          </div>
                         )}
-                      </ul>
-                    </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col items-center gap-2 w-full sm:w-auto lg:min-w-[130px] shrink-0 border-t sm:border-t-0 sm:border-l pt-2 sm:pt-0 sm:pl-3 lg:pl-0">

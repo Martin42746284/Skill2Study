@@ -153,18 +153,42 @@ const Dashboard = () => {
   const profileCompletion = useMemo(() => {
     if (!state.user) return 0;
 
-    // Champs disponibles dans state.user
-    const fieldsToCheck = [
+    // Champs du profil personnel
+    const personalFields = [
       { name: 'nom', value: state.user.nom },
       { name: 'prenom', value: state.user.prenom },
       { name: 'email', value: state.user.email },
       { name: 'ville', value: state.user.ville },
-      { name: 'serie_bac', value: state.user.serie_bac },
     ];
 
-    const filledFields = fieldsToCheck.filter(f => f.value !== undefined && f.value !== null && f.value !== "");
+    // Champs du profil académique
+    const academicProfile = state.user.profil_academique || {};
+    const academicFields = [
+      { name: 'serie_bac', value: academicProfile.serie_bac },
+      { name: 'moyenne_generale', value: academicProfile.moyenne_generale },
+      { name: 'centres_interet', value: academicProfile.centres_interet },
+      { name: 'competences', value: academicProfile.competences },
+      { name: 'secteur_vise', value: academicProfile.secteur_vise },
+      { name: 'budget_max_mensuel', value: academicProfile.budget_max_mensuel },
+      { name: 'duree_max_etudes', value: academicProfile.duree_max_etudes },
+      { name: 'preference_type_univ', value: academicProfile.preference_type_univ },
+    ];
 
-    return Math.round((filledFields.length / 5) * 100);
+    // Vérifier les champs remplis
+    const isFieldFilled = (value: any) => {
+      if (value === undefined || value === null || value === "") return false;
+      if (Array.isArray(value) && value.length === 0) return false;
+      if (typeof value === "object" && Object.keys(value).length === 0) return false;
+      return true;
+    };
+
+    const personalFilled = personalFields.filter(f => isFieldFilled(f.value)).length;
+    const academicFilled = academicFields.filter(f => isFieldFilled(f.value)).length;
+
+    const totalFields = personalFields.length + academicFields.length;
+    const filledFields = personalFilled + academicFilled;
+
+    return Math.round((filledFields / totalFields) * 100);
   }, [state.user]);
 
   const recentActivity = useMemo(() => {

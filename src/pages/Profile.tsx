@@ -2,6 +2,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import {
   User,
   Mail,
@@ -13,6 +15,8 @@ import {
   Camera,
   AlertCircle,
   Loader2,
+  Sparkles,
+  Target,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +33,36 @@ const SERIES_BAC_OPTIONS = [
   { value: "L", label: "seriesBac.serieL" },
   { value: "Technique", label: "seriesBac.serieTechnique" },
   { value: "Toutes séries", label: "seriesBac.serieToutesSeries" }
+];
+
+const CENTRES_INTERET_OPTIONS = [
+  "Informatique",
+  "Médecine",
+  "Droit",
+  "Commerce",
+  "Sciences",
+  "Ingénierie",
+  "Arts",
+  "Lettres",
+  "Histoire",
+  "Économie",
+  "Psychologie",
+  "Environnement",
+  "Cuisine",
+  "Sports",
+  "Musique",
+  "Théâtre"
+];
+
+const COMPETENCES_OPTIONS = [
+  { name: "Logique", key: "logique" },
+  { name: "Communication", key: "communication" },
+  { name: "Créativité", key: "creativite" },
+  { name: "Organisation", key: "organisation" },
+  { name: "Leadership", key: "leadership" },
+  { name: "Travail en équipe", key: "travail_equipe" },
+  { name: "Analyse", key: "analyse" },
+  { name: "Résolution de problèmes", key: "resolution_problemes" }
 ];
 
 const Profile = () => {
@@ -426,6 +460,98 @@ const Profile = () => {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Interests Section */}
+          <div className="rounded-xl border bg-card p-6 shadow-card">
+            <h3 className="mb-5 text-lg font-semibold flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              Centres d'Intérêt
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Sélectionnez vos domaines d'intérêt pour améliorer la qualité de vos recommandations
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {CENTRES_INTERET_OPTIONS.map((interet) => (
+                <div key={interet} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`interet_${interet}`}
+                    checked={form.centres_interet.includes(interet)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        handleChange("centres_interet", [...form.centres_interet, interet]);
+                      } else {
+                        handleChange("centres_interet", form.centres_interet.filter(i => i !== interet));
+                      }
+                    }}
+                  />
+                  <Label htmlFor={`interet_${interet}`} className="text-sm font-medium cursor-pointer">
+                    {interet}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            {form.centres_interet.length === 0 && (
+              <div className="mt-4 p-3 rounded-md bg-accent/50 text-sm text-muted-foreground">
+                💡 Conseil : Sélectionner au moins 2-3 domaines d'intérêt pour des recommandations plus pertinentes
+              </div>
+            )}
+          </div>
+
+          {/* Competences Section */}
+          <div className="rounded-xl border bg-card p-6 shadow-card">
+            <h3 className="mb-5 text-lg font-semibold flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Vos Compétences
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Évaluez votre niveau pour chaque compétence (1 = Faible, 5 = Excellent)
+            </p>
+            <div className="space-y-6">
+              {COMPETENCES_OPTIONS.map((comp) => (
+                <div key={comp.key} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor={`competence_${comp.key}`} className="text-sm font-medium">
+                      {comp.name}
+                    </Label>
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-semibold">
+                      {form.competences[comp.key] || 0}/5
+                    </span>
+                  </div>
+                  <Slider
+                    id={`competence_${comp.key}`}
+                    min={0}
+                    max={5}
+                    step={1}
+                    value={[form.competences[comp.key] || 0]}
+                    onValueChange={(value) => {
+                      handleChange("competences", {
+                        ...form.competences,
+                        [comp.key]: value[0]
+                      });
+                    }}
+                    className="w-full"
+                  />
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`h-2 w-full rounded-full ${
+                          i < (form.competences[comp.key] || 0)
+                            ? "bg-primary"
+                            : "bg-muted"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {Object.keys(form.competences).length === 0 && (
+              <div className="mt-6 p-3 rounded-md bg-accent/50 text-sm text-muted-foreground">
+                Conseil : Remplir vos compétences aide le modèle IA à mieux vous recommander des filières adaptées
+              </div>
+            )}
           </div>
         </div>
 

@@ -183,19 +183,90 @@ const Compare = () => {
           cout_annuel = filiereDetail.cost;
         }
 
+        // Générer au moins 2 avantages et 2 défis si pas fournis
+        let avantages = (item.avantages || []).filter((a: string) => a && a.trim().length > 0);
+        let inconvenients = (item.inconvenients || []).filter((i: string) => i && i.trim().length > 0);
+
+        // Enrichir avec avantages générés si nécessaire (sans duplication)
+        if (avantages.length < 2) {
+          const avantagesGeneres: string[] = [];
+          const existingLower = avantages.map(a => a.toLowerCase());
+
+          // Fonction helper stricte pour vérifier les doublons
+          const alreadyHas = (keywords: string[]) => {
+            return keywords.some(keyword =>
+              existingLower.some(existing => existing.includes(keyword.toLowerCase()))
+            );
+          };
+
+          // Seulement générer si le concept n'existe pas déjà
+          if (item.taux_emploi && item.taux_emploi >= 75 && !alreadyHas(['emploi', 'taux'])) {
+            avantagesGeneres.push(`Excellent taux d'emploi: ${item.taux_emploi}%`);
+          }
+          if (item.debouches && item.debouches.length > 0 && !alreadyHas(['débouché', 'debouche'])) {
+            avantagesGeneres.push(`Débouchés professionnels: ${item.debouches.slice(0, 2).join(', ')}`);
+          }
+          if (item.centres_interet && item.centres_interet.length > 0 && !alreadyHas(['domaine', 'centre'])) {
+            avantagesGeneres.push(`Domaines couverts: ${item.centres_interet.slice(0, 2).join(', ')}`);
+          }
+          if (item.type_universite === 'publique' && !alreadyHas(['publique', 'public'])) {
+            avantagesGeneres.push('Université publique - frais accessibles');
+          }
+
+          // Ajouter jusqu'à 2 avantages
+          for (let i = 0; i < avantagesGeneres.length && avantages.length < 2; i++) {
+            avantages.push(avantagesGeneres[i]);
+          }
+        }
+
+        // Enrichir avec défis générés si nécessaire (sans duplication)
+        if (inconvenients.length < 2) {
+          const defisGeneres: string[] = [];
+          const existingLower = inconvenients.map(i => i.toLowerCase());
+
+          // Fonction helper stricte pour vérifier les doublons
+          const alreadyHas = (keywords: string[]) => {
+            return keywords.some(keyword =>
+              existingLower.some(existing => existing.includes(keyword.toLowerCase()))
+            );
+          };
+
+          // Seulement générer si le concept n'existe pas déjà
+          if (item.difficulte && !alreadyHas(['difficul', 'niveau'])) {
+            defisGeneres.push(`Niveau de difficulté: ${item.difficulte}`);
+          }
+          if (item.cout_annuel && Number(item.cout_annuel) > 1000000 && !alreadyHas(['coût', 'cost'])) {
+            defisGeneres.push('Coût annuel élevé');
+          }
+          if (item.moyenne_min_requise && item.moyenne_min_requise > 15 && !alreadyHas(['moyenne'])) {
+            defisGeneres.push(`Moyenne minimale requise élevée: ${item.moyenne_min_requise}/20`);
+          }
+          if (item.taux_emploi && item.taux_emploi < 60 && item.taux_emploi > 0 && !alreadyHas(['taux', 'emploi'])) {
+            defisGeneres.push(`Taux d'emploi modéré: ${item.taux_emploi}%`);
+          }
+
+          // Ajouter jusqu'à 2 défis
+          for (let i = 0; i < defisGeneres.length && inconvenients.length < 2; i++) {
+            inconvenients.push(defisGeneres[i]);
+          }
+        }
+
         const transformed = {
           ...item,
           niveaux,
-          cout_annuel
+          cout_annuel,
+          avantages: avantages.length > 0 ? avantages : undefined,
+          inconvenients: inconvenients.length > 0 ? inconvenients : undefined
         };
         return transformed;
       });
 
-      // Trier par score de compatibilité décroissant (plus haut score en premier)
+      // Trier par rang (numérotation de la page Recommendations: 1, 2, 3, ...)
+      // Cela garantit que la filière #1 est en première colonne, #2 en deuxième, etc.
       items.sort((a: any, b: any) => {
-        const scoreA = a.score_compatibilite ?? 0;
-        const scoreB = b.score_compatibilite ?? 0;
-        return scoreB - scoreA;
+        const rangA = a.rang ?? Number.MAX_VALUE;
+        const rangB = b.rang ?? Number.MAX_VALUE;
+        return rangA - rangB;
       });
 
       setAllComparisons(items);

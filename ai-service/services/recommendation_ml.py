@@ -99,11 +99,33 @@ class RecommendationMLService:
                     'knn': 0.30,
                     'random_forest': 0.35
                 }
-            
+
             recommendations = []
-            
-            # Calculer les scores pour chaque filière
+            duree_max_etudes = profil_features.get('duree_max_etudes', None)
+
+            # Filtrer les filières selon la durée maximale d'études préférée
+            filieres_filtrees = []
             for filiere in filieres:
+                # Si l'étudiant a spécifié une durée max, exclure les filières qui dépassent
+                if duree_max_etudes and duree_max_etudes > 0:
+                    duree_filiere = filiere.get('duree_annees', 3)
+                    try:
+                        if isinstance(duree_filiere, str):
+                            duree_filiere = float(duree_filiere.split('-')[0].strip())
+                        else:
+                            duree_filiere = float(duree_filiere)
+                    except (ValueError, AttributeError):
+                        duree_filiere = 3
+
+                    # Exclure si la durée dépasse la préférence
+                    if duree_filiere > duree_max_etudes:
+                        logger.info(f"Filière '{filiere.get('nom')}' exclue: durée {duree_filiere}ans > max {duree_max_etudes}ans")
+                        continue
+
+                filieres_filtrees.append(filiere)
+
+            # Calculer les scores pour chaque filière filtrée
+            for filiere in filieres_filtrees:
                 # Score par scoring pondéré
                 score_weighted = self._calculate_weighted_score(
                     profil_features,
@@ -767,6 +789,17 @@ class RecommendationMLService:
 
         return {
             'score_global': round(ensemble_score, 2),
+            'scores_details': {
+                'methode_ensemble': round(ensemble_score, 1),
+                'weighted_scoring': round(score_details.get('scoring_pondéré', 50), 1),
+                'knn_similarity': round(score_details.get('knn', 50), 1),
+                'random_forest': round(score_details.get('random_forest', 50), 1),
+                'poids': {
+                    'weighted_scoring': '35%',
+                    'knn': '30%',
+                    'random_forest': '35%'
+                }
+            },
             'pourquoi_cette_recommandation': {
                 'titre': 'Pourquoi cette recommandation ?',
                 'raisons': raisons_principales,
@@ -801,7 +834,13 @@ class RecommendationMLService:
                     'label': 'Centres d\'intérêt',
                     'impact': '12%',
                     'score': round(profil_features.get('centres_interet_match', 0.5) * 100, 1),
-                    'detail': 'Vos intérêts correspondent aux domaines de cette filière'
+                    'detail': self._get_centres_interet_detail(profil_features, filiere)
+                },
+                'competences': {
+                    'label': 'Compétences',
+                    'impact': '11%',
+                    'score': round(profil_features.get('competences_score', 0.5) * 100, 1),
+                    'detail': self._get_competences_detail(profil_features, filiere)
                 },
                 'localisation': {
                     'label': 'Localisation',
@@ -831,84 +870,136 @@ class RecommendationMLService:
         ensemble_score: float
     ) -> List[str]:
         """
-        Générer une liste de raisons principales (max 5) expliquant clairement
-        pourquoi cette filière est recommandée
+        Générer une liste de raisons principales UNIQUES et spécifiques à cette filière
+        Chaque filière doit avoir des raisons différentes basées sur ses caractéristiques propres
         """
-        raisons = []
+        raisons_candidates = []
+        filiere_nom = filiere.get('nom', 'cette filière')
+        univ_nom = filiere.get('universite', {}).get('nom', '')
 
-        # Raison 1: Test d'orientation
-        test_score = self._score_test_alignment(profil_features, filiere, None)
-        if test_score >= 80:
-            raisons.append(
-                f"Vos réponses au test d'orientation correspondent excellemment "
-                f"aux domaines de cette filière ({round(test_score)}%)"
-            )
-        elif test_score >= 60:
-            raisons.append(
-                f"Vos intérêts au test d'orientation s'alignent bien avec cette filière ({round(test_score)}%)"
-            )
+        # Raison 1: Caractéristique PRINCIPALE unique à cette filière (domaines, débouchés, localisation)
+        centres_filiere = filiere.get('centres_interet', [])
+        centres_user = profil_features.get('centres_interet', [])
+        if centres_filiere:
+            if centres_user:
+                matchs = [c for c in centres_user if c.lower() in [f.lower() for f in centres_filiere]]
+                if matchs:
+                    domaines_texte = ', '.join(matchs[:2])
+                    raisons_candidates.append({
+                        'score': 95,
+                        'raison': f"Spécialisation en {domaines_texte}: exactement vos domaines d'intérêt"
+                    })
+            else:
+                # Si pas de centres d'intérêt définis, utiliser les domaines de la filière
+                raisons_candidates.append({
+                    'score': 80,
+                    'raison': f"Domaines principaux: {', '.join(centres_filiere[:2])}"
+                })
 
-        # Raison 2: Objectif professionnel
-        objectifs_score = self._score_objectifs_secteur(profil_features, filiere)
-        secteur = profil_features.get('secteur_vise', '').lower()
-        if objectifs_score >= 85:
-            raisons.append(
-                f"Cette filière correspond directement à votre objectif en {secteur}"
-            )
-        elif objectifs_score >= 70:
-            raisons.append(
-                f"Bonne correspondance avec votre secteur visé ({secteur})"
-            )
+        # Raison 2: Débouchés professionnels (UNIQUE par filière)
+        debouches = filiere.get('debouches', [])
+        taux_emploi = filiere.get('taux_emploi', 0)
+        if debouches and len(debouches) > 0:
+            debouche_texte = debouches[0] if isinstance(debouches[0], str) else debouches[0].get('nom', debouches[0])
+            if taux_emploi > 0:
+                raisons_candidates.append({
+                    'score': 90,
+                    'raison': f"Débouchés en {debouche_texte} - {taux_emploi}% de taux d'insertion"
+                })
+            else:
+                raisons_candidates.append({
+                    'score': 85,
+                    'raison': f"Débouchés professionnels en {debouche_texte}"
+                })
 
-        # Raison 3: Série bac
-        serie_score = self._score_serie_bac(profil_features, filiere)
-        if serie_score >= 90:
-            raisons.append(
-                f"Votre série \"{profil_features.get('serie_bac')}\" est prioritaire pour cette filière"
-            )
-        elif serie_score >= 80:
-            raisons.append(
-                f"Votre série \"{profil_features.get('serie_bac')}\" est bien acceptée"
-            )
+        # Raison 3: Localisation SPECIFIQUE (université + ville)
+        ville_univ = filiere.get('universite', {}).get('ville', '')
+        ville_pref = profil_features.get('ville_preference', '')
+        if ville_univ:
+            if ville_pref and ville_univ.lower() == ville_pref.lower():
+                raisons_candidates.append({
+                    'score': 95,
+                    'raison': f"Localisation: {univ_nom} à {ville_univ} - votre ville préférée ✓"
+                })
+            else:
+                raisons_candidates.append({
+                    'score': 75,
+                    'raison': f"Établissement: {univ_nom} à {ville_univ}"
+                })
 
-        # Raison 4: Moyenne générale
-        moyenne = profil_features.get('moyenne_score', 0)
-        moyenne_brute = (moyenne / 100) * 20
-        moyenne_min = filiere.get('moyenne_min_requise', 10)
-        if moyenne >= 75:
-            raisons.append(
-                f"Votre moyenne ({moyenne_brute:.1f}/20) est excellente pour l'admission"
-            )
-        elif moyenne >= moyenne_min * 5:
-            raisons.append(
-                f"Votre moyenne ({moyenne_brute:.1f}/20) dépasse le seuil requis"
-            )
+        # Raison 4: Type d'université
+        type_univ = filiere.get('universite', {}).get('type', '')
+        pref_type_univ = profil_features.get('preference_type_univ', '')
+        if type_univ:
+            if pref_type_univ and type_univ.lower() == pref_type_univ.lower():
+                raisons_candidates.append({
+                    'score': 85,
+                    'raison': f"Université {type_univ} - conforme à votre préférence"
+                })
+            else:
+                raisons_candidates.append({
+                    'score': 70,
+                    'raison': f"Type d'établissement: Université {type_univ}"
+                })
 
-        # Raison 5: Localisation ou débouchés
-        localisation_score = self._score_distance_ville(profil_features, filiere)
-        if localisation_score >= 95:
-            ville = filiere.get('universite', {}).get('ville', '')
-            raisons.append(
-                f"La localisation ({ville}) correspond exactement à votre préférence"
-            )
+        # Raison 5: Durée (SPÉCIFIQUE à cette filière)
+        duree = filiere.get('duree_annees', 3)
+        duree_pref = profil_features.get('duree_max_etudes', 3)
+        if duree:
+            try:
+                duree_num = float(duree) if isinstance(duree, str) else duree
+                if duree_num <= duree_pref:
+                    raisons_candidates.append({
+                        'score': 80,
+                        'raison': f"Durée: {duree_num:.0f} an{'s' if duree_num > 1 else ''} - conforme à votre préférence"
+                    })
+            except:
+                pass
 
-        # Alternative: Débouchés
-        if len(raisons) < 4:
-            taux_emploi = filiere.get('taux_emploi', 0)
-            if taux_emploi >= 80:
-                raisons.append(
-                    f"Excellent taux d'emploi: {taux_emploi}% des diplômés trouvent un emploi"
-                )
+        # Raison 6: Parcours/spécialisation (DÉTAIL UNIQUE)
+        parcours = filiere.get('parcours', [])
+        if parcours and len(parcours) > 0:
+            parcours_names = [p.get('nom', p) for p in parcours[:2]]
+            raisons_candidates.append({
+                'score': 75,
+                'raison': f"Parcours disponibles: {', '.join(parcours_names)}"
+            })
 
-        # Durée d'études si compatible
-        if len(raisons) < 5:
-            duree_score = self._score_duree(profil_features, filiere)
-            if duree_score >= 90:
-                raisons.append(
-                    f"Durée ({filiere.get('duree_annees')} ans) conforme à votre préférence"
-                )
+        # Raison 7: Coût (si disponible et pertinent)
+        cout = filiere.get('cout_annuel', 0)
+        budget = profil_features.get('budget_max_mensuel', 0)
+        if cout > 0 and budget > 0:
+            cout_mensuel = cout / 12
+            if cout_mensuel <= budget * 1.2:  # 20% de tolérance
+                raisons_candidates.append({
+                    'score': 75,
+                    'raison': f"Coût compatible avec votre budget"
+                })
 
-        return raisons[:5]  # Max 5 raisons principales
+        # Ajouter une raison par défaut si aucune n'a été générée
+        if not raisons_candidates:
+            moyenne_score = profil_features.get('moyenne_score', 50)
+            if moyenne_score >= 75:
+                raisons_candidates.append({
+                    'score': 70,
+                    'raison': "Votre profil académique correspond bien à cette filière"
+                })
+            else:
+                raisons_candidates.append({
+                    'score': 70,
+                    'raison': "Recommandation basée sur l'analyse de votre profil"
+                })
+
+        # Trier par score et retourner les 3 meilleures raisons
+        raisons_candidates.sort(key=lambda x: x['score'], reverse=True)
+        raisons = [r['raison'] for r in raisons_candidates[:3]]
+
+        if raisons:
+            logger.info(f"Raisons générées pour filière '{filiere_nom}': {raisons}")
+        else:
+            logger.warning(f"Aucune raison générée pour filière '{filiere_nom}'")
+
+        return raisons
 
     def _generer_resume_justification(self, raisons: List[str]) -> str:
         """Générer un résumé court des raisons"""
@@ -976,6 +1067,61 @@ class RecommendationMLService:
             return f"Localisation exacte: {ville_filiere} ✓"
         else:
             return f"Localisation: {ville_filiere} (vous préférez: {ville_pref})"
+
+    def _get_centres_interet_detail(
+        self,
+        profil_features: Dict[str, Any],
+        filiere: Dict[str, Any]
+    ) -> str:
+        """Détail personnalisé sur les centres d'intérêt"""
+        centres_user = profil_features.get('centres_interet', [])
+        centres_filiere = filiere.get('centres_interet', [])
+
+        if not centres_user:
+            return "Vous n'avez pas encore renseigné vos centres d'intérêt"
+
+        # Trouver les matchs
+        matchs = [c for c in centres_user if c.lower() in [f.lower() for f in centres_filiere]]
+
+        if matchs:
+            interet_texte = ', '.join(matchs[:2])
+            if len(matchs) > 2:
+                interet_texte += f" (+{len(matchs)-2} autres)"
+            return f"Match: Vous aimez {interet_texte} - Cette filière le propose ✓"
+        else:
+            user_texte = ', '.join(centres_user[:2])
+            if len(centres_user) > 2:
+                user_texte += f" (+{len(centres_user)-2})"
+            filiere_texte = ', '.join(centres_filiere[:2])
+            return f"Vos intérêts ({user_texte}) | Domaines de la filière ({filiere_texte})"
+
+    def _get_competences_detail(
+        self,
+        profil_features: Dict[str, Any],
+        filiere: Dict[str, Any]
+    ) -> str:
+        """Détail personnalisé sur les compétences"""
+        competences_user = profil_features.get('competences', {})
+        competences_filiere = filiere.get('competences_requises', [])
+
+        if not competences_user:
+            return "Vous n'avez pas encore renseigné vos compétences"
+
+        # Trouver les matchs
+        matchs_competences = []
+        for comp_name, comp_value in competences_user.items():
+            for comp_req in competences_filiere:
+                if comp_name.lower() in comp_req.lower() or comp_req.lower() in comp_name.lower():
+                    if comp_value >= 3:
+                        matchs_competences.append((comp_name, comp_value))
+                    break
+
+        if matchs_competences:
+            comp_texte = ', '.join([f"{c[0]} ({c[1]}/5)" for c in matchs_competences[:2]])
+            return f"Points forts: {comp_texte} - Excellentes pour cette filière ✓"
+        else:
+            comp_texte = ', '.join([f"{k} ({v}/5)" for k, v in list(competences_user.items())[:2]])
+            return f"Vos compétences ({comp_texte}...) correspondent bien au profil requis"
 
     def _score_parcours_specialisations(
         self,
@@ -1149,16 +1295,24 @@ class RecommendationMLService:
     # ────────────────────────────────────────────────────────────────────────
     
     def _prepare_features_matrix(self, profils_features: List[Dict[str, Any]]) -> np.ndarray:
-        """Préparer une matrice de features pour les modèles ML"""
+        """Préparer une matrice de 13 features pour les modèles ML"""
         features = []
         for profil in profils_features:
+            # 13 features pour correspondre au modèle entraîné
             f = [
-                profil.get('moyenne_score', 50),
-                profil.get('centres_interet_match', 0.5),
-                profil.get('competences_score', 50),
-                profil.get('budget_max_mensuel', 500),
-                profil.get('duree_max_etudes', 3),
-                profil.get('test_alignment_score', 0.5) * 100,  # 6ème feature pour correspondre au modèle RF
+                profil.get('moyenne_score', 50),                          # 1
+                profil.get('centres_interet_match', 0.5),                # 2
+                profil.get('competences_score', 50),                     # 3
+                profil.get('budget_max_mensuel', 500),                   # 4
+                profil.get('duree_max_etudes', 3),                       # 5
+                profil.get('test_alignment_score', 0.5) * 100,           # 6
+                profil.get('serie_bac_match', 0.5) * 100,                # 7
+                profil.get('localisation_match', 0.5) * 100,             # 8
+                profil.get('type_univ_match', 0.5) * 100,                # 9
+                profil.get('moyenne_score', 50) * 0.01,                  # 10 - interaction 1
+                profil.get('test_alignment_score', 0.5) * profil.get('centres_interet_match', 0.5),  # 11 - interaction 2
+                profil.get('competences_score', 50) * 0.01,              # 12 - interaction 3
+                profil.get('distance_max_km', 0) / 100,                  # 13
             ]
             features.append(f)
 

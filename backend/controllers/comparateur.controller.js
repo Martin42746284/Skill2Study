@@ -30,9 +30,10 @@ exports.comparerFilieres = async (req, res, next) => {
       });
     }
 
-    // Charger les scores de compatibilité depuis les recommandations de l'utilisateur
+    // Charger les scores de compatibilité et rangs depuis les recommandations de l'utilisateur
     // Pour assurer la cohérence entre la page de recommandations et la page de comparaison
     let scoresCompatibilite = {};
+    let rangs = {};
     if (user_id) {
       const Recommendation = require('../models').Recommendation;
 
@@ -40,16 +41,17 @@ exports.comparerFilieres = async (req, res, next) => {
         // Récupérer les recommandations existantes de l'utilisateur
         const recommendations = await Recommendation.findAll({
           where: { user_id },
-          attributes: ['filiere_id', 'score_compatibilite'],
+          attributes: ['filiere_id', 'score_compatibilite', 'rang'],
           raw: true
         });
 
-        // Créer un map score_compatibilite par filiere_id
+        // Créer des maps score_compatibilite et rang par filiere_id
         recommendations.forEach(rec => {
           scoresCompatibilite[rec.filiere_id] = Math.round(rec.score_compatibilite);
+          rangs[rec.filiere_id] = rec.rang;
         });
 
-        console.log('Scores de compatibilité récupérés depuis recommandations:', scoresCompatibilite);
+        console.log('Scores et rangs récupérés depuis recommandations:', { scoresCompatibilite, rangs });
       } catch (err) {
         console.warn('Erreur lors de la récupération des scores:', err.message);
         // Fallback: recalculer avec l'ancien service si les recommandations ne sont pas disponibles
@@ -96,6 +98,7 @@ exports.comparerFilieres = async (req, res, next) => {
       // Indicateurs calculés
       score_retour_investissement: _calculerROI(f),
       score_compatibilite: scoresCompatibilite[f.id] || null, // Score de compatibilité calculé
+      rang: rangs[f.id] || null, // Rang de recommandation (1, 2, 3...)
       avantages: _extraireAvantages(f),
       inconvenients: _extraireInconvenients(f),
     }));

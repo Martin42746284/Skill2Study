@@ -53,15 +53,27 @@ exports.genererRecommendations = async (req, res, next) => {
     resultats = resultats.map(rec => {
       // Récupérer l'objet filière complet si ce n'est pas déjà présent
       const filiere = rec.filiere || filieres.find(f => f.id === rec.filiere_id);
+
+      // Si le service IA a déjà fourni une justification riche, la conserver
+      // Sinon, en générer une personnalisée
+      const justification = rec.justification || _generatePersonalizedJustification(
+        profil,
+        filiere,
+        {score: rec.score, factors: rec.details},
+        scoresTest
+      );
+
+      // Debug logging
+      if (rec.justification?.pourquoi_cette_recommandation?.raisons) {
+        logger.info(`✓ Justification IA pour ${filiere?.nom}: ${rec.justification.pourquoi_cette_recommandation.raisons.length} raisons`);
+      } else if (!rec.justification) {
+        logger.info(`⚠️ Pas de justification du service IA pour ${filiere?.nom}, génération locale`);
+      }
+
       return {
         ...rec,
         filiere, // Ajouter l'objet filière complet
-        justification: _generatePersonalizedJustification(
-          profil,
-          filiere,
-          {score: rec.score, factors: rec.details},
-          scoresTest
-        )
+        justification
       };
     });
 

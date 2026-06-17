@@ -1047,7 +1047,8 @@
     "interestsTip": "Tip: Select at least 2-3 areas of interest for better recommendations",
     "competencesTitle": "Your Skills",
     "competencesDescription": "Rate your level for each skill (1 = Weak, 5 = Excellent)",
-    "competencesTip": "Tip: Filling in your skills helps the AI model better recommend suitable fields for you"
+    "competencesTip": "Tip: Filling in your skills helps the AI model better recommend suitable fields for you",
+    "noCompetences": "Start by selecting your skills to improve your recommendations"
   },
   "seriesBac": {
     "label": "Accepted Bac Series",

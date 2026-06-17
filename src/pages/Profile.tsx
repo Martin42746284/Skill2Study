@@ -1,9 +1,10 @@
 import DashboardLayout from "@/components/DashboardLayout";
+import { CompetencesSection } from "@/components/CompetencesSection";
+import { InterestsSection } from "@/components/InterestsSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
 import {
   User,
   Mail,
@@ -15,8 +16,6 @@ import {
   Camera,
   AlertCircle,
   Loader2,
-  Sparkles,
-  Target,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -463,96 +462,25 @@ const Profile = () => {
           </div>
 
           {/* Interests Section */}
-          <div className="rounded-xl border bg-card p-6 shadow-card">
-            <h3 className="mb-5 text-lg font-semibold flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              {t("profile.interestsTitle")}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t("profile.interestsDescription")}
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {CENTRES_INTERET_OPTIONS.map((interet) => (
-                <div key={interet} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`interet_${interet}`}
-                    checked={form.centres_interet.includes(interet)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        handleChange("centres_interet", [...form.centres_interet, interet]);
-                      } else {
-                        handleChange("centres_interet", form.centres_interet.filter(i => i !== interet));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={`interet_${interet}`} className="text-sm font-medium cursor-pointer">
-                    {interet}
-                  </Label>
-                </div>
-              ))}
-            </div>
-            {form.centres_interet.length === 0 && (
-              <div className="mt-4 p-3 rounded-md bg-accent/50 text-sm text-muted-foreground">
-                {t("profile.interestsTip")}
-              </div>
-            )}
-          </div>
+          <InterestsSection
+            interests={form.centres_interet}
+            options={CENTRES_INTERET_OPTIONS}
+            onInterestChange={(interests) => {
+              handleChange("centres_interet", interests);
+            }}
+          />
 
           {/* Competences Section */}
-          <div className="rounded-xl border bg-card p-6 shadow-card">
-            <h3 className="mb-5 text-lg font-semibold flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              {t("profile.competencesTitle")}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              {t("profile.competencesDescription")}
-            </p>
-            <div className="space-y-6">
-              {COMPETENCES_OPTIONS.map((comp) => (
-                <div key={comp.key} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor={`competence_${comp.key}`} className="text-sm font-medium">
-                      {comp.name}
-                    </Label>
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-semibold">
-                      {form.competences[comp.key] || 0}/5
-                    </span>
-                  </div>
-                  <Slider
-                    id={`competence_${comp.key}`}
-                    min={0}
-                    max={5}
-                    step={1}
-                    value={[form.competences[comp.key] || 0]}
-                    onValueChange={(value) => {
-                      handleChange("competences", {
-                        ...form.competences,
-                        [comp.key]: value[0]
-                      });
-                    }}
-                    className="w-full"
-                  />
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-2 w-full rounded-full ${
-                          i < (form.competences[comp.key] || 0)
-                            ? "bg-primary"
-                            : "bg-muted"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {Object.keys(form.competences).length === 0 && (
-              <div className="mt-6 p-3 rounded-md bg-accent/50 text-sm text-muted-foreground">
-                {t("profile.competencesTip")}
-              </div>
-            )}
-          </div>
+          <CompetencesSection
+            competences={form.competences}
+            options={COMPETENCES_OPTIONS}
+            onCompetenceChange={(key, value) => {
+              handleChange("competences", {
+                ...form.competences,
+                [key]: value
+              });
+            }}
+          />
         </div>
 
         <div className="flex justify-end gap-3 mt-6 shrink-0 pt-6 border-t">

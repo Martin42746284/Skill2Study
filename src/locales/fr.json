@@ -1047,7 +1047,8 @@
     "interestsTip": "Conseil : Sélectionner au moins 2-3 domaines d'intérêt pour des recommandations plus pertinentes",
     "competencesTitle": "Vos Compétences",
     "competencesDescription": "Évaluez votre niveau pour chaque compétence (1 = Faible, 5 = Excellent)",
-    "competencesTip": "Conseil : Remplir vos compétences aide le modèle IA à mieux vous recommander des filières adaptées"
+    "competencesTip": "Conseil : Remplir vos compétences aide le modèle IA à mieux vous recommander des filières adaptées",
+    "noCompetences": "Commencez par sélectionner vos compétences pour améliorer vos recommandations"
   },
   "seriesBac": {
     "label": "Séries Bac Acceptées",

@@ -49,6 +49,12 @@ User.prototype.verifierMotDePasse = async function(mdp) {
 User.prototype.toJSON = function() {
   const values = { ...this.get() };
   delete values.mot_de_passe;
+  delete values.email_verification_token;
+  delete values.email_verification_token_expires;
+  delete values.password_reset_token;
+  delete values.password_reset_token_expires;
+  delete values.verification_token;
+  delete values.verification_token_expires;
   return values;
 };
 

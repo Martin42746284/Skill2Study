@@ -1,7 +1,10 @@
 require('dotenv').config();
+const validateEnv = require('./utils/validateEnv');
 const app = require('./app');
 const { sequelize } = require('./config/database');
 const logger = require('./utils/logger');
+
+validateEnv();
 
 const PORT = process.env.PORT || 3000;
 

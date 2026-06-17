@@ -40,35 +40,38 @@ exports.updateSettings = async (req, res, next) => {
 exports.changePassword = async (req, res, next) => {
   try {
     const { current_password, new_password, confirm_password } = req.body;
+    const { validatePassword } = require('../utils/passwordValidator');
 
     // Validate input
     if (!current_password || !new_password || !confirm_password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Tous les champs sont obligatoires' 
+      return res.status(400).json({
+        success: false,
+        message: 'Tous les champs sont obligatoires'
       });
     }
 
     if (new_password !== confirm_password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Les mots de passe ne correspondent pas' 
+      return res.status(400).json({
+        success: false,
+        message: 'Les mots de passe ne correspondent pas'
       });
     }
 
-    if (new_password.length < 6) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Le mot de passe doit contenir au moins 6 caractères' 
+    // Validate password strength
+    const passwordValidation = validatePassword(new_password);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: passwordValidation.message
       });
     }
 
     // Verify current password
     const isPasswordValid = await req.user.verifierMotDePasse(current_password);
     if (!isPasswordValid) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Mot de passe actuel incorrect' 
+      return res.status(401).json({
+        success: false,
+        message: 'Mot de passe actuel incorrect'
       });
     }
 

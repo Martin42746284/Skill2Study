@@ -17,7 +17,7 @@ const protect = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findByPk(decoded.id);
     if (!user) {
@@ -37,14 +37,14 @@ const protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    if (err.name === 'JsonWebTokenError') {
+    if (err instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({
         success: false,
         message: 'Token invalide.',
         code: 'INVALID_TOKEN'
       });
     }
-    if (err.name === 'TokenExpiredError') {
+    if (err instanceof jwt.TokenExpiredError) {
       return res.status(401).json({
         success: false,
         message: 'Token expiré.',
@@ -98,7 +98,7 @@ const optionalAuth = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findByPk(decoded.id);
     if (user && user.actif) {
@@ -106,7 +106,6 @@ const optionalAuth = async (req, res, next) => {
     }
     next();
   } catch (err) {
-    // Silencieusement ignorer les erreurs de token optionnel
     next();
   }
 };

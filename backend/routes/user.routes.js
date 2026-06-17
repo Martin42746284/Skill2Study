@@ -77,7 +77,7 @@ router.put('/settings', [
 // Password change route
 router.put('/change-password', [
   body('current_password').notEmpty().withMessage('Mot de passe actuel requis'),
-  body('new_password').isLength({ min: 6 }).withMessage('Le nouveau mot de passe doit contenir au moins 6 caractères'),
+  body('new_password').matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])(?=.{6,})/).withMessage('Le mot de passe doit contenir au moins 6 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (!@#$%^&*).'),
   body('confirm_password').notEmpty().withMessage('Confirmation requise'),
   validate
 ], settingsCtrl.changePassword);

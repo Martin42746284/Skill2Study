@@ -14,6 +14,18 @@ export interface SessionData {
   role: string;
 }
 
+// Minimize sensitive user data stored in storage
+function getMinimalUserData(user: User) {
+  return {
+    id: user.id,
+    email: user.email,
+    nom: user.nom,
+    prenom: user.prenom,
+    role: user.role,
+    avatar_url: user.avatar_url
+  };
+}
+
 function getSessionsFromStorage(): Record<string, SessionData> {
   try {
     const sessions = localStorage.getItem('orientai_sessions');
@@ -38,15 +50,16 @@ function getSessionByRole(role?: string): SessionData | null {
 
 function saveSession(user: User, token: string): void {
   const role = user.role || 'bachelier';
+  const minimalUser = getMinimalUserData(user);
 
   // Save to sessionStorage for this tab's active session
   sessionStorage.setItem('orientai_token', token);
-  sessionStorage.setItem('orientai_user', JSON.stringify(user));
+  sessionStorage.setItem('orientai_user', JSON.stringify(minimalUser));
   sessionStorage.setItem('orientai_current_role', role);
 
   // Also save to localStorage for persistence across tab switches
   const sessions = getSessionsFromStorage();
-  sessions[role] = { token, user, role };
+  sessions[role] = { token, user: minimalUser, role };
   localStorage.setItem('orientai_sessions', JSON.stringify(sessions));
 }
 
@@ -54,14 +67,16 @@ function switchSession(role: string): boolean {
   const session = getSessionByRole(role);
   if (!session) return false;
 
+  const minimalUser = getMinimalUserData(session.user);
+
   // Update sessionStorage for this tab
   sessionStorage.setItem('orientai_token', session.token);
-  sessionStorage.setItem('orientai_user', JSON.stringify(session.user));
+  sessionStorage.setItem('orientai_user', JSON.stringify(minimalUser));
   sessionStorage.setItem('orientai_current_role', role);
 
   // Also update localStorage for consistency
   localStorage.setItem('orientai_token', session.token);
-  localStorage.setItem('orientai_user', JSON.stringify(session.user));
+  localStorage.setItem('orientai_user', JSON.stringify(minimalUser));
 
   return true;
 }

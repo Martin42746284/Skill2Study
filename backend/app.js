@@ -27,19 +27,38 @@ const { notFound } = require('./middlewares/notFound.middleware');
 const app = express();
 
 // Sécurité
-app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:8081', credentials: true }));
-
-// Limite de requêtes globale - Optimisée pour une SPA
-// Les requêtes GET sont moins restrictives (lecture seule)
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // Augmenté de 100 à 300
-  skip: (req) => req.method === 'GET', // Ne pas compter les GET (appels normaux)
-  keyGenerator: (req) => {
-    // Compte par utilisateur authentifié, sinon par IP
-    return req.user?.id || req.ip;
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+    },
   },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  frameguard: { action: 'deny' },
+  noSniff: true,
+  xssFilter: true,
+}));
+
+// CORS - restringir strict a CLIENT_URL
+const allowedOrigin = process.env.CLIENT_URL;
+if (!allowedOrigin) {
+  throw new Error('CLIENT_URL env variable is required');
+}
+
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
+// Limite de requêtes globale
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  keyGenerator: (req) => req.user?.id || req.ip,
   message: 'Trop de requêtes, réessayez plus tard.'
 });
 
@@ -56,9 +75,9 @@ app.use('/api/', limiter);
 app.use('/api/auth/register', strictLimiter);
 app.use('/api/auth/login', strictLimiter);
 
-// Parsing (increased limit for image uploads)
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+// Parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Disable morgan logging for cleaner development experience
 // Uncomment below to enable HTTP logging
 // app.use(morgan('dev'));

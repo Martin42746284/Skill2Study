@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { User, ProfilAcademique, Settings } = require('../models');
 const { generateVerificationToken, sendVerificationEmail } = require('../services/email.service');
+const { validatePassword } = require('../utils/passwordValidator');
 
 const genererToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
@@ -8,6 +9,13 @@ const genererToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresI
 exports.inscrire = async (req, res, next) => {
   try {
     const { nom, prenom, email, mot_de_passe, serie_bac } = req.body;
+
+    // Validate password strength
+    const passwordValidation = validatePassword(mot_de_passe);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({ success: false, message: passwordValidation.message });
+    }
+
     const existant = await User.findOne({ where: { email } });
     if (existant) return res.status(409).json({ success: false, message: 'Email déjà utilisé.' });
 
@@ -29,8 +37,7 @@ exports.inscrire = async (req, res, next) => {
       user.email_verification_token_expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 heures
       await user.save();
 
-      console.log(`[AUTH] Generated email verification token for ${email}: ${emailToken.substring(0, 10)}...`);
-      console.log(`[AUTH] Token saved to database`);
+      console.log(`[AUTH] Email verification token generated for ${email}`);
 
       // Send verification email
       await sendVerificationEmail(user, emailToken);
@@ -91,7 +98,7 @@ exports.verifierEmail = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Token de vérification requis.' });
     }
 
-    console.log(`[AUTH] Verifying email with token: ${token.substring(0, 10)}...`);
+    console.log(`[AUTH] Verifying email`);
 
     const user = await User.findOne({
       where: { email_verification_token: token },
@@ -164,15 +171,18 @@ exports.resetPassword = async (req, res, next) => {
   try {
     const { token, nouveau_mot_de_passe } = req.body;
 
+    // Validate password strength
+    const passwordValidation = validatePassword(nouveau_mot_de_passe);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({ success: false, message: passwordValidation.message });
+    }
+
     const user = await User.findOne({ where: { password_reset_token: token } });
     if (!user) {
-      console.log(`[AUTH] Password reset token not found: ${token.substring(0, 10)}...`);
       return res.status(400).json({ success: false, message: 'Token invalide.' });
     }
 
-    // Vérifier l'expiration
     if (user.password_reset_token_expires < new Date()) {
-      console.log(`[AUTH] Password reset token expired for ${user.email}`);
       return res.status(400).json({ success: false, message: 'Token expiré.' });
     }
 
@@ -182,7 +192,6 @@ exports.resetPassword = async (req, res, next) => {
     user.password_reset_token_expires = null;
     await user.save();
 
-    console.log(`[AUTH] Password reset successfully for ${user.email}`);
     res.json({ success: true, message: 'Mot de passe réinitialisé avec succès.' });
   } catch (err) { next(err); }
 };

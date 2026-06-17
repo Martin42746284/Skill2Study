@@ -24,6 +24,13 @@ exports.getUsers = async (req, res, next) => {
 exports.createUser = async (req, res, next) => {
   try {
     const { nom, prenom, email, mot_de_passe, role = 'bachelier', serie_bac, ville, budget_mensuel, actif = true } = req.body;
+    const { validatePassword } = require('../utils/passwordValidator');
+
+    // Validate password strength
+    const passwordValidation = validatePassword(mot_de_passe);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({ success: false, message: passwordValidation.message });
+    }
 
     // Vérifier que l'email n'existe pas déjà
     const existingUser = await User.findOne({ where: { email } });

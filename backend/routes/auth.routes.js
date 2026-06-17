@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { body } = require('express-validator');
 const { validate } = require('../middlewares/validate.middleware');
 const { protect } = require('../middlewares/auth.middleware');
+const { validatePasswordStrength, validateResetPasswordStrength } = require('../middlewares/validatePassword.middleware');
 const ctrl = require('../controllers/auth.controller');
 
 /**
@@ -16,8 +17,7 @@ router.post('/register', [
   body('nom').notEmpty().withMessage('Le nom est requis'),
   body('prenom').notEmpty().withMessage('Le prénom est requis'),
   body('email').isEmail().withMessage('Email invalide'),
-  body('mot_de_passe').isLength({ min: 6 }).withMessage('Mot de passe trop court (min 6 caractères)'),
-  validate
+  ...validatePasswordStrength
 ], ctrl.inscrire);
 
 /**
@@ -48,14 +48,7 @@ router.post('/forgot-password', [
 
 router.post('/reset-password', [
   body('token').notEmpty().withMessage('Token requis'),
-  body('nouveau_mot_de_passe').isLength({ min: 6 }).withMessage('Mot de passe trop court'),
-  validate
+  ...validateResetPasswordStrength
 ], ctrl.resetPassword);
-
-router.post('/mot-de-passe/reinitialiser', [
-  body('email').isEmail(),
-  body('nouveau_mot_de_passe').isLength({ min: 6 }),
-  validate
-], ctrl.reinitialiserMotDePasse);
 
 module.exports = router;

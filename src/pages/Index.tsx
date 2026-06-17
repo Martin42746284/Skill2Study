@@ -22,13 +22,47 @@ import {
 } from "lucide-react";
 import heroImageSombre from "@/assets/hero-illustrationSombre.png";
 import heroImageClair from "@/assets/hero-illustrationClair.png";
-import { getApprovedTestimonials } from "@/data/testimonials";
+import { useState, useEffect } from "react";
+
+interface Testimonial {
+  id: number;
+  student_name: string;
+  student_serie: string;
+  student_photo?: string;
+  university_name: string;
+  course_name: string;
+  rating: number;
+  text: string;
+  date?: string;
+  status: "Approuvé" | "En attente" | "Rejeté";
+}
 
 const Index = () => {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const approvedTestimonials = getApprovedTestimonials();
+  const [approvedTestimonials, setApprovedTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
   const { settings } = useSettings();
+
+  useEffect(() => {
+    const fetchApprovedTestimonials = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/testimonials/approved?limit=100`
+        );
+        const data = await response.json();
+        setApprovedTestimonials(data.testimonials || []);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des témoignages:", error);
+        setApprovedTestimonials([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApprovedTestimonials();
+  }, []);
 
   const heroImage = theme === "dark" ? heroImageSombre : heroImageClair;
 
@@ -273,30 +307,40 @@ const Index = () => {
           </AnimatedSection>
 
           <div className="grid gap-4 sm:gap-6 lg:gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {approvedTestimonials.slice(0, 3).map((t, i) => (
-              <AnimatedSection key={t.id} delay={i * 0.12}>
-                <div className="rounded-xl border bg-background p-6 shadow-card h-full">
-                  <div className="flex gap-1 mb-4">
-                    {Array.from({ length: 5 }).map((_, si) => (
-                      <Star
-                        key={si}
-                        className={`h-4 w-4 ${si < t.rating ? "fill-warning text-warning" : "text-muted"}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="mb-4 text-sm text-muted-foreground leading-relaxed italic">"{t.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent font-semibold text-accent-foreground">
-                      {t.student_photo}
+            {loading ? (
+              <div className="col-span-full text-center py-8">
+                <p className="text-muted-foreground">{t("common.loading") || "Chargement..."}</p>
+              </div>
+            ) : approvedTestimonials.length === 0 ? (
+              <div className="col-span-full text-center py-8">
+                <p className="text-muted-foreground">{t("home.testimonials.empty") || "Aucun témoignage approuvé pour le moment."}</p>
+              </div>
+            ) : (
+              approvedTestimonials.map((test, i) => (
+                <AnimatedSection key={test.id} delay={(i % 3) * 0.12}>
+                  <div className="rounded-xl border bg-background p-6 shadow-card h-full">
+                    <div className="flex gap-1 mb-4">
+                      {Array.from({ length: 5 }).map((_, si) => (
+                        <Star
+                          key={si}
+                          className={`h-4 w-4 ${si < test.rating ? "fill-warning text-warning" : "text-muted"}`}
+                        />
+                      ))}
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold">{t.student_name}</p>
-                      <p className="text-xs text-muted-foreground">{t.course_name} - {t.university_name}</p>
+                    <p className="mb-4 text-sm text-muted-foreground leading-relaxed italic">"{test.text}"</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent font-semibold text-accent-foreground">
+                        {test.student_photo || test.student_name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">{test.student_name}</p>
+                        <p className="text-xs text-muted-foreground">{test.course_name} - {test.university_name}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </AnimatedSection>
-            ))}
+                </AnimatedSection>
+              ))
+            )}
           </div>
         </div>
       </section>

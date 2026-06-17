@@ -19,6 +19,7 @@ const statsRoutes = require('./routes/stats.routes');
 const adminRoutes = require('./routes/admin.routes');
 const settingsRoutes = require('./routes/settings.routes');
 const metricsRoutes = require('./routes/metrics.routes');
+const testimonialsRoutes = require('./routes/testimonials.routes');
 
 const { errorHandler } = require('./middlewares/error.middleware');
 const { notFound } = require('./middlewares/notFound.middleware');
@@ -76,6 +77,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/comparateur', comparateurRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/metrics', metricsRoutes);

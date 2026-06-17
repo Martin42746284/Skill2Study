@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
@@ -140,6 +141,18 @@ const Login = () => {
                 {!loading && <ArrowRight className="ml-1 h-4 w-4" />}
               </Button>
             </form>
+
+            <div className="mt-6 sm:mt-7">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-muted-foreground/20"></div>
+                </div>
+                <div className="relative flex justify-center text-xs sm:text-sm">
+                  <span className="bg-card px-2 text-muted-foreground">{t("auth.login.or")}</span>
+                </div>
+              </div>
+              <GoogleSignInButton />
+            </div>
 
             <p className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-muted-foreground">
               {t("auth.login.noAccount")}{" "}

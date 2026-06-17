@@ -20,6 +20,7 @@ const adminRoutes = require('./routes/admin.routes');
 const settingsRoutes = require('./routes/settings.routes');
 const metricsRoutes = require('./routes/metrics.routes');
 const testimonialsRoutes = require('./routes/testimonials.routes');
+const oauthRoutes = require('./routes/oauth.routes');
 
 const { errorHandler } = require('./middlewares/error.middleware');
 const { notFound } = require('./middlewares/notFound.middleware');
@@ -57,23 +58,23 @@ app.use(cors({
 // Limite de requêtes globale
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000, // Augmenté pour développement
   keyGenerator: (req) => req.user?.id || req.ip,
   message: 'Trop de requêtes, réessayez plus tard.'
 });
 
-// Limiter plus strict pour les POST/PUT/DELETE (modifications)
-const strictLimiter = rateLimit({
+// Limiter plus permissif pour les routes auth en développement
+const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // Strict pour les modifications
-  keyGenerator: (req) => req.user?.id || req.ip,
-  message: 'Trop de modifications, réessayez plus tard.'
+  max: 500, // Permettre plus de tentatives de login
+  keyGenerator: (req) => req.ip,
+  message: 'Trop de tentatives de connexion, réessayez plus tard.'
 });
 
 app.use('/api/', limiter);
-// Appliquer le strict limiter sur les routes sensibles
-app.use('/api/auth/register', strictLimiter);
-app.use('/api/auth/login', strictLimiter);
+// Appliquer le limiter auth sur les routes sensibles
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/login', authLimiter);
 
 // Parsing
 app.use(express.json({ limit: '10mb' }));
@@ -97,6 +98,7 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/comparateur', comparateurRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
+app.use('/api/oauth', oauthRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/metrics', metricsRoutes);

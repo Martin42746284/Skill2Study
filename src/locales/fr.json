@@ -30,7 +30,8 @@
     "noData": "Aucune donnée trouvée",
     "search": "Rechercher",
     "filter": "Filtrer",
-    "back": "Retour"
+    "back": "Retour",
+    "backToLogin": "Retour à la connexion"
   },
   "admin": {
     "sidebar": {
@@ -888,6 +889,7 @@
       "rememberMe": "Se souvenir de moi",
       "forgotPassword": "Mot de passe oublié ?",
       "signIn": "Se connecter",
+      "or": "Ou",
       "noAccount": "Pas encore de compte ?",
       "signUpLink": "S'inscrire",
       "errors": {
@@ -912,6 +914,7 @@
       "confirmPassword": "Confirmer le mot de passe",
       "confirmPasswordPlaceholder": "••••••••",
       "signUp": "Créer un compte",
+      "or": "Ou",
       "haveAccount": "Vous avez déjà un compte ?",
       "loginLink": "Se connecter",
       "emailVerificationRequired": "Veuillez vérifier votre email avant de vous connecter.",
@@ -967,6 +970,14 @@
       "invalidToken": "Le lien de réinitialisation est invalide ou expiré.",
       "requestNewToken": "Demander un nouveau lien",
       "error": "Erreur lors de la réinitialisation"
+    },
+    "googleAuth": {
+      "button": "Se connecter avec Google",
+      "signing": "Connexion en cours...",
+      "error": "Erreur d'authentification",
+      "processing": "Authentification en cours...",
+      "noCode": "Code d'autorisation non trouvé",
+      "invalidState": "Paramètre state invalide"
     }
   },
   "favorites": {

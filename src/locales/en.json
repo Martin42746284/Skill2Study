@@ -30,7 +30,8 @@
     "noData": "No data found",
     "search": "Search",
     "filter": "Filter",
-    "back": "Back"
+    "back": "Back",
+    "backToLogin": "Back to Login"
   },
   "admin": {
     "sidebar": {
@@ -888,6 +889,7 @@
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
       "signIn": "Sign in",
+      "or": "Or",
       "noAccount": "Don't have an account?",
       "signUpLink": "Sign up",
       "errors": {
@@ -912,6 +914,7 @@
       "confirmPassword": "Confirm password",
       "confirmPasswordPlaceholder": "••••••••",
       "signUp": "Create account",
+      "or": "Or",
       "haveAccount": "Already have an account?",
       "loginLink": "Log in",
       "emailVerificationRequired": "Please verify your email before logging in.",
@@ -967,6 +970,14 @@
       "invalidToken": "The reset link is invalid or expired.",
       "requestNewToken": "Request a new link",
       "error": "Error resetting password"
+    },
+    "googleAuth": {
+      "button": "Sign in with Google",
+      "signing": "Signing in...",
+      "error": "Authentication Error",
+      "processing": "Processing authentication...",
+      "noCode": "Authorization code not found",
+      "invalidState": "Invalid state parameter"
     }
   },
   "favorites": {

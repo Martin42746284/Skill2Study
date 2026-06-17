@@ -9,7 +9,7 @@ const User = sequelize.define('User', {
   nom: { type: DataTypes.STRING(100), allowNull: false },
   prenom: { type: DataTypes.STRING(100), allowNull: false },
   email: { type: DataTypes.STRING(150), allowNull: false, unique: true, validate: { isEmail: true } },
-  mot_de_passe: { type: DataTypes.STRING(255), allowNull: false },
+  mot_de_passe: { type: DataTypes.STRING(255), allowNull: true },
   role: { type: DataTypes.ENUM('bachelier', 'admin'), defaultValue: 'bachelier' },
   serie_bac: {
     type: DataTypes.ENUM(...SERIES_BAC_VALIDES),
@@ -29,7 +29,10 @@ const User = sequelize.define('User', {
   // Legacy token field (deprecated, keep for backward compatibility)
   verification_token: { type: DataTypes.STRING(255) },
   verification_token_expires: { type: DataTypes.DATE },
-  actif: { type: DataTypes.BOOLEAN, defaultValue: true }
+  actif: { type: DataTypes.BOOLEAN, defaultValue: true },
+  // Google OAuth
+  google_id: { type: DataTypes.STRING(255), unique: true, allowNull: true },
+  auth_provider: { type: DataTypes.ENUM('local', 'google'), defaultValue: 'local' }
 }, {
   tableName: 'users',
   hooks: {
@@ -49,6 +52,7 @@ User.prototype.verifierMotDePasse = async function(mdp) {
 User.prototype.toJSON = function() {
   const values = { ...this.get() };
   delete values.mot_de_passe;
+  delete values.google_id;
   delete values.email_verification_token;
   delete values.email_verification_token_expires;
   delete values.password_reset_token;

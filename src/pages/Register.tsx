@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, ArrowRight, GraduationCap, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
@@ -213,7 +214,19 @@ const Register = () => {
               </Button>
             </form>
 
-            <p className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-4">
+              <div className="relative mb-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-muted-foreground/20"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-2 text-muted-foreground">{t("auth.register.or")}</span>
+                </div>
+              </div>
+              <GoogleSignInButton />
+            </div>
+
+            <p className="mt-3 text-center text-xs text-muted-foreground">
               {t("auth.register.haveAccount")}{" "}
               <Link to="/login" className="font-medium text-primary hover:underline">
                 {t("auth.register.loginLink")}

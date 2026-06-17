@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 .builder/config/data.json
+
+#
+*.env
+*.env.example

@@ -169,7 +169,7 @@ const DashboardHeader = ({ count, countLabel }: DashboardHeaderProps) => {
                     </AvatarFallback>
                   </Avatar>
                 )}
-                <div className="flex flex-col text-left hidden sm:flex">
+                <div className="hidden sm:flex flex-col text-left">
                   <span className="text-xs font-medium text-muted-foreground">Connecté</span>
                   <span className="text-sm font-semibold">{user?.prenom}</span>
                 </div>

@@ -1,24 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { FiliereCard } from "@/components/FiliereCard";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   MapPin,
   Clock,
-  Briefcase,
   GraduationCap,
   Globe,
   BookOpen,
   Building2,
-  CheckCircle2,
   ExternalLink,
   Phone,
   Heart,
   Award,
-  Zap,
   TrendingUp,
 } from "lucide-react";
 import { users as usersApi, universities as universitiesApi, recommendations as recommendationsApi } from "@/lib/api";
@@ -330,84 +327,17 @@ const UniversityDetails = () => {
             ) : (
               filieres.map((filiere) => {
                 const isSaved = favoriteIds.includes(filiere.id);
-                const specialite = filiere.specialite || filiere.domaine || filiere.nom;
                 const recommendation = recommendations.find(r => r.filiere?.id === filiere.id);
-                const score = recommendation?.score_compatibilite || 0;
 
                 return (
-                  <div key={filiere.id} className="rounded-xl border p-5">
-                    {/* Indicateur de recommandation */}
-                    {recommendation && (
-                      <div className="mb-4 rounded-lg bg-primary/5 border border-primary/20 p-3 flex items-center gap-2">
-                        <Zap className="h-4 w-4 text-primary flex-shrink-0" />
-                        <p className="text-xs font-semibold text-primary">Recommandée ({Math.round(score)}%)</p>
-                      </div>
-                    )}
-
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap mb-2">
-                          <h3 className="font-semibold text-lg">{filiere.nom}</h3>
-                          {filiere.niveaux && filiere.niveaux.map(n => (
-                            <Badge key={n} variant="secondary" className="text-xs">
-                              {n}
-                            </Badge>
-                          ))}
-                          {filiere.difficulte && (
-                            <Badge variant="outline" className="text-xs">
-                              {filiere.difficulte}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-4">{specialite}</p>
-                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
-                          <div className="rounded-lg bg-accent/50 p-3">
-                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t("universityDetails.duration")}</p>
-                            <p className="font-medium">{filiere.duree_annees || t("universityDetails.notSpecified")}</p>
-                          </div>
-                          <div className="rounded-lg bg-accent/50 p-3">
-                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t("universityDetails.cost")}</p>
-                            <p className="font-medium">{formatMoney(filiere.cout_annuel)}</p>
-                            {filiere.cout_description && (
-                              <p className="text-xs text-muted-foreground mt-1">{filiere.cout_description}</p>
-                            )}
-                          </div>
-                          <div className="rounded-lg bg-accent/50 p-3">
-                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t("universityDetails.language")}</p>
-                            <p className="font-medium">{filiere.langue || t("universityDetails.notSpecified")}</p>
-                          </div>
-                          <div className="rounded-lg bg-accent/50 p-3">
-                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{t("universityDetails.employmentRate")}</p>
-                            <p className="font-medium">{filiere.taux_emploi ? `${Math.round(filiere.taux_emploi)}%` : t("universityDetails.notSpecifiedValue")}</p>
-                          </div>
-                        </div>
-                        {filiere.parcours && filiere.parcours.length > 0 && (
-                          <div className="mt-4">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                              {t("universityDetails.programs")}
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {filiere.parcours.map((parcours) => (
-                                <span key={parcours.id} className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                                  {parcours.nom}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-2 lg:w-56">
-                        <Button
-                          variant={isSaved ? "default" : "outline"}
-                          onClick={() => toggleFavorite(filiere.id)}
-                          disabled={savingId === filiere.id}
-                        >
-                          <Heart className={`mr-1 h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
-                          {isSaved ? t("universityDetails.saved") : t("universityDetails.save")}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <FiliereCard
+                    key={filiere.id}
+                    filiere={filiere}
+                    isSaved={isSaved}
+                    onToggleFavorite={() => toggleFavorite(filiere.id)}
+                    recommendation={recommendation}
+                    isSaving={savingId === filiere.id}
+                  />
                 );
               })
             )}

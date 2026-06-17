@@ -79,14 +79,25 @@ export function FiliereCard({
   ].filter(Boolean);
 
   return (
-    <div className="rounded-xl border bg-card p-6 shadow-card hover:shadow-md transition-shadow">
+    <div className={`rounded-xl border p-6 shadow-card hover:shadow-lg transition-all ${
+      recommendation
+        ? "bg-gradient-to-r from-primary/5 to-primary/10 border-primary/30"
+        : "bg-card"
+    }`}>
       {/* Indicateur de recommandation */}
       {recommendation && (
-        <div className="mb-4 rounded-lg bg-primary/5 border border-primary/20 p-3 flex items-center gap-2">
-          <Zap className="h-4 w-4 text-primary flex-shrink-0" />
-          <p className="text-xs font-semibold text-primary">
-            Recommandée ({Math.round(score)}%)
-          </p>
+        <div className="mb-4 rounded-lg bg-primary/10 border border-primary/30 p-3 flex items-center gap-2">
+          <div className="flex-shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
+            <Zap className="h-3.5 w-3.5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-bold text-primary">
+              Recommandée pour vous
+            </p>
+            <p className="text-xs text-primary/80">
+              Compatibilité: {Math.round(score)}%
+            </p>
+          </div>
         </div>
       )}
 

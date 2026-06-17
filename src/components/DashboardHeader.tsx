@@ -1,6 +1,6 @@
 import { useI18n } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
-import { getCurrentUser } from "@/lib/api";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -28,7 +28,7 @@ const DashboardHeader = ({ count, countLabel }: DashboardHeaderProps) => {
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
   const location = useLocation();
-  const user = getCurrentUser();
+  const user = useCurrentUser();
 
   const pageConfig = dashboardPages[location.pathname] || {
     titleKey: "dashboard.pages.dashboard.title",
@@ -154,36 +154,47 @@ const DashboardHeader = ({ count, countLabel }: DashboardHeaderProps) => {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-12 px-3 hover:bg-accent transition-colors flex items-center gap-2"
+                className="h-12 px-3 hover:bg-accent transition-colors flex items-center gap-3"
               >
-                <Avatar className="h-9 w-9">
-                  <AvatarImage
-                    src={user?.photo || user?.avatar_url || `https://avatar.vercel.sh/${user?.email}`}
+                {user?.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
                     alt={`${user?.prenom} ${user?.nom}`}
+                    className="h-9 w-9 rounded-full object-cover"
                   />
-                  <AvatarFallback className="bg-primary/20 text-primary text-sm font-semibold">
-                    {getInitials(user?.nom, user?.prenom)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium hidden sm:inline">{user?.prenom}</span>
+                ) : (
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="bg-primary/20 text-primary text-sm font-semibold">
+                      {getInitials(user?.nom, user?.prenom)}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex flex-col text-left hidden sm:flex">
+                  <span className="text-xs font-medium text-muted-foreground">Connecté</span>
+                  <span className="text-sm font-semibold">{user?.prenom}</span>
+                </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-auto">
+            <DropdownMenuContent align="end" className="w-56">
               <div className="flex items-center gap-3 px-4 py-3">
-                <Avatar className="h-10 w-10 shrink-0">
-                  <AvatarImage
-                    src={user?.photo || user?.avatar_url || `https://avatar.vercel.sh/${user?.email}`}
+                {user?.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
                     alt={`${user?.prenom} ${user?.nom}`}
+                    className="h-12 w-12 rounded-full object-cover shrink-0"
                   />
-                  <AvatarFallback className="bg-primary/20 text-primary font-semibold">
-                    {getInitials(user?.nom, user?.prenom)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <p className="text-sm font-semibold">
+                ) : (
+                  <Avatar className="h-12 w-12 shrink-0">
+                    <AvatarFallback className="bg-primary/20 text-primary font-semibold text-lg">
+                      {getInitials(user?.nom, user?.prenom)}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex flex-col min-w-0">
+                  <p className="text-sm font-bold text-foreground">
                     {user?.prenom} {user?.nom}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground truncate">
                     {user?.email}
                   </p>
                 </div>
@@ -191,7 +202,7 @@ const DashboardHeader = ({ count, countLabel }: DashboardHeaderProps) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/dashboard/profile" className="cursor-pointer">
-                  <div className="w-full flex items-center justify-center gap-2">
+                  <div className="w-full flex items-center gap-2">
                     <User className="h-4 w-4" />
                     <span>{t("dashboard.sidebar.profile")}</span>
                   </div>
